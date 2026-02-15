@@ -148,6 +148,78 @@ fe: script.js → window.location.href = '/index.html'
 
 ---
 
+## สรุป req (request) ทั้งหมดที่ใช้ในโปรเจคนี้
+
+HTTP request เหมือนจดหมาย มีหลายส่วน:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  URL      → ที่อยู่ผู้รับ         เช่น /login, /files     │
+│  Method   → ประเภทจดหมาย       เช่น GET, POST, DELETE  │
+│  Headers  → ข้อมูลบนซอง         เช่น Authorization      │
+│─────────────────────────────────────────────────────────│
+│  Body     → เนื้อหาในจดหมาย     เช่น { username, password } │
+└─────────────────────────────────────────────────────────┘
+```
+
+### req.body — เนื้อหาที่ client ส่งมา
+- client ส่ง JSON มา เช่น `{ "username": "admin", "password": "admin123" }`
+- server ดึงใช้ผ่าน `req.body.username`, `req.body.password`
+- เขียนสั้นๆ ด้วย destructuring: `const { username, password } = req.body;`
+- **สำคัญ:** ต้องมี `app.use(express.json())` ก่อน ไม่งั้น req.body = undefined
+- ใช้กับ POST, PUT, DELETE (method ที่ส่งข้อมูลมา)
+- GET ไม่มี body (แค่ขอดู ไม่ได้ส่งข้อมูลมา)
+
+### req.params — ค่าที่อยู่ใน URL path
+- กำหนด route เป็น `/download/:filename`
+- ถ้า client เรียก `/download/cat.jpg`
+- `req.params.filename` = `"cat.jpg"`
+- `:filename` คือ placeholder — express จับค่าจาก URL ให้อัตโนมัติ
+
+### req.headers — ข้อมูลบนซอง (metadata)
+- client ส่ง header มาพร้อม request เช่น `Authorization: "Bearer eyJhbG..."`
+- server ดึงใช้ผ่าน `req.headers.authorization`
+- ใช้สำหรับส่ง token ยืนยันตัวตนหลัง login
+
+### req.user — ข้อมูล user (เราสร้างเอง)
+- ไม่ได้มีมาตั้งแต่แรก — เราใส่เองใน middleware หลัง verify token
+- middleware ตรวจ token → ถอดข้อมูลออกมา → ใส่ `req.user = { id, username, role }`
+- route ถัดไปเรียกใช้ `req.user.username` ได้เลย เพื่อรู้ว่าใครส่ง request มา
+
+### req.file — ไฟล์ที่ upload มา (จาก multer)
+- ใช้กับ `upload.single('file')` middleware
+- `req.file.filename` = ชื่อไฟล์ที่เก็บ
+- `req.file.originalname` = ชื่อไฟล์ต้นฉบับ
+
+### สรุปสั้น
+| ใช้อะไร | ได้อะไร | ตัวอย่าง |
+|---------|---------|----------|
+| `req.body` | ข้อมูล JSON ที่ส่งมา | `{ username, password }` |
+| `req.params` | ค่าจาก URL | `/download/:filename` → `req.params.filename` |
+| `req.headers` | header เช่น token | `req.headers.authorization` |
+| `req.user` | ข้อมูล user (ใส่เองใน middleware) | `{ id, username, role }` |
+| `req.file` | ไฟล์ upload (จาก multer) | `req.file.filename` |
+
+### เสริม: express.json() คืออะไร?
+```js
+app.use(express.json());
+```
+- client ส่งข้อมูลมาเป็น JSON string: `'{"username":"admin"}'`
+- express.json() แปลงให้เป็น JavaScript object อัตโนมัติ
+- ถ้าไม่มี → req.body = undefined → ดึงข้อมูลไม่ได้
+
+### เสริม: destructuring คืออะไร?
+```js
+// เขียนยาว
+const username = req.body.username;
+const password = req.body.password;
+
+// เขียนสั้น (destructuring) — ได้ผลเหมือนกัน
+const { username, password } = req.body;
+```
+
+---
+
 ## บทบาทผู้ช่วย (Claude)
 
 - สร้างโค้ดตัวอย่างพร้อม comment ให้แกะ

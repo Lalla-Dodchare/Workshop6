@@ -6,7 +6,7 @@ const path = require('path');
 const app = express();
 const port = 5000;
 const jwt = require('jsonwebtoken');
-const SECRET_KEY ='workshop6-secret-key'
+const SECRET_KEY ='workshop6-secret-ke'
 
 app.use(cors());
 app.use(express.json()); // ให้อ่าน JSON body ได้ (สำหรับ login)
@@ -22,22 +22,29 @@ const users = [
 ];
 
 // ===== API Login =====
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+app.post('/login', (req, res) =>{
+    const { username, password  } = req.body;
+
+    const user = users.find(u => u.username === 'admin' && u.password === 'admin123' && u.role.'admin')
+})
+
+
+// app.post('/login', (req, res) => {
+//     const { username, password } = req.body;
 
     // หา user ที่ตรงกับ username + password
-    const user = users.find(u => u.username === username && u.password === password);
+    // const user = users.find(u => u.username === username && u.password === password);
 
-    if (!user) {
-        return res.status(401).json({ error: 'username หรือ password ไม่ถูกต้อง' });
-    }
+    // if (!user) {
+    //     return res.status(401).json({ error: 'username หรือ password ไม่ถูกต้อง' });
+    // }
 
     // ส่งข้อมูล user กลับ (ไม่ส่ง password กลับไป)
-    res.json({
-        message: 'Login สำเร็จ',
-        user: { id: user.id, username: user.username, role: user.role }
-    });
-});
+//     res.json({
+//         message: 'Login สำเร็จ',
+//         user: { id: user.id, username: user.username, role: user.role }
+//     });
+// });
 
 // ===== ตั้งค่าที่เก็บไฟล์อัปโหลด =====
 const storage = multer.diskStorage({
