@@ -4,7 +4,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const app = express();
-const port = 5000;
+const port = 3000;
 const jwt = require('jsonwebtoken');
 const SECRET_KEY ='workshop6-secret-ke'
 
