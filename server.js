@@ -21,30 +21,28 @@ const users = [
     { id: 3, username: 'user2', password: 'user123', role: 'user' },
 ];
 
-// ===== API Login =====
-app.post('/login', (req, res) =>{
-    const { username, password  } = req.body;
+// ===== API Login (ชั่วคราว — ยังไม่มี middleware ตรวจ token, ยังไม่แยกโฟลเดอร์ตาม user) =====
+app.post('/login', (req, res) => {
+    // step 1: ดึง username, password จาก body ที่ client ส่งมา
+    const { username, password } = req.body;
 
-    const user = users.find(u => u.username === 'admin' && u.password === 'admin123' && u.role.'admin')
-})
+    // step 2: หาใน array users ว่ามี user ที่ตรงกับ username + password มั้ย
+    const user = users.find(u => u.username === username && u.password === password);
 
+    // step 3: ถ้าไม่เจอ → ส่ง error กลับ
+    if (!user) {
+        return res.status(401).json({ error: 'username หรือ password ไม่ถูกต้อง' });
+    }
 
-// app.post('/login', (req, res) => {
-//     const { username, password } = req.body;
+    // step 4: ถ้าเจอ → สร้าง token ฝัง id, username, role ลงไป
+    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, SECRET_KEY);
 
-    // หา user ที่ตรงกับ username + password
-    // const user = users.find(u => u.username === username && u.password === password);
-
-    // if (!user) {
-    //     return res.status(401).json({ error: 'username หรือ password ไม่ถูกต้อง' });
-    // }
-
-    // ส่งข้อมูล user กลับ (ไม่ส่ง password กลับไป)
-//     res.json({
-//         message: 'Login สำเร็จ',
-//         user: { id: user.id, username: user.username, role: user.role }
-//     });
-// });
+    // step 5: ส่ง token + ข้อมูล user กลับไปให้ client (ไม่ส่ง password กลับ)
+    res.json({
+        token,
+        user: { id: user.id, username: user.username, role: user.role }
+    });
+});
 
 // ===== ตั้งค่าที่เก็บไฟล์อัปโหลด =====
 const storage = multer.diskStorage({
