@@ -77,7 +77,7 @@
 
 ## สิ่งที่ต้องทำ (ละเอียด)
 
-### 1. middleware ตรวจ token (server.js)
+### 1. middleware ตรวจ token (server.js) — Claude อธิบายแล้ว + ตัวอย่างข้างล่าง
 
 ทุก route หลัง login ต้องเช็คว่า client ส่ง token มาด้วยหรือเปล่า
 
@@ -89,6 +89,55 @@ client ส่ง request มา
   → ถ้าผิด → res.status(401)
 ```
 
+**middleware คืออะไร?**
+เหมือน "ยามหน้าประตู" — ทุก request ต้องผ่านยามก่อนถึงจะไปถึง route จริง
+function middleware รับ 3 ตัว: `(req, res, next)`
+- `req` = ข้อมูลที่ client ส่งมา
+- `res` = ใช้ส่งคำตอบกลับ
+- `next()` = บอกว่า "ผ่านแล้ว ไปทำ route ต่อเลย"
+
+**JWT มี 3 ส่วน** (คั่นด้วยจุด `.`):
+```
+eyJhbGciOiJI.eyJpZCI6MSwidXNl.SflKxwRJSMeKKF2
+|-- Header --|-- Payload -------|-- Signature --|
+```
+- Header = บอก algorithm ที่ใช้เข้ารหัส
+- Payload = ข้อมูลที่ฝังไว้ (id, username, role)
+- Signature = ลายเซ็น สร้างจาก SECRET_KEY — เอาไว้เช็คว่าถูกแก้มั้ย
+
+client ส่ง token ทั้งก้อน (3 ส่วนรวมกัน) มาใน header → server ใช้ `jwt.verify()` แกะให้อัตโนมัติ
+
+**SECRET_KEY คืออะไร?**
+รหัสลับที่มีแค่ server รู้ เหมือนตราประทับบริษัท:
+- ตอน login → ใช้ `jwt.sign()` ประทับตราลงบนบัตร (สร้าง token)
+- ตอนเช็ค → ใช้ `jwt.verify()` ดูว่าตราตรงมั้ย (เช็ค token)
+- ถ้าไม่มี SECRET_KEY → ใครก็ปลอม token ได้
+
+**ตัวอย่างโค้ด authenticateToken:**
+```js
+function authenticateToken(req, res, next) {
+    // ขั้น 1: ดึง header Authorization → ได้ "Bearer eyJhbG..."
+    const authHeader = req.headers['authorization'];
+    // แยกเอาเฉพาะ token (ส่วนหลัง "Bearer ")
+    const token = authHeader && authHeader.split(' ')[1];
+
+    // ขั้น 2: ถ้าไม่มี token เลย → ไล่กลับ 401
+    if (!token) return res.status(401).json({ error: 'ไม่มี token' });
+
+    // ขั้น 3: เช็คว่า token ถูกมั้ย
+    jwt.verify(token, SECRET_KEY, (err, decoded) => {
+        if (err) return res.status(403).json({ error: 'token ไม่ถูกต้อง' });
+        // decoded = ข้อมูลที่ฝังไว้ตอน login { id, username, role }
+        req.user = decoded;  // เก็บไว้ให้ route ข้างหลังใช้ต่อ
+        next();              // ผ่านแล้ว ไปต่อ
+    });
+}
+```
+
+**หมายเหตุ:**
+- อย่าใส่ `const jwt = jwt.verify(...)` → jwt เป็นชื่อ library ที่ require มาแล้ว ถ้าประกาศใหม่จะทับตัวเดิม!
+- วาง function นี้ไว้หลัง login route (บรรทัด 45) แต่ก่อน route upload/files/download
+
 สร้าง function `authenticateToken` แล้วใส่ก่อน route ที่ต้องการป้องกัน:
 ```js
 // ใส่ไว้หลัง login route, ก่อน upload/files/download/delete route
@@ -96,7 +145,7 @@ app.post('/upload', authenticateToken, upload.single('file'), ...)
 app.get('/files', authenticateToken, ...)
 ```
 
-### 2. แก้ upload — แยกโฟลเดอร์ตาม user (server.js)
+### 2. แก้ upload — แยกโฟลเดอร์ตาม user (server.js) — Claude อธิบายแล้ว
 
 ตอนนี้ไฟล์ทุก user ไปอยู่ใน `uploads/` รวมกัน → ต้องแยกเป็น:
 ```
@@ -109,8 +158,58 @@ uploads/
     └── notes.txt
 ```
 
-แก้ multer destination ให้ใช้ `req.user.username` สร้างโฟลเดอร์แยก
-**สำคัญ:** ต้องมี middleware ตรวจ token ก่อนถึงจะมี req.user
+**วิธีทำ:** เปลี่ยน multer destination จาก string ตายตัว → เป็น function
+
+**ตัวอย่างโค้ด:**
+```js
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const userFolder = path.join('uploads', req.user.username);
+        fs.mkdirSync(userFolder, { recursive: true });
+        cb(null, userFolder);
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname);
+    }
+});
+```
+
+**อธิบายทีละตัว:**
+
+`destination: (req, file, cb) => { ... }`
+- `req` = request — ข้อมูลที่ client ส่งมา (รวมถึง req.user ที่ได้จาก token)
+- `file` = ไฟล์ที่กำลังอัปโหลด (มี file.originalname, file.size ฯลฯ)
+- `cb` = callback — function ที่ใช้บอก multer ว่าเก็บไฟล์ไว้ที่ไหน เรียกแบบ `cb(error, ค่า)`
+
+`path.join('uploads', req.user.username)`
+- `path` = library ของ Node.js สำหรับจัดการเส้นทางไฟล์
+- `.join()` = เอาหลายส่วนมาต่อกันเป็น path ที่ถูกต้อง
+- ผลลัพธ์: `uploads/user1`
+
+`fs.mkdirSync(userFolder, { recursive: true })`
+- `fs` = library ของ Node.js สำหรับจัดการไฟล์/โฟลเดอร์
+- `.mkdirSync()` = สร้างโฟลเดอร์ (mkdir = make directory, Sync = รอจนเสร็จ)
+- `{ recursive: true }` = ถ้า parent folder ยังไม่มี → สร้างให้ด้วย
+
+`cb(null, userFolder)`
+- ตัวแรก `null` = ไม่มี error
+- ตัวที่สอง = บอก multer ว่าเก็บไฟล์ไว้ที่โฟลเดอร์นี้
+
+**สำคัญ:** ต้องใส่ `authenticateToken` ใน route ด้วย ไม่งั้น req.user จะ undefined!
+```js
+app.post('/upload', authenticateToken, upload.single('file'), ...)
+app.get('/files', authenticateToken, ...)
+app.get('/download/:filename', authenticateToken, ...)
+```
+
+route `/files` กับ `/download` ก็ต้องแก้ path ให้ชี้ไปโฟลเดอร์ของ user:
+```js
+// /files → อ่านเฉพาะโฟลเดอร์ของ user คนนั้น
+fs.readdir(path.join('uploads', req.user.username), ...)
+
+// /download → ดาวน์โหลดจากโฟลเดอร์ของ user
+path.join(__dirname, 'uploads', req.user.username, req.params.filename)
+```
 
 ### 3. วาง layout หน้า User (page/user/home.html)
 

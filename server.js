@@ -44,9 +44,28 @@ app.post('/login', (req, res) => {
     });
 });
 
+function authenticateToken(req, res, next){
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]
+
+    if(!token) return res.status(401).json({ error: 'ไม่มี token'});
+
+    jwt.verify(token, SECRET_KEY, (err, decoded) => {
+        if (err) return res.status(403).json({ error: 'token ไม่ถูกต้อง'});
+        req.user = decoded;
+        next();
+    });
+}
+
+
+
 // ===== ตั้งค่าที่เก็บไฟล์อัปโหลด =====
 const storage = multer.diskStorage({
-    destination: 'uploads/',
+    destination: (req, file, cb) =>{
+        const userFolder = path.join('uploads', req.user.username);
+        fs.mkdirSync(userFolder, {recursive: true});
+        cb(null,userFolder);
+    },
     filename: (req, file, cb) => {
         cb(null, file.originalname);
     }
@@ -54,21 +73,21 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // อัปโหลดไฟล์จาก Client -> Server
-app.post('/upload', upload.single('file'), (req, res) => {
+app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
     res.json({ message: 'File uploaded successfully', filename: req.file.filename });
 });
 
 // แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
-app.get('/files', (req, res) => {
-    fs.readdir('uploads', (err, files) => {
+app.get('/files', authenticateToken, (req, res) => {
+    fs.readdir(path.join('uploads', req.user.username), (err, files) => {
         if (err) return res.status(500).json({ error: 'Unable to list files' });
         res.json(files);
     });
 });
 
 // ให้ Client ดาวน์โหลดไฟล์จาก Server
-app.get('/download/:filename', (req, res) => {
-    const filePath = path.join(__dirname, 'uploads', req.params.filename);
+app.get('/download/:filename', authenticateToken, (req, res) => {
+    const filePath = path.join(__dirname, 'uploads', req.user.username, req.params.filename);
     res.download(filePath);
 });
 
