@@ -8,47 +8,35 @@
 </head>
 <body class="bg-gray-100 min-h-screen p-8">
     <!-- ชั่วคราว — แค่หน้าเปล่าๆ ไว้รับ redirect จาก login -->
-    <div class="bg-white p-8 rounded-2xl shadow-lg text-center">
-        <h1 class="text-2xl font-bold mb-4">Admin Dashboard</h1>
-        <p class="text-gray-500 mb-6">login สำเร็จ! (หน้านี้ยังไม่มีอะไร — รอทำต่อ)</p>
-        <button onclick="logout()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition cursor-pointer">
+    <div class="mb-10 text-center">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Admin Dashboard</h1>
+        <div class="flex justify-center mb-12">
+         <!-- <p class="text-gray-500 mb-6"></p> -->
+         <button onclick="logout()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition cursor-pointer">
             Logout
-        </button>
-        <table class="">
-            <thead>
-                <tr>
-                    <th>ชื่อไฟล์</th>
-                    <th>เจ้าของ</th>
-                    <th>Download</th>
-                    <th>ลบ</th>
+         </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse bg-white rounded-xl overflow-hidden shadow-sm">
+            <thead class="bg-white text-gray-800 uppercase text-xs border-b-2 border-gray-100">
+                <tr class="border-b">
+                    <th class="py-3 px-6 text-left font-bold">ชื่อไฟล์</th>
+                    <th class="py-3 px-6 text-left font-bold">เจ้าของ</th>
+                    <th class="py-3 px-6 text-left font-bold">Download</th>
+                    <th class="py-3 px-6 text-left font-bold">ลบ</th>
                 </tr>
             </thead>
 
-            <tbody>
-                <tr>
-                    <td>report.pdf</td>
-                    <td>user1</td>
-                    <td><button>Download</button></td>
-                    <td><button>ลบ</button></td>
+            <tbody id="dataTable" class="">
+                <tr class="py-3 px-6 text-left text-sm">
+
                 </tr>
-
-                <tr>
-                    <td>photo.jpg</td>    
-                    <td>user2</td>
-                    <td><button>Download</button></td>
-                    <td><button>ลบ</button></td>
-                </tr>
-
-                <tr>
-                    <td>notes.txt</td>
-                    <td>user3</td>
-                    <td><button>Download</button></td>
-                    <td><button>ลบ</button></td>
-                </tr>
-
-
             </tbody>
+
         </table>
+        </div>
+        
     </div>
 
     
@@ -58,6 +46,8 @@
             window.location.href = '/index.html';
         }
     </script>
+
+    <script src="admin.js"></script>
 </body>
-<script src="admin.js"></script>
+
 </html>

@@ -89,6 +89,7 @@ app.get('/files', authenticateToken, (req, res) => {
 app.get('/download/:filename', authenticateToken, (req, res) => {
     const filePath = path.join(__dirname, 'uploads', req.user.username, req.params.filename);
     res.download(filePath);
+
 });
 
 // เริ่มเซิร์ฟเวอร์
