@@ -5,8 +5,8 @@ if (!token) {
 }
 
 // ปุ่ม Download
-async function download(filename) {
-    const res = await fetch('/download/' + filename, {
+async function download(filename, owner) {
+    const res = await fetch('/download/' + owner + '/' + filename, {
         headers : { 'Authorization': 'Bearer ' + token }
     });
 
@@ -39,19 +39,19 @@ async function loadFiles() {
   files.forEach(function(file) {
     dataTable.innerHTML += `
     <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-        <td class="py-3 px-6 text-left text-sm text-gray-700 font-medium">${ file }</td>
+        <td class="py-3 px-6 text-left text-sm text-gray-700 font-medium">${file.filename}</td>
         
-        <td class="py-3 px-6 text-left text-sm text-gray-500">admin</td>
+        <td class="py-3 px-6 text-left text-sm text-gray-500">${file.owner}</td>
         
         <td class="py-3 px-6 text-center">
-            <button onclick="download('${file}')" 
+            <button onclick="download('${file.filename}', '${file.owner}')" 
                 class="bg-blue-500 hover:bg-blue-600 text-white text-xs py-1.5 px-4 rounded shadow-sm transition duration-200">
                 Download
             </button>
         </td>
         
         <td class="py-3 px-6 text-center">
-            <button onclick="deleteFile('${file}')" 
+            <button onclick="deleteFile('${file.filename}','${file.owner}')" 
                 class="bg-red-500 hover:bg-red-600 text-white text-xs py-1.5 px-4 rounded shadow-sm transition duration-200">
                 ลบ
             </button>
@@ -66,9 +66,9 @@ loadFiles();
 
 
 // function ลบไฟล์
- async function deleteFile(filename) {
+ async function deleteFile(filename, owner) {
     if (!confirm('ลบไฟล์' + filename + 'จริงไหม')) return;
-    const fileDelete = '/files/' + filename;
+    const fileDelete = '/files/' + owner + '/' + filename;
     await fetch(fileDelete, {
         method: 'delete',
         headers : { 'Authorization': 'Bearer ' + token }

@@ -78,12 +78,59 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
 });
 
 // แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
+// app.get('/files', authenticateToken, (req, res) => {
+//     fs.readdir(path.join('uploads', req.user.username), (err, files) => {
+//         if (req.user.role === 'admin') {
+//             fs.readdir('uploads/req.user.username')
+//             res.json({ filename: "report.pdf", owner: "user1" })
+//         } else {
+//             fs.readdir(path.join('uploads', req.user.username));
+//         }
+//         res.json(files);
+//     })
+// });
+
+
+
+
+// แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
 app.get('/files', authenticateToken, (req, res) => {
-    fs.readdir(path.join('uploads', req.user.username), (err, files) => {
-        if (err) return res.status(500).json({ error: 'Unable to list files' });
-        res.json(files);
-    });
+    if (req.user.role === 'admin') {
+        const uploadsDir = path.join(__dirname, 'uploads');
+        fs.readdir(uploadsDir, (err, folders) => {
+            if (err) return res.status(500).json({ error: 'Unable to list files' });
+            const allFiles = [];
+            folders.forEach(folder => {
+                const folderPath = path.join(uploadsDir, folder);
+                if (fs.statSync(folderPath).isDirectory()) {
+                    const files = fs.readdirSync(folderPath);
+                    files.forEach(file => {
+                        allFiles.push({ filename: file, owner: folder });
+                    });
+                }
+            });
+            res.json(allFiles);
+        });
+    } else {
+        fs.readdir(path.join('uploads', req.user.username), (err, files) => {
+            if (err) return res.status(500).json({ error: 'Unable to list files' });
+            res.json(files);
+        });
+    }
 });
+
+
+
+
+// Download สำหรับ admin 
+app.get('/download/:owner/:filename', authenticateToken, (req, res) => {
+    const filePath = path.join(__dirname, 'uploads', req.params.owner, req.params.filename);
+    res.download(filePath);
+});
+
+
+
+
 
 // ให้ Client ดาวน์โหลดไฟล์จาก Server
 app.get('/download/:filename', authenticateToken, (req, res) => {
@@ -92,12 +139,22 @@ app.get('/download/:filename', authenticateToken, (req, res) => {
 
 });
 
+
+// Delete สำหรับ  user
 app.delete('/files/:filename', authenticateToken, (req, res) => {
-    const fileDelete = path.join(__dirname, 'uploads', req.user.username, res.params.filename);
+    const fileDelete = path.join(__dirname, 'uploads', req.user.username, req.params.filename);
     fs.unlinkSync(fileDelete);
     res.json({ message: 'ลบสำเร็จ' });
 })
 
+
+
+// Delete สำหรับ admin
+app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
+    const fileDelete = path.join(__dirname, 'uploads', req.params.owner, req.params.filename);
+    fs.unlinkSync(fileDelete);
+    res.json({ message: 'ลบสำเร็จ'});
+})
 
 
 
