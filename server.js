@@ -92,6 +92,16 @@ app.get('/download/:filename', authenticateToken, (req, res) => {
 
 });
 
+app.delete('/files/:filename', authenticateToken, (req, res) => {
+    const fileDelete = path.join(__dirname, 'uploads', req.user.username, res.params.filename);
+    fs.unlinkSync(fileDelete);
+    res.json({ message: 'ลบสำเร็จ' });
+})
+
+
+
+
+
 // เริ่มเซิร์ฟเวอร์
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}  ไอสาส`);
