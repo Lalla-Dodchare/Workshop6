@@ -112,6 +112,30 @@
             a.click();
         }
 
+        async function deleteFile(filename){
+            if (!confirm('ลบไฟล์ ' + filename + ' จริงๆไหม?')) return;
+            await fetch('/files/' + filename, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token}
+            });
+            loadFiles();
+        }
+
+        document.getElementById('fileInput').addEventListener('change', (e) =>{
+            const file = e.target.files[0];
+            const preview = document.getElementById('preview');
+
+            if (file && file.type.startsWith('image/')){
+                const reader = new FileReader();
+                reader.onload = (e) =>{
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
