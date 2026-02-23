@@ -9,7 +9,7 @@
 <body class="bg-gray-100 min-h-screen">
     <!-- แถบด้านบน -->
     <div class="flex justify-between items-center bg-white p-4 shadow">
-        <h1 class="text-xl font-bold">File Manager</h1>
+        <h1 class="text-xl font-bold" id="tokenname">File Manager</h1>
         <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition cursor-pointer">
             Logout
         </button>
@@ -55,6 +55,8 @@
     if (!token) {
     window.location.href = '/index.html';
     }
+    const tokenname = localStorage.getItem('tokenname');
+    document.getElementById('tokenname').textContent = 'File Manager -' + tokenname;
 
     function loadFiles(){
         fetch('/files',{

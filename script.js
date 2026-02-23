@@ -26,7 +26,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 
     // ถ้า login สำเร็จ → เก็บ token ใน localStorage
-    localStorage.setItem('token', data.token);
+    localStorage.setItem('token', data.token );
+    localStorage.setItem('tokenname', data.user.username);
+
 
     // redirect ตาม role
     if (data.user.role === 'admin') {
