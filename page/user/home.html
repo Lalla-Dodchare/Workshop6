@@ -97,6 +97,8 @@
             .then(data =>{
                 alert(data.message);
                 loadFiles();
+                fileInput.value = '';
+                document.getElementById('preview').classList.add('hidden');
             })
         })
 

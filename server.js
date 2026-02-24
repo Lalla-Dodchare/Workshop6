@@ -96,7 +96,7 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
 // แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
 app.get('/files', authenticateToken, (req, res) => {
     if (req.user.role === 'admin') {
-        const uploadsDir = path.join(__dirname, 'uploads');
+        const uploadsDir = 'uploads';
         fs.readdir(uploadsDir, (err, folders) => {
             if (err) return res.status(500).json({ error: 'Unable to list files' });
             const allFiles = [];
@@ -155,6 +155,7 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
     fs.unlinkSync(fileDelete);
     res.json({ message: 'ลบสำเร็จ'});
 })
+
 
 
 
