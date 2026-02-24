@@ -131,7 +131,6 @@ app.get('/download/:owner/:filename', authenticateToken, (req, res) => {
 
 
 
-
 // ให้ Client ดาวน์โหลดไฟล์จาก Server
 app.get('/download/:filename', authenticateToken, (req, res) => {
     const filePath = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
@@ -140,7 +139,7 @@ app.get('/download/:filename', authenticateToken, (req, res) => {
 });
 
 
-// Delete สำหรับ  user
+// Delete สำหรับ  userz
 app.delete('/files/:filename', authenticateToken, (req, res) => {
     const fileDelete = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
     fs.unlinkSync(fileDelete);
