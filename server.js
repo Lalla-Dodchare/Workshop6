@@ -6,10 +6,14 @@ const path = require('path');
 const app = express();
 const port = 3000;
 const jwt = require('jsonwebtoken');
+const morgan = require('morgan');
+// const { json } = require('stream/consumers');
 const SECRET_KEY ='workshop6-secret-ke'
 
 app.use(cors());
 app.use(express.json()); // ให้อ่าน JSON body ได้ (สำหรับ login)
+app.use(morgan('combined'));
+app.use(express.static());
 
 // serve ไฟล์ HTML ทั้งหมดจาก root (index.html, page/ folder)
 app.use(express.static(__dirname));
@@ -20,6 +24,17 @@ const users = [
     { id: 2, username: 'Peerapan Uaichai', password: 'user123', role: 'user' },
     { id: 3, username: 'Lalla Dodchare', password: 'user123', role: 'user' },
 ];
+
+
+// function logActivity() บันทึกว่า "ใคร ทำอะไร เมื่อไหร่" ลงไฟล์ logs.txt
+function logActivity(action, username, detail) {
+    const entry = {
+        timestamp : new Date().toISOString(),
+        action, username, detail
+    };
+    fs.appendFileSync('logs.txt', JSON.stringify(entry) + '\n');
+}
+
 
 // ===== API Login (ชั่วคราว — ยังไม่มี middleware ตรวจ token, ยังไม่แยกโฟลเดอร์ตาม user) =====
 app.post('/login', (req, res) => {
@@ -96,7 +111,7 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
 // แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
 app.get('/files', authenticateToken, (req, res) => {
     if (req.user.role === 'admin') {
-        const uploadsDir = 'uploads';
+        const uploadsDir = path.join(__dirname, 'uploads');
         fs.readdir(uploadsDir, (err, folders) => {
             if (err) return res.status(500).json({ error: 'Unable to list files' });
             const allFiles = [];
@@ -158,8 +173,10 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
 
 
 
-
 // เริ่มเซิร์ฟเวอร์
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}  ไอสาส`);
 });
+
+
+
