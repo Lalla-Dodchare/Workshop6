@@ -277,3 +277,163 @@ path.join(__dirname, 'uploads', req.user.username, req.params.filename)
 
 ถาม Claude ได้เลย — บอกว่า "ทำฝั่ง user + backend อยู่" จะได้ช่วยถูกจุด
 อ่าน TODO.md หัวข้อ "สรุป req" ด้วย มีอธิบาย req.body, req.params, req.headers ละเอียด
+
+---
+
+## งาน Extra (ทำเพิ่มเพื่อความโหด)
+
+> งานหลักเสร็จ 100% แล้ว ต่อไปนี้คือ feature เพิ่มเติมที่จะทำให้โปรเจคโดดเด่น
+
+### 1. ระบบสมัครสมาชิก (Register)
+- เพิ่มหน้า register.html หรือเพิ่ม form ใน index.html
+- เพิ่ม `POST /register` ใน server.js — รับ username/password แล้ว push เข้า users array
+- เช็ค username ซ้ำก่อน push
+
+### 2. Preview ไฟล์แบบดีๆ
+- รูปภาพ → แสดงใน `<img>` (ทำแล้ว แต่ทำให้สวยขึ้น — เพิ่ม modal popup)
+- PDF → แสดงใน `<iframe>` หรือ `<embed>`
+- ไฟล์อื่น → แสดงไอคอน + ชื่อไฟล์ + ขนาดไฟล์
+
+### 3. แชร์ไฟล์ให้คนอื่นได้ (Share)
+- เพิ่มปุ่ม Share ในตารางไฟล์
+- เพิ่ม `POST /share` ใน server.js — รับ filename + username ที่จะแชร์ให้
+- เก็บข้อมูลว่าใครแชร์ให้ใคร (เพิ่ม field `sharedBy` ใน response)
+- แสดงในตารางว่า "แชร์โดย username"
+
+### 4. Filter ชื่อไฟล์
+- เพิ่ม `<input type="text" id="searchInput">` เหนือตาราง
+- ใช้ `addEventListener('input', ...)` กรองแถวในตารางแบบ realtime
+- ไม่ต้องเรียก server ใหม่ — filter ใน JS ได้เลย
+
+### 5. UI สวย
+- เพิ่ม hover effect บนแถวตาราง
+- ปุ่ม Download/ลบ ใส่ Tailwind class สีสัน
+- แสดงขนาดไฟล์ในตาราง (ต้องให้ server.js ส่ง size มาด้วย)
+
+### 6. Backup (TAR + Gzip) — ฉันทำ
+
+**วิธีที่เลือก: TAR + Gzip (`.tar.gz`)**
+
+**เหตุผลที่เลือก:**
+- TAR รวมทั้งโฟลเดอร์เป็นก้อนเดียวแล้วค่อยบีบ → เห็น pattern ข้ามไฟล์ได้ → ผลลัพธ์เล็กกว่าบีบทีละไฟล์
+- Recovery ง่าย — แตกไฟล์เดียว ได้โครงสร้างโฟลเดอร์คืนมาทั้งหมด
+- เป็นมาตรฐานอุตสาหกรรม เปิดได้ทุก OS
+- ไม่ต้อง install native binding ที่อาจพังบน Windows
+
+**ใช้ library:** `archiver` (npm) สำหรับสร้าง backup, `tar` (npm) สำหรับแตก/กู้คืน
+
+#### ขั้นตอน
+
+- [ ] `npm install archiver tar`
+- [ ] สร้างโฟลเดอร์ `backups/`
+- [ ] สร้าง route `POST /backup` (admin เท่านั้น)
+  ```js
+  const archiver = require('archiver');
+
+  app.post('/backup', authenticateToken, (req, res) => {
+      if (req.user.role !== 'admin') return res.status(403).json({ error: 'ไม่มีสิทธิ์' });
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const backupFile = path.join(__dirname, 'backups', `${timestamp}.tar.gz`);
+
+      const output = fs.createWriteStream(backupFile);
+      const archive = archiver('tar', { gzip: true, zlib: { level: 9 } });
+
+      output.on('close', () => {
+          logActivity('BACKUP', req.user.username, backupFile);
+          res.json({ message: 'Backup สำเร็จ', file: backupFile, size: archive.pointer() });
+      });
+
+      archive.pipe(output);
+      archive.directory('./uploads', false);
+      archive.finalize();
+  });
+  ```
+- [ ] เพิ่มปุ่ม Backup ในหน้า admin dashboard
+
+#### ทริค
+
+- **ตั้งชื่อ backup ด้วย timestamp** — เช่น `2026-02-24T10-30-00.tar.gz` จะได้ไม่ทับกัน
+- **backup ก่อนทำอะไรอันตราย** — เช่น ก่อนลบไฟล์จำนวนมาก
+- **ประหยัดพื้นที่ ~60-65%** เมื่อเทียบกับ copy โฟลเดอร์ธรรมดา
+
+---
+
+### 7. Recovery (กู้คืนจาก Backup) — ฉันทำ
+
+**แนวคิด: แบ่งเป็น 2 กรณี**
+
+```
+กรณี A: กู้บางไฟล์ (1 ไฟล์ขึ้นไป แต่ไม่ครบทั้งหมด)
+    → แตกเฉพาะไฟล์ที่เลือก → ส่งกลับไป uploads/
+    → แพ็ค .tar.gz ใหม่ โดยไม่รวมไฟล์ที่กู้แล้ว
+
+กรณี B: กู้ทั้งหมด (เลือกครบทุกไฟล์)
+    → แตกทุกไฟล์ออกมา → ส่งกลับไป uploads/
+    → ลบ .tar.gz ทิ้งเลย (ไม่ต้องแพ็คใหม่)
+```
+
+**วิธีแยกกรณี:** นับจำนวนไฟล์ที่เลือก vs ไฟล์ทั้งหมดใน backup
+```js
+if (selectedFiles.length === totalFilesInBackup) {
+    // กรณี B — แตกหมด แล้วลบ .tar.gz ทิ้ง
+} else {
+    // กรณี A — แตกเฉพาะที่เลือก แล้วแพ็คใหม่
+}
+```
+
+#### ขั้นตอน
+
+- [ ] สร้าง route `GET /backup/:filename/list` — ดูรายการไฟล์ใน backup (ไม่ต้องแตก)
+  ```js
+  const tar = require('tar');
+
+  // ใช้ tar.t() เปิดดูว่ามีไฟล์อะไรบ้าง
+  app.get('/backup/:filename/list', authenticateToken, (req, res) => {
+      const files = [];
+      tar.t({
+          file: path.join(__dirname, 'backups', req.params.filename),
+          onReadEntry: entry => files.push({ path: entry.path, size: entry.size })
+      }).then(() => res.json(files));
+  });
+  ```
+- [ ] สร้าง route `POST /restore` — กู้คืนไฟล์ที่เลือก
+  ```js
+  app.post('/restore', authenticateToken, async (req, res) => {
+      const { backupFile, selectedFiles, totalFiles } = req.body;
+
+      // แตกเฉพาะไฟล์ที่เลือก กลับไป uploads/
+      await tar.x({
+          file: path.join(__dirname, 'backups', backupFile),
+          cwd: path.join(__dirname, 'uploads')
+      }, selectedFiles);
+
+      if (selectedFiles.length === totalFiles) {
+          // กรณี B — กู้ทั้งหมด → ลบ backup ทิ้ง
+          fs.unlinkSync(path.join(__dirname, 'backups', backupFile));
+      } else {
+          // กรณี A — กู้บางไฟล์ → แพ็ค backup ใหม่ (ไม่รวมไฟล์ที่กู้แล้ว)
+          // แตกทั้งหมดไป temp → ลบไฟล์ที่กู้แล้ว → แพ็คใหม่ → ลบ temp
+      }
+
+      logActivity('RESTORE', req.user.username, selectedFiles.join(', '));
+      res.json({ message: 'กู้คืนสำเร็จ', restored: selectedFiles.length });
+  });
+  ```
+- [ ] เพิ่ม UI ส่วนกู้คืน ในหน้า admin dashboard — แสดงรายการ backup + เลือกไฟล์กู้คืน
+
+#### ทริค
+
+- **ดูก่อนแตก** — ใช้ `tar.t()` list ไฟล์ใน backup ให้ user เลือกก่อน ไม่ต้องแตกทั้งก้อน
+- **กู้บางไฟล์ → แพ็คใหม่** — เอาไฟล์ที่เหลือแพ็คกลับเป็น .tar.gz ใหม่
+- **กู้ทั้งหมด → ลบ backup ทิ้ง** — ไม่ต้องเสียพื้นที่เก็บ backup ที่ว่างเปล่า
+
+#### ลำดับที่ควรทำ (Backup + Recovery)
+
+| ลำดับ | งาน | ความยาก |
+|-------|-----|---------|
+| 1 | `npm install archiver tar` | ง่ายมาก |
+| 2 | สร้างโฟลเดอร์ `backups/` | ง่ายมาก |
+| 3 | สร้าง route `POST /backup` (TAR + Gzip) | กลาง |
+| 4 | สร้าง route `GET /backup/:filename/list` | กลาง |
+| 5 | สร้าง route `POST /restore` (2 กรณี) | กลาง-ยาก |
+| 6 | เพิ่ม UI ปุ่ม backup + หน้ากู้คืน ใน dashboard | กลาง |

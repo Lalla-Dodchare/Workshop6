@@ -12,7 +12,8 @@
       "Bash(__NEW_LINE_7e993028161616c8__ echo \"=== 10. Delete ไฟล์ \\(user1 ลบของตัวเอง\\) ===\")",
       "Bash(__NEW_LINE_7e993028161616c8__ echo \"\")",
       "Bash(kill:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
