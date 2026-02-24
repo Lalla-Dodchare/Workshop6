@@ -3,7 +3,16 @@
     "allow": [
       "Bash(taskkill:*)",
       "Bash(node -e:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(ADMIN_TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MTMxMzEwMn0.kGsVW6dWDshLGhOLU1pvtI6xxb25oVB98rdMqxD30TE\")",
+      "Bash(__NEW_LINE_ef1d9a85fa7e0f74__ echo \"=== 2. Login as user1 ===\")",
+      "Bash(__NEW_LINE_ef1d9a85fa7e0f74__ echo \"\")",
+      "Bash(USER1_TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ1c2VyMSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzcxMzEzMTEyfQ.iHO8TvfARWVN7FYh_M6ZWMeVu9U4KjaaAXtPKnuUTCM\")",
+      "Bash(__NEW_LINE_7e993028161616c8__ echo \"=== 10. Delete ไฟล์ \\(user1 ลบของตัวเอง\\) ===\")",
+      "Bash(__NEW_LINE_7e993028161616c8__ echo \"\")",
+      "Bash(kill:*)",
+      "Bash(pkill:*)"
     ]
   }
 }

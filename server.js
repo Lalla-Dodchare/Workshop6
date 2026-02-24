@@ -17,8 +17,8 @@ app.use(express.static(__dirname));
 // ข้อมูล user (เก็บง่ายๆ ใน array — ไม่ต้องใช้ database)
 const users = [
     { id: 1, username: 'admin', password: 'admin123', role: 'admin' },
-    { id: 2, username: 'user1', password: 'user123', role: 'user' },
-    { id: 3, username: 'user2', password: 'user123', role: 'user' },
+    { id: 2, username: 'Peerapan Uaichai', password: 'user123', role: 'user' },
+    { id: 3, username: 'Lalla Dodchare', password: 'user123', role: 'user' },
 ];
 
 // ===== API Login (ชั่วคราว — ยังไม่มี middleware ตรวจ token, ยังไม่แยกโฟลเดอร์ตาม user) =====
@@ -62,7 +62,7 @@ function authenticateToken(req, res, next){
 // ===== ตั้งค่าที่เก็บไฟล์อัปโหลด =====
 const storage = multer.diskStorage({
     destination: (req, file, cb) =>{
-        const userFolder = path.join('uploads', req.user.username);
+        const userFolder = path.join('uploads', String(req.user.id));
         fs.mkdirSync(userFolder, {recursive: true});
         cb(null,userFolder);
     },
@@ -112,7 +112,7 @@ app.get('/files', authenticateToken, (req, res) => {
             res.json(allFiles);
         });
     } else {
-        fs.readdir(path.join('uploads', req.user.username), (err, files) => {
+        fs.readdir(path.join('uploads', String(req.user.id)), (err, files) => {
             if (err) return res.status(500).json({ error: 'Unable to list files' });
             res.json(files);
         });
@@ -134,7 +134,7 @@ app.get('/download/:owner/:filename', authenticateToken, (req, res) => {
 
 // ให้ Client ดาวน์โหลดไฟล์จาก Server
 app.get('/download/:filename', authenticateToken, (req, res) => {
-    const filePath = path.join(__dirname, 'uploads', req.user.username, req.params.filename);
+    const filePath = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
     res.download(filePath);
 
 });
@@ -142,7 +142,7 @@ app.get('/download/:filename', authenticateToken, (req, res) => {
 
 // Delete สำหรับ  user
 app.delete('/files/:filename', authenticateToken, (req, res) => {
-    const fileDelete = path.join(__dirname, 'uploads', req.user.username, req.params.filename);
+    const fileDelete = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
     fs.unlinkSync(fileDelete);
     res.json({ message: 'ลบสำเร็จ' });
 })

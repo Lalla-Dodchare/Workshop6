@@ -65,7 +65,7 @@ loadFiles();
 
 
 
-// function ลบไฟล์
+// function confim ลบไฟล์
  async function deleteFile(filename, owner) {
     if (!confirm('ลบไฟล์' + filename + 'จริงไหม')) return;
     const fileDelete = '/files/' + owner + '/' + filename;
