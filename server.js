@@ -44,6 +44,19 @@ app.post('/login', (req, res) => {
     });
 });
 
+    app.post('/register', (req, res) => {
+        const { username, password} = req.body;
+        const user = users.find(u => u.username === username);
+
+        if (user) {
+            return res.status(400).json({ error: 'username นี้มีคนใช้แล้ว'})
+        }
+        const newUser = { id: users.length + 1, username, password, role: 'user'};
+        users.push(newUser);
+        res.json({ message: 'สมัครสมาชิกสำเร็จ'});
+    })
+
+
 function authenticateToken(req, res, next){
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]
