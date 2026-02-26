@@ -13,7 +13,7 @@ const SECRET_KEY ='workshop6-secret-ke'
 app.use(cors());
 app.use(express.json()); // ให้อ่าน JSON body ได้ (สำหรับ login)
 app.use(morgan('combined'));
-app.use(express.static());
+
 
 // serve ไฟล์ HTML ทั้งหมดจาก root (index.html, page/ folder)
 app.use(express.static(__dirname));
@@ -46,16 +46,16 @@ app.post('/login', (req, res) => {
 
     // step 3: ถ้าไม่เจอ → ส่ง error กลับ
     if (!user) {
+        logActivity('LOGIN_FAILED', 'unknow', 'wrong credentials');
         return res.status(401).json({ error: 'username หรือ password ไม่ถูกต้อง' });
     }
 
     // step 4: ถ้าเจอ → สร้าง token ฝัง id, username, role ลงไป
     const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, SECRET_KEY);
-
+    logActivity('LOGIN_SUCCESS', user.id + ':' + user.username, user.role);
     // step 5: ส่ง token + ข้อมูล user กลับไปให้ client (ไม่ส่ง password กลับ)
     res.json({
-        token,
-        user: { id: user.id, username: user.username, role: user.role }
+        token, user: { id: user.id, username: user.username, role: user.role }
     });
 });
 
@@ -63,10 +63,18 @@ function authenticateToken(req, res, next){
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]
 
-    if(!token) return res.status(401).json({ error: 'ไม่มี token'});
+    if(!token) {
+        logActivity('AUTH_FAILED', 'unknow', 'No token');
+        return res.status(401).json({ error: 'ไม่มี token'});
+    }
+
+    
 
     jwt.verify(token, SECRET_KEY, (err, decoded) => {
-        if (err) return res.status(403).json({ error: 'token ไม่ถูกต้อง'});
+        if (err) {
+            logActivity('TOKEN_ERROR', 'unknow', 'Invalid token')
+            return res.status(403).json({ error: 'token ไม่ถูกต้อง'});
+        }
         req.user = decoded;
         next();
     });
@@ -89,8 +97,14 @@ const upload = multer({ storage });
 
 // อัปโหลดไฟล์จาก Client -> Server
 app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
+    logActivity('UPLOAD_SUCCESS', req.user.id + ':' + req.user.username, req.file.originalname);
     res.json({ message: 'File uploaded successfully', filename: req.file.filename });
 });
+
+
+
+
+
 
 // แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
 // app.get('/files', authenticateToken, (req, res) => {
@@ -140,6 +154,7 @@ app.get('/files', authenticateToken, (req, res) => {
 // Download สำหรับ admin 
 app.get('/download/:owner/:filename', authenticateToken, (req, res) => {
     const filePath = path.join(__dirname, 'uploads', req.params.owner, req.params.filename);
+    logActivity('DOWNLOAD', req.user.id + ':' + req.user.username, req.params.filename);
     res.download(filePath);
 });
 
@@ -149,8 +164,8 @@ app.get('/download/:owner/:filename', authenticateToken, (req, res) => {
 // ให้ Client ดาวน์โหลดไฟล์จาก Server
 app.get('/download/:filename', authenticateToken, (req, res) => {
     const filePath = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
+    logActivity('DOWNLOAD', req.user.id + ':' + req.user.username, req.params.filename);
     res.download(filePath);
-
 });
 
 
@@ -158,8 +173,9 @@ app.get('/download/:filename', authenticateToken, (req, res) => {
 app.delete('/files/:filename', authenticateToken, (req, res) => {
     const fileDelete = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
     fs.unlinkSync(fileDelete);
+    logActivity('DELETE', req.user.id + ':' + req.user.username, req.params.filename);
     res.json({ message: 'ลบสำเร็จ' });
-})
+});
 
 
 
@@ -167,6 +183,7 @@ app.delete('/files/:filename', authenticateToken, (req, res) => {
 app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
     const fileDelete = path.join(__dirname, 'uploads', req.params.owner, req.params.filename);
     fs.unlinkSync(fileDelete);
+    logActivity('DELETE', req.user.id + ':' + req.user.username, req.params.filename);
     res.json({ message: 'ลบสำเร็จ'});
 })
 
