@@ -34,9 +34,9 @@ async function loadFiles() {
     dataTable.innerHTML = '';
 
 
-
-
   files.forEach(function(file) {
+    files.map(f = f.owner)
+    new Set()
     dataTable.innerHTML += `
     <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
         <td class="py-3 px-6 text-left text-sm text-gray-700 font-medium">${file.filename}</td>
