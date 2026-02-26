@@ -33,10 +33,7 @@ async function loadFiles() {
     console.log(files);
     dataTable.innerHTML = '';
 
-
   files.forEach(function(file) {
-    files.map(f = f.owner)
-    new Set()
     dataTable.innerHTML += `
     <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
         <td class="py-3 px-6 text-left text-sm text-gray-700 font-medium">${file.filename}</td>
@@ -58,16 +55,19 @@ async function loadFiles() {
         </td>
     </tr>`;
   });
-    
-}
-
+    /// กรองชื่อ User
+    const oweners = [...new Set(files.map(f => f.owner))];
+    const userList = document.getElementById('userList');
+    userList.innerHTML = ''
+    oweners.forEach(function(owener){
+        userList.innerHTML += `<option value="${owener}"></option>`;
+    });
+} 
 loadFiles();
-
-
-
 // function confim ลบไฟล์
  async function deleteFile(filename, owner) {
     if (!confirm('ลบไฟล์' + filename + 'จริงไหม')) return;
+    loadFiles();
     const fileDelete = '/files/' + owner + '/' + filename;
     await fetch(fileDelete, {
         method: 'delete',
@@ -92,5 +92,18 @@ document.getElementById('searchInput').addEventListener('input', function() {
 });
 
 
+// กรอง User จาก dropdown
+document.getElementById('filterUser').addEventListener('input',function(){
+    const selected = this.value;
+    const row = document.querySelectorAll('#dataTable tr');
 
+    row.forEach(function(row) {
+        const owner =  row.children[1].textContent;
+        if (!selected || owner === selected) {
+            row.style.display = '';
+        }else {
+            row.style.display = 'none';
+        }
+    });
+});
 
