@@ -21,7 +21,12 @@
     <div class="bg-white p-6 rounded-2xl shadow mb-6">
         <h2 class="text-lg font-bold mb-4">Upload File</h2>
         <input type="file" id="fileInput" class="mb-4">
-        <img id="preview" class="max-w-xs mb-4 hidden">
+        <img id="preview" class="max-w-xs mb-4 hidden rounded-lg">
+        <iframe id="previewPdf" class="w-full h-64 mb-4 hidden rounded-lg border"></iframe>
+        <div id="previewOther" class="mb-4 hidden p-4 bg-gray-50 rounded-lg border text-center">
+            <span class="text-4xl">📄</span>
+            <p id="previewFilename" class="text-sm text-gray-600 mt-2"></p>
+        </div>
         <br>
         <button id="uploadBtn" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition cursor-pointer">
             Upload
@@ -30,10 +35,12 @@
     <!-- ตารางรายการไฟล์ -->
     <div class="bg-white p-6 rounded-2xl shadow">
         <h2 class="text-lg font-bold mb-4">My Files</h2>
+        <input type="text" id="searchInput" placeholder="ค้นหาไฟล์..." class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
         <table class="w-full">
             <thead>
                 <tr class="border-b">
                     <th class="text-left p-2">ชื่อไฟล์</th>
+                    <th class="text-left p-2">Preview</th>
                     <th class="text-left p-2">Download</th>
                     <th class="text-left p-2">ลบ</th>
                 </tr>
@@ -45,6 +52,19 @@
     </div>
 
     </div>
+
+    <!-- Modal Preview -->
+    <div id="previewModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-lg max-w-3xl w-full mx-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 id="modalTitle" class="font-bold text-lg"></h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-red-500 text-2xl cursor-pointer">&times;</button>
+            </div>
+            <div id="modalBody" class="p-4 overflow-auto flex-1 flex items-center justify-center">
+            </div>
+        </div>
+    </div>
+
     <script>
         function logout() {
             localStorage.removeItem('token');
@@ -68,13 +88,17 @@
             fileList.innerHTML = '';
             files.forEach(file =>{
                 const tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-gray-50 transition';
                 tr.innerHTML = `
                     <td class="p-2">${file}</td>
                     <td class="p-2">
-                        <button onclick="download('${file}')">Download</button>
+                        <button onclick="previewFile('${file}')" class="text-purple-600 hover:underline cursor-pointer">Preview</button>
                     </td>
                     <td class="p-2">
-                        <button onclick="deleteFile('${file}')">ลบ</button>
+                        <button onclick="download('${file}')" class="text-blue-600 hover:underline cursor-pointer">Download</button>
+                    </td>
+                    <td class="p-2">
+                        <button onclick="deleteFile('${file}')" class="text-red-600 hover:underline cursor-pointer">ลบ</button>
                     </td>
                 `;
                 fileList.appendChild(tr);
@@ -125,20 +149,82 @@
             loadFiles();
         }
 
+        // --- Preview ก่อน upload (รูป / PDF / อื่นๆ) ---
         document.getElementById('fileInput').addEventListener('change', (e) =>{
             const file = e.target.files[0];
             const preview = document.getElementById('preview');
+            const previewPdf = document.getElementById('previewPdf');
+            const previewOther = document.getElementById('previewOther');
 
-            if (file && file.type.startsWith('image/')){
+            // ซ่อนทุก preview ก่อน
+            preview.classList.add('hidden');
+            previewPdf.classList.add('hidden');
+            previewOther.classList.add('hidden');
+
+            if (!file) return;
+
+            if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (e) =>{
                     preview.src = e.target.result;
                     preview.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
+            } else if (file.type === 'application/pdf') {
+                previewPdf.src = URL.createObjectURL(file);
+                previewPdf.classList.remove('hidden');
             } else {
-                preview.classList.add('hidden');
+                document.getElementById('previewFilename').textContent = file.name;
+                previewOther.classList.remove('hidden');
             }
+        });
+
+        // --- Preview ไฟล์จาก server (modal) ---
+        async function previewFile(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const modal = document.getElementById('previewModal');
+            const modalBody = document.getElementById('modalBody');
+            document.getElementById('modalTitle').textContent = filename;
+
+            const url = '/download/' + filename;
+            const headers = { 'Authorization': 'Bearer ' + token };
+
+            if (['jpg','jpeg','png','gif','webp','svg'].includes(ext)) {
+                const res = await fetch(url, { headers });
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                modalBody.innerHTML = `<img src="${blobUrl}" class="max-w-full max-h-[70vh] rounded-lg">`;
+            } else if (ext === 'pdf') {
+                const res = await fetch(url, { headers });
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                modalBody.innerHTML = `<iframe src="${blobUrl}" class="w-full h-[70vh] rounded-lg border"></iframe>`;
+            } else {
+                modalBody.innerHTML = `
+                    <div class="text-center p-8">
+                        <span class="text-6xl">📄</span>
+                        <p class="text-gray-600 mt-4 text-lg">${filename}</p>
+                        <p class="text-gray-400 text-sm mt-2">ไฟล์นี้ไม่สามารถ preview ได้</p>
+                    </div>
+                `;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('previewModal').classList.add('hidden');
+            document.getElementById('modalBody').innerHTML = '';
+        }
+
+        // --- Filter ชื่อไฟล์ ---
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase();
+            const rows = document.getElementById('fileList').querySelectorAll('tr');
+            rows.forEach(row => {
+                const filename = row.querySelector('td').textContent.toLowerCase();
+                row.style.display = filename.includes(keyword) ? '' : 'none';
+            });
         });
     </script>
 </body>
