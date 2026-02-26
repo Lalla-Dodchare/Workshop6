@@ -18,11 +18,17 @@
         </div>
 
         <div class="overflow-x-auto">
+            <input type="text" id="searchInput" placeholder="ค้นหาชื่อไฟล์" class="border rounded-lg px-4 py-2 mb-4 w-64">
+            <select id="filterUser" class="border rounded-lg px-4 py-2 mb-4 w-64"></select>
             <table class="w-full border-collapse bg-white rounded-xl overflow-hidden shadow-sm">
             <thead class="bg-white text-gray-800 uppercase text-xs border-b-2 border-gray-100">
                 <tr class="border-b">
                     <th class="py-3 px-6 text-left font-bold">ชื่อไฟล์</th>
                     <th class="py-3 px-6 text-left font-bold">เจ้าของ</th>
+                    <th class="py-3 px-6 text-left font-bold">แสดงเวลาlogin</th>
+                    <th class="py-3 px-6 text-left font-bold">แสดงเวลาlogout</th>
+                    <th class="py-3 px-6 text-left font-bold">แสดงจำนวนไฟล์ที่อัปโหลดไป</th>
+                    <th class="py-3 px-6 text-left font-bold">แสดงจำนวนพื้นที่ที่เหลือ</th>
                     <th class="py-3 px-6 text-left font-bold">Download</th>
                     <th class="py-3 px-6 text-left font-bold">Delete</th>
                 </tr>
@@ -30,7 +36,14 @@
 
             <tbody id="dataTable" class="">
                 <tr class="py-3 px-6 text-left text-sm">
-
+                    <td>fileName.pdf</td>
+                    <td>User01</td>
+                    <td>แสดงเวลาlogin</td>
+                    <td>แสดงเวลาlogout</td>
+                    <td>แสดงจำนวนไฟล์ที่อัปโหลดไป</td>
+                    <td>แสดงจำนวนพื้นที่ใที่เหลือ</td>
+                    <td><button>Download</button></td>
+                    <td><button>Delete</button></td>
                 </tr>
             </tbody>
 

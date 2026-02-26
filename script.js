@@ -87,7 +87,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     localStorage.setItem('token', data.token );
     localStorage.setItem('tokenname', data.user.username);
 
-
     // redirect ตาม role
     if (data.user.role === 'admin') {
         window.location.href = '/page/admin/dashboard.html';

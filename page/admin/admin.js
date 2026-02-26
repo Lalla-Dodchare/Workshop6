@@ -19,24 +19,24 @@ async function download(filename, owner) {
 };
 
 
-
 // function ที่โหลดรายการไฟล์
 async function loadFiles() {
     const res = await fetch('/files', {
         headers : { 'Authorization': 'Bearer ' + token }
     });
+    if (!res.ok) {
+        console.log('โหลดไฟล์ไม่ได้');
+        return;
+    }
     const files = await res.json();
     const dataTable = document.getElementById("dataTable");
     console.log(files);
-    if (!res.ok) {
-    console.log('โหลดไฟล์ไม่ได้:', files.error);
-    return;
-    }
     dataTable.innerHTML = '';
 
 
-
   files.forEach(function(file) {
+    files.map(f = f.owner)
+    new Set()
     dataTable.innerHTML += `
     <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
         <td class="py-3 px-6 text-left text-sm text-gray-700 font-medium">${file.filename}</td>
@@ -75,3 +75,22 @@ loadFiles();
     });    
     loadFiles(); 
 }
+
+// กรองชื่อ file
+document.getElementById('searchInput').addEventListener('input', function() {
+    const keyword = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#dataTable tr');
+
+    rows.forEach(function(row) {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(keyword)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+
+
+
