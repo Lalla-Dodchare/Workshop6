@@ -339,3 +339,221 @@ function logActivity(action, username, detail) {
 | 3 | สร้าง `logActivity()` วางก่อน route ทั้งหมด | ง่าย |
 | 4 | ใส่ `logActivity()` ในแต่ละ route (ดูตารางข้างบน) | ง่าย |
 | 5 | เพิ่ม action BACKUP / RESTORE / RESTORE_ALL (รอเพื่อนสร้าง route ก่อน) | ง่าย |
+
+
+
+
+
+
+
+
+
+
+
+
+---
+## สิ่งที่เพิ่มมาใหม่
+
+> อัปเดตล่าสุด: 28 ก.พ. 2026
+
+### สิ่งที่ทำเสร็จแล้ว (ทั้งงานหลัก + Extra)
+
+| # | งาน | ไฟล์ที่แก้ | สถานะ |
+|---|------|-----------|--------|
+| 1 | วาง HTML layout dashboard.html | `page/admin/dashboard.html` | ✅ |
+| 2 | Tailwind CSS ให้สวย | `page/admin/dashboard.html` | ✅ |
+| 3 | DELETE /files/:filename (user + admin) | `server.js` | ✅ |
+| 4 | GET /files แบบ admin (เห็นไฟล์ทุก user พร้อม role + username) | `server.js` | ✅ |
+| 5 | admin.js เชื่อม fetch จริง (loadFiles, download, delete) | `page/admin/admin.js` | ✅ |
+| 6 | Logging — morgan + logActivity() ใส่ทุก route | `server.js` | ✅ |
+| 7 | Filter กรองชื่อ User (datalist dropdown) | `page/admin/admin.js` | ✅ |
+| 8 | Filter กรองประเภทไฟล์ (image/pdf/other) | `page/admin/admin.js` | ✅ |
+| 9 | Filter กรองชื่อไฟล์ (search input) | `page/admin/admin.js` | ✅ |
+| 10 | Badge สีตาม role (แดง=admin, เขียว=user) | `page/admin/admin.js` | ✅ |
+| 11 | แสดงชื่อเจ้าของไฟล์ (username) ในตาราง | `server.js` + `page/admin/admin.js` | ✅ |
+| 12 | จำกัดพื้นที่อัปโหลด 50 MB ต่อ user (`getFolderSize()`) | `server.js` | ✅ |
+| 13 | Admin อัปโหลดไฟล์ได้ (ปุ่ม upload ใน dashboard) | `page/admin/dashboard.html` + `page/admin/admin.js` | ✅ |
+| 14 | Admin แชร์ไฟล์ให้ user (รายคน/ทุกคน) — `POST /share` | `server.js` + `page/admin/admin.js` | ✅ |
+
+### สิ่งที่ยังไม่ได้ทำ (รอเพื่อน / ต้องตัดสินใจก่อน)
+
+| # | งาน | ความยาก | ต้องรออะไร |
+|---|------|---------|-----------|
+| 1 | เปลี่ยนเก็บ users ลง JSON file (แทน array ในโค้ด) | ง่าย | ต้องถามเพื่อนก่อน — เพราะแก้ server.js ร่วมกัน |
+| 2 | เพิ่ม role `superadmin` ในระบบ | ง่าย | ต้องเปลี่ยนเป็น JSON file ก่อน |
+| 3 | Super Admin CRUD admin (สร้าง/แก้/ลบ admin) | ปานกลาง | ต้องมี JSON file + role superadmin ก่อน |
+| 4 | แบน user ชั่วคราว/ถาวร (admin แบนชั่วคราว, superadmin แบนถาวร) | ปานกลาง | ต้องมี JSON file ก่อน |
+| 5 | แยก log ตาม role (superadmin เห็นหมด, admin เห็นบางส่วน) | ง่าย | ต้องมี role superadmin ก่อน |
+| 6 | Super Admin กู้คืนไฟล์ทุก user (soft delete 30 วัน) | ยาก | รอเพื่อนทำ backup/restore route |
+| 7 | logActivity ใน BACKUP / RESTORE / RESTORE_ALL | ง่าย | รอเพื่อนสร้าง route |
+
+### ลำดับที่แนะนำสำหรับงานที่เหลือ
+
+```
+1. ถามเพื่อนเรื่องเปลี่ยน users เป็น JSON file
+2. เปลี่ยน users → JSON file (แก้แค่ 1 บรรทัด + สร้าง saveUsers())
+3. เพิ่ม role superadmin
+4. แบน user
+5. Super Admin CRUD admin
+6. แยก log ตาม role
+7. กู้คืนไฟล์ 30 วัน (รอเพื่อนทำ backup/restore)
+```
+
+### สรุป feature ใหม่ที่เพิ่มใน server.js (Claude ต้องรู้)
+
+```js
+// function ใหม่ที่เพิ่ม:
+getFolderSize(folderPath)  // คำนวณขนาดโฟลเดอร์ (bytes) — วางก่อน route
+
+// route ใหม่:
+POST /share               // admin แชร์ไฟล์ให้ user — รับ { filename, targetUsers }
+                           // targetUsers = ['2','3'] หรือ ['all']
+                           // ใช้ fs.copyFileSync() คัดลอกไฟล์
+
+// แก้ไข route เดิม:
+POST /upload               // เพิ่มเช็ค getFolderSize() > 50MB → ปฏิเสธ
+GET /files (admin)         // เพิ่มส่ง role + username มาด้วย
+```
+
+
+## สิ่งที่เพิ่มมาใหม่
+
+> อัปเดตล่าสุด: 28 ก.พ. 2026
+
+### สิ่งที่ทำเสร็จแล้ว (ทั้งงานหลัก + Extra)
+
+| # | งาน | ไฟล์ที่แก้ | สถานะ |
+|---|------|-----------|--------|
+| 1 | วาง HTML layout dashboard.html | `page/admin/dashboard.html` | ✅ |
+| 2 | Tailwind CSS ให้สวย | `page/admin/dashboard.html` | ✅ |
+| 3 | DELETE /files/:filename (user + admin) | `server.js` | ✅ |
+| 4 | GET /files แบบ admin (เห็นไฟล์ทุก user พร้อม role + username) | `server.js` | ✅ |
+| 5 | admin.js เชื่อม fetch จริง (loadFiles, download, delete) | `page/admin/admin.js` | ✅ |
+| 6 | Logging — morgan + logActivity() ใส่ทุก route | `server.js` | ✅ |
+| 7 | Filter กรองชื่อ User (datalist dropdown) | `page/admin/admin.js` | ✅ |
+| 8 | Filter กรองประเภทไฟล์ (image/pdf/other) | `page/admin/admin.js` | ✅ |
+| 9 | Filter กรองชื่อไฟล์ (search input) | `page/admin/admin.js` | ✅ |
+| 10 | Badge สีตาม role (แดง=admin, เขียว=user) | `page/admin/admin.js` | ✅ |
+| 11 | แสดงชื่อเจ้าของไฟล์ (username) ในตาราง | `server.js` + `page/admin/admin.js` | ✅ |
+| 12 | จำกัดพื้นที่อัปโหลด 50 MB ต่อ user (`getFolderSize()`) | `server.js` | ✅ |
+| 13 | Admin อัปโหลดไฟล์ได้ (ปุ่ม upload ใน dashboard) | `page/admin/dashboard.html` + `page/admin/admin.js` | ✅ |
+| 14 | Admin แชร์ไฟล์ให้ user (รายคน/ทุกคน) — `POST /share` | `server.js` + `page/admin/admin.js` | ✅ |
+
+### สิ่งที่ยังไม่ได้ทำ (รอเพื่อน / ต้องตัดสินใจก่อน)
+
+| # | งาน | ความยาก | ต้องรออะไร |
+|---|------|---------|-----------|
+| 1 | เปลี่ยนเก็บ users ลง JSON file (แทน array ในโค้ด) | ง่าย | ต้องถามเพื่อนก่อน — เพราะแก้ server.js ร่วมกัน |
+| 2 | เพิ่ม role `superadmin` ในระบบ | ง่าย | ต้องเปลี่ยนเป็น JSON file ก่อน |
+| 3 | Super Admin CRUD admin (สร้าง/แก้/ลบ admin) | ปานกลาง | ต้องมี JSON file + role superadmin ก่อน |
+| 4 | แบน user ชั่วคราว/ถาวร (admin แบนชั่วคราว, superadmin แบนถาวร) | ปานกลาง | ต้องมี JSON file ก่อน |
+| 5 | แยก log ตาม role (superadmin เห็นหมด, admin เห็นบางส่วน) | ง่าย | ต้องมี role superadmin ก่อน |
+| 6 | Super Admin กู้คืนไฟล์ทุก user (soft delete 30 วัน) | ยาก | รอเพื่อนทำ backup/restore route |
+| 7 | logActivity ใน BACKUP / RESTORE / RESTORE_ALL | ง่าย | รอเพื่อนสร้าง route |
+
+### ลำดับที่แนะนำสำหรับงานที่เหลือ
+
+```
+1. ถามเพื่อนเรื่องเปลี่ยน users เป็น JSON file
+2. เปลี่ยน users → JSON file (แก้แค่ 1 บรรทัด + สร้าง saveUsers())
+3. เพิ่ม role superadmin
+4. แบน user
+5. Super Admin CRUD admin
+6. แยก log ตาม role
+7. กู้คืนไฟล์ 30 วัน (รอเพื่อนทำ backup/restore)
+```
+
+### สรุป feature ใหม่ที่เพิ่มใน server.js (Claude ต้องรู้)
+
+```js
+// function ใหม่ที่เพิ่ม:
+getFolderSize(folderPath)  // คำนวณขนาดโฟลเดอร์ (bytes) — วางก่อน route
+
+// route ใหม่:
+POST /share               // admin แชร์ไฟล์ให้ user — รับ { filename, targetUsers }
+                           // targetUsers = ['2','3'] หรือ ['all']
+                           // ใช้ fs.copyFileSync() คัดลอกไฟล์
+
+// แก้ไข route เดิม:
+POST /upload               // เพิ่มเช็ค getFolderSize() > 50MB → ปฏิเสธ
+GET /files (admin)         // เพิ่มส่ง role + username มาด้วย
+```
+
+## สิ่งที่เพิ่มมาใหม่
+
+> อัปเดตล่าสุด: 28 ก.พ. 2026
+
+### สิ่งที่ทำเสร็จแล้ว (ทั้งงานหลัก + Extra)
+
+| # | งาน | ไฟล์ที่แก้ | สถานะ |
+|---|------|-----------|--------|
+| 1 | วาง HTML layout dashboard.html | `page/admin/dashboard.html` | ✅ |
+| 2 | Tailwind CSS ให้สวย | `page/admin/dashboard.html` | ✅ |
+| 3 | DELETE /files/:filename (user + admin) | `server.js` | ✅ |
+| 4 | GET /files แบบ admin (เห็นไฟล์ทุก user พร้อม role + username) | `server.js` | ✅ |
+| 5 | admin.js เชื่อม fetch จริง (loadFiles, download, delete) | `page/admin/admin.js` | ✅ |
+| 6 | Logging — morgan + logActivity() ใส่ทุก route | `server.js` | ✅ |
+| 7 | Filter กรองชื่อ User (datalist dropdown) | `page/admin/admin.js` | ✅ |
+| 8 | Filter กรองประเภทไฟล์ (image/pdf/other) | `page/admin/admin.js` | ✅ |
+| 9 | Filter กรองชื่อไฟล์ (search input) | `page/admin/admin.js` | ✅ |
+| 10 | Badge สีตาม role (แดง=admin, เขียว=user) | `page/admin/admin.js` | ✅ |
+| 11 | แสดงชื่อเจ้าของไฟล์ (username) ในตาราง | `server.js` + `page/admin/admin.js` | ✅ |
+| 12 | จำกัดพื้นที่อัปโหลด 50 MB ต่อ user (`getFolderSize()`) | `server.js` | ✅ |
+| 13 | Admin อัปโหลดไฟล์ได้ (ปุ่ม upload ใน dashboard) | `page/admin/dashboard.html` + `page/admin/admin.js` | ✅ |
+| 14 | Admin แชร์ไฟล์ให้ user (รายคน/ทุกคน) — `POST /share` | `server.js` + `page/admin/admin.js` | ✅ |
+
+### สิ่งที่ยังไม่ได้ทำ (รอเพื่อน / ต้องตัดสินใจก่อน)
+
+| # | งาน | ความยาก | ต้องรออะไร |
+|---|------|---------|-----------|
+| 1 | เปลี่ยนเก็บ users ลง JSON file (แทน array ในโค้ด) | ง่าย | ต้องถามเพื่อนก่อน — เพราะแก้ server.js ร่วมกัน |
+| 2 | เพิ่ม role `superadmin` ในระบบ | ง่าย | ต้องเปลี่ยนเป็น JSON file ก่อน |
+| 3 | Super Admin CRUD admin (สร้าง/แก้/ลบ admin) | ปานกลาง | ต้องมี JSON file + role superadmin ก่อน |
+| 4 | แบน user ชั่วคราว/ถาวร (admin แบนชั่วคราว, superadmin แบนถาวร) | ปานกลาง | ต้องมี JSON file ก่อน |
+| 5 | แยก log ตาม role (superadmin เห็นหมด, admin เห็นบางส่วน) | ง่าย | ต้องมี role superadmin ก่อน |
+| 6 | Super Admin กู้คืนไฟล์ทุก user (soft delete 30 วัน) | ยาก | รอเพื่อนทำ backup/restore route |
+| 7 | logActivity ใน BACKUP / RESTORE / RESTORE_ALL | ง่าย | รอเพื่อนสร้าง route |
+
+### ลำดับที่แนะนำสำหรับงานที่เหลือ
+
+```
+1. ถามเพื่อนเรื่องเปลี่ยน users เป็น JSON file
+2. เปลี่ยน users → JSON file (แก้แค่ 1 บรรทัด + สร้าง saveUsers())
+3. เพิ่ม role superadmin
+4. แบน user
+5. Super Admin CRUD admin
+6. แยก log ตาม role
+7. กู้คืนไฟล์ 30 วัน (รอเพื่อนทำ backup/restore)
+```
+
+### สรุป feature ใหม่ที่เพิ่มใน server.js (Claude ต้องรู้)
+
+```js
+// function ใหม่ที่เพิ่ม:
+getFolderSize(folderPath)  // คำนวณขนาดโฟลเดอร์ (bytes) — วางก่อน route
+
+// route ใหม่:
+POST /share               // admin แชร์ไฟล์ให้ user — รับ { filename, targetUsers }
+                           // targetUsers = ['2','3'] หรือ ['all']
+                           // ใช้ fs.copyFileSync() คัดลอกไฟล์
+
+// แก้ไข route เดิม:
+POST /upload               // เพิ่มเช็ค getFolderSize() > 50MB → ปฏิเสธ
+GET /files (admin)         // เพิ่มส่ง role + username มาด้วย
+```
+
+### สรุป feature ใหม่ที่เพิ่มใน admin.js (Claude ต้องรู้)
+
+```js
+// function ใหม่:
+uploadFile()    // admin อัปโหลดไฟล์ — ใช้ FormData + fetch POST /upload
+shareFile()     // admin แชร์ไฟล์ — prompt ถาม user id แล้ว fetch POST /share
+
+// filter ที่มี:
+typeFilter      // กรองประเภทไฟล์ (image/pdf/other) — เช็ค extension ด้วย .includes()
+searchInput     // กรองชื่อไฟล์ — เช็คด้วย .includes()
+filterUser      // กรอง user — เช็คด้วย datalist dropdown
+
+// badge role:
+// ใช้ file.role === 'admin' ? สีแดง : สีเขียว (ternary operator)
+// แสดง file.username ในคอลัมน์เจ้าของ

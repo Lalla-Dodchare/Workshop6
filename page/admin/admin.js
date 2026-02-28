@@ -4,6 +4,66 @@ if (!token) {
     window.location.href = '/index.html';
 }
 
+// ปุ่ม uploade
+async function uploadFile() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert('กรุณาเลือกไฟล์ก่อนอัปโหลด')
+        return;
+    } const formData = new FormData();
+    formData.append('file',file);
+    const response = await fetch('/upload', {
+        method : 'POST',
+        headers : {
+            'Authorization': `Bearer ${token}`
+        },
+        body : formData
+    }) 
+    if (response.ok) {
+        alert('อัปโหลดไฟลืสำเร็จ')
+        fileInput.value = '';
+        loadFiles();
+    } else { 
+        const data = await response.json();
+        alert(data.error);
+         
+    }
+
+
+
+}
+
+// ปุ่ม share
+async function shareFile(filename, owner) {
+    const target = prompt('ใส่ username ที่ต้องการแชร์ไฟล์ให้, all');
+
+    if (!target) return;
+    let targetUsers;
+
+    if (target.toLowerCase() === 'all') {
+        targetUsers = ['all'];
+    } else {
+        targetUsers = target.split(',');
+    }
+    const res = await fetch('/share', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ filename, targetUsers })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+    loadFiles();
+}
+
+
+
+
+
 // ปุ่ม Download
 async function download(filename, owner) {
     const res = await fetch('/download/' + owner + '/' + filename, {
@@ -39,7 +99,11 @@ async function loadFiles() {
         <td class="py-3 px-6 text-left text-sm text-gray-700 font-medium">${file.filename}</td>
         
         <td class="py-3 px-6 text-left text-sm text-gray-500">
-            <span class="${ file.owner === '1' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' } text-xs px-2 py-1 rounded-full">${ file.role === 'admin' ? 'admin' : 'user' }</span>
+            <span class="${ file.owner === '1' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' } text-xs px-2 py-1 rounded-full">
+            ${ file.role === 'superadmin' ? 'superadmin':  
+               file.role === 'admin' ? 'admin':'User'
+            } 
+            </span>
         </td>
 
         <td class="py-3 px-6 text-left text-sm text-gray-700">
@@ -57,9 +121,20 @@ async function loadFiles() {
         <td class="py-3 px-6 text-center">
             <button onclick="deleteFile('${file.filename}','${file.owner}')" 
                 class="bg-red-500 hover:bg-red-600 text-white text-xs py-1.5 px-4 rounded shadow-sm transition duration-200">
-                ลบ
+                Delete
             </button>
         </td>
+
+
+        <td class="py-3 px-6 text-center">
+            <button onclick="shareFile('${file.filename}', '${file.owner}')" 
+                class="bg-blue-500 hover:bg-blue-600 text-white text-xs py-1.5 px-4 rounded shadow-sm transition duration-200">
+                Share
+            </button>
+        </td>
+
+
+
     </tr>`;
   });
     /// กรองชื่อ User
