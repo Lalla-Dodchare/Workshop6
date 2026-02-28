@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
 // const { json } = require('stream/consumers');
 const archiver = require('archiver');
+const  tar = require('tar');
 const SECRET_KEY ='workshop6-secret-ke'
 
 app.use(cors());
@@ -159,6 +160,7 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
 //     })
 // });
 
+// Backup
 app.post('/backup', authenticateToken, (req, res) => {
     let backupSource;
     if (req.user.role === 'admin' || req.user.role === 'superadmin'){
@@ -183,6 +185,33 @@ app.post('/backup', authenticateToken, (req, res) => {
     archive.directory(backupSource, false);
     archive.finalize();
     
+})
+
+// Recovery 
+app.get('/backup/:filename/list', authenticateToken, (req, res) => {
+    const backupPath =path.join(__dirname, 'backups', req.params.filename );
+    
+    const files = [];
+    tar.t({
+        file: backupPath,
+        onReadEntry: entry => {
+            files.push({ path: entry.path, size: entry.size});
+        }
+    }).then(() =>{
+        res.json(files);
+    })
+})
+
+app.post('/backup/:filename/recover', authenticateToken, async (req, res) => {
+    const {selectedFiles} = req.body;
+    const backupPath = path.join(__dirname, 'backups', req.params.filename);
+
+    await tar.x({
+        file: backupPath,
+        cwd: path.join(__dirname, 'uploads'),
+    }, selectedFiles)
+    logActivity('RESTORE', req.user.id + ':' + req.user.username, selectedFiles.join(','));
+    res.json({ message: 'Recovery สำเร็จ', restored: selectedFiles.length});
 })
 
 

@@ -421,7 +421,51 @@ async function backupFiles() {
 }
 ```
 
-> Recovery route (กู้คืน) เพื่อนกำลังทำอยู่ — พอเสร็จจะอัพเดทให้
+> ~~Recovery route (กู้คืน) เพื่อนกำลังทำอยู่ — พอเสร็จจะอัพเดทให้~~
+
+### อัพเดทจากเพื่อน (28 ก.พ. 2026) — Recovery เสร็จแล้ว!
+
+**route Recovery ใน server.js เสร็จ 100% แล้ว** (บรรทัด 191-213)
+
+| Route | วิธีใช้ | ส่งอะไรไป | ได้อะไรกลับ |
+|-------|--------|----------|------------|
+| `GET /backup/:filename/list` | ดูรายการไฟล์ใน backup | แค่ชื่อไฟล์ backup ใน URL | `[{ path: "1/photo.jpg", size: 1234 }, ...]` |
+| `POST /backup/:filename/recover` | กู้คืนไฟล์ที่เลือก | `{ selectedFiles: ["1/photo.jpg"] }` | `{ message: "Recovery สำเร็จ", restored: 1 }` |
+
+**สิ่งที่ต้องทำต่อ (ฝั่ง admin dashboard):**
+
+| # | งาน | รายละเอียด | ความยาก |
+|---|------|-----------|---------|
+| 1 | แสดงรายการ backup ที่มีอยู่ | แสดงไฟล์ `.tar.gz` เป็นรายการ | ปานกลาง |
+| 2 | กดเลือก backup → เห็นไฟล์ข้างใน | fetch `GET /backup/:filename/list` → แสดง checkbox แต่ละไฟล์ | ปานกลาง |
+| 3 | เลือกไฟล์ → กดกู้คืน | fetch `POST /backup/:filename/recover` + ส่ง selectedFiles | ปานกลาง |
+
+**ตัวอย่าง fetch สำหรับดูรายการไฟล์ใน backup:**
+```js
+async function listBackupFiles(filename) {
+    const res = await fetch('/backup/' + filename + '/list', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const files = await res.json();
+    // files = [{ path: "1/photo.jpg", size: 1234 }, ...]
+}
+```
+
+**ตัวอย่าง fetch สำหรับกู้คืน:**
+```js
+async function recoverFiles(filename, selectedFiles) {
+    const res = await fetch('/backup/' + filename + '/recover', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ selectedFiles })
+    });
+    const data = await res.json();
+    alert(data.message);
+}
+```
 
 ---
 
@@ -430,11 +474,10 @@ async function backupFiles() {
 | # | งาน | ความยาก | ต้องรออะไร |
 |---|------|---------|-----------|
 | 1 | **เพิ่มปุ่ม Backup + แสดงรายการ backup ใน dashboard** | ง่าย-ปานกลาง | **ทำได้เลย! route เสร็จแล้ว** |
-| 2 | Super Admin CRUD admin (สร้าง/แก้/ลบ admin) | ปานกลาง | ทำได้เลย |
-| 3 | แบน user ชั่วคราว/ถาวร | ปานกลาง | ทำได้เลย |
-| 4 | แยก log ตาม role | ง่าย | ทำได้เลย |
-| 5 | UI ส่วนกู้คืน (Recovery) ใน dashboard | ปานกลาง | รอเพื่อนทำ restore route |
-| 6 | logActivity ใน RESTORE / RESTORE_ALL | ง่าย | รอเพื่อนสร้าง route |
+| 2 | **UI ส่วนกู้คืน (Recovery) ใน dashboard** | ปานกลาง | **ทำได้เลย! route เสร็จแล้ว** |
+| 3 | Super Admin CRUD admin (สร้าง/แก้/ลบ admin) | ปานกลาง | ทำได้เลย |
+| 4 | แบน user ชั่วคราว/ถาวร | ปานกลาง | ทำได้เลย |
+| 5 | แยก log ตาม role | ง่าย | ทำได้เลย |
 
 ### สรุป feature ใหม่ที่เพิ่มใน server.js (Claude ต้องรู้)
 

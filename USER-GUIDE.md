@@ -78,9 +78,12 @@
   - [x] ชั้น 6: archive.pipe(output) + archive.directory() + archive.finalize()
 - [ ] Preview ไฟล์แบบละเอียด — ดูหัวข้อ "Preview ไฟล์แบบละเอียด" ด้านล่าง
 
+**เสร็จเพิ่ม:**
+- [x] Recovery — route `GET /backup/:filename/list` + `POST /backup/:filename/recover` (server.js บรรทัด 191-213)
+
 **ยังไม่ได้ทำ:**
-- [ ] Recovery (กู้คืนจาก Backup) — ดูหัวข้อด้านล่าง
-- [ ] เพิ่มปุ่ม Backup ในหน้า user + admin (เรียก fetch POST /backup)
+- [ ] เพิ่มปุ่ม Backup + Recovery ในหน้า user (page/user/home.html)
+- [ ] เพิ่มปุ่ม Backup + Recovery ในหน้า admin — เพื่อนทำ (page/admin/)
 
 ---
 
