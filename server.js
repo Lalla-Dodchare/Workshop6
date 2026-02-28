@@ -19,12 +19,16 @@ app.use(morgan('combined'));
 app.use(express.static(__dirname));
 
 // ข้อมูล user (เก็บง่ายๆ ใน array — ไม่ต้องใช้ database)
-const users = [
-    { id: 1, username: 'admin', password: 'admin123', role: 'admin' },
-    { id: 2, username: 'Peerapan Uaichai', password: 'user123', role: 'user' },
-    { id: 3, username: 'Lalla Dodchare', password: 'user123', role: 'user' },
-];
-
+// const users = [
+//     { id: 1, username: 'admin', password: 'admin123', role: 'admin' },
+//     { id: 2, username: 'Peerapan Uaichai', password: 'user123', role: 'user' },
+//     { id: 3, username: 'Lalla Dodchare', password: 'user123', role: 'user' },
+// ];
+// ข้อมูล user เก็บใน Json
+let users = JSON.parse(fs.readFileSync('user.json', 'utf8'));
+function saveUsers() {
+    fs.writeFileSync('user.json', JSON.stringify(users, null, 4));
+}
 
 // function logActivity() บันทึกว่า "ใคร ทำอะไร เมื่อไหร่" ลงไฟล์ logs.txt
 function logActivity(action, username, detail) {
@@ -68,6 +72,7 @@ app.post('/login', (req, res) => {
         }
         const newUser = { id: users.length + 1, username, password, role: 'user'};
         users.push(newUser);
+        saveUsers();
         res.json({ message: 'สมัครสมาชิกสำเร็จ'});
     })
 
@@ -110,9 +115,30 @@ const upload = multer({ storage });
 
 // อัปโหลดไฟล์จาก Client -> Server
 app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
+    const userFolder = path.join('uploads', String(req.user.id))
+    const MAX_SIZE = 50 * 1024 * 1024
+    const currentSize = getFolderSize(userFolder);
+
+    if (currentSize > MAX_SIZE) {
+        return res.status(400).json({ error: 'พื้นที่เต็ม ไม่สามารถอัปโหลดได้ (จำกัด 50 MB)' })
+    }
     logActivity('UPLOAD_SUCCESS', req.user.id + ':' + req.user.username, req.file.originalname);
     res.json({ message: 'File uploaded successfully', filename: req.file.filename });
 });
+
+/// คำนวณขนาดโฟลเดอร์
+    function getFolderSize(folderPath) {
+         if (!fs.existsSync(folderPath)) {
+            return 0;
+         } const readFile = fs.readdirSync(folderPath);
+         let totalSize = 0 ;
+         readFile.forEach(function(filename) { 
+            const filePath = path.join(folderPath, filename);
+            const size = fs.statSync(filePath).size;
+            totalSize += size;
+         });
+         return totalSize;
+    }
 
 
 
@@ -137,7 +163,7 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
 
 // แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
 app.get('/files', authenticateToken, (req, res) => {
-    if (req.user.role === 'admin') {
+    if (req.user.role === 'admin' || req.user.role === 'superadmin') {
         const uploadsDir = path.join(__dirname, 'uploads');
         fs.readdir(uploadsDir, (err, folders) => {
             if (err) return res.status(500).json({ error: 'Unable to list files' });
@@ -201,6 +227,33 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
     logActivity('DELETE', req.user.id + ':' + req.user.username, req.params.filename);
     res.json({ message: 'ลบสำเร็จ'});
 })
+
+
+/// function แชร์ไฟล์
+app.post('/share', authenticateToken, (req, res) => {
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') 
+        return ;
+   const {filename, targetUsers} = req.body;
+   const filefrom = path.join('uploads', String(req.user.id), filename);
+
+    targetUsers.forEach(function(userId) {
+        const from = path.join('uploads', String(req.user.id), filename);
+        const to = path.join('uploads', String(userId), filename);
+        fs.mkdirSync(path.join('uploads', String(userId)), { recursive: true });
+        fs.copyFileSync(from, to);
+    })
+    res.json({ message: 'แชร์สำเร็จ' });
+}) 
+    
+
+
+
+
+
+
+
+
+
 
 
 

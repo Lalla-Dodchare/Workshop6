@@ -19,3 +19,8 @@
 {"timestamp":"2026-02-27T21:25:05.748Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"admin"}
 {"timestamp":"2026-02-27T23:47:35.911Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"admin"}
 {"timestamp":"2026-02-28T00:04:14.815Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"admin"}
+{"timestamp":"2026-02-28T03:09:42.402Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"admin"}
+{"timestamp":"2026-02-28T06:10:44.448Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"admin"}
+{"timestamp":"2026-02-28T06:49:50.362Z","action":"UPLOAD_SUCCESS","username":"1:admin","detail":"8a106e83-5fe0-4a75-8820-6da1249a6a79.png.png"}
+{"timestamp":"2026-02-28T09:18:57.886Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"admin"}
+{"timestamp":"2026-02-28T09:19:11.609Z","action":"AUTH_FAILED","username":"unknow","detail":"No token"}
