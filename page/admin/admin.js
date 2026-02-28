@@ -38,7 +38,14 @@ async function loadFiles() {
     <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
         <td class="py-3 px-6 text-left text-sm text-gray-700 font-medium">${file.filename}</td>
         
-        <td class="py-3 px-6 text-left text-sm text-gray-500">${file.owner}</td>
+        <td class="py-3 px-6 text-left text-sm text-gray-500">
+            <span class="${ file.owner === '1' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' } text-xs px-2 py-1 rounded-full">${ file.role === 'admin' ? 'admin' : 'user' }</span>
+        </td>
+
+        <td class="py-3 px-6 text-left text-sm text-gray-700">
+            ${file.username}
+        </td>
+
         
         <td class="py-3 px-6 text-center">
             <button onclick="download('${file.filename}', '${file.owner}')" 
@@ -75,6 +82,51 @@ loadFiles();
     });    
     loadFiles(); 
 }
+
+
+// กรองประเภทไฟล์
+document.getElementById('typeFilter').addEventListener('change', function() {
+    const selected = this.value;
+    const rows = document.querySelectorAll('#dataTable tr');
+
+    rows.forEach(function(row) {
+        const filename = row.children[0].textContent;
+        const ext = filename.split('.').pop().toLowerCase();
+
+        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (selected === '') {
+            row.style.display = '';
+        } 
+        else if (selected === 'image') {
+            if (imageExts.includes(ext)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        } 
+        else if (selected === 'pdf') {
+            if (ext === 'pdf') {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        } 
+        else if (selected === 'other') 
+        if (!imageExts.includes(ext) && ext !== 'pdf') {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+    })
+
+    
+
+})
+
+
+
+
+
 
 // กรองชื่อ file
 document.getElementById('searchInput').addEventListener('input', function() {
