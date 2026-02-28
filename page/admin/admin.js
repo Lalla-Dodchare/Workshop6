@@ -33,15 +33,19 @@ async function loadFiles() {
     console.log(files);
     dataTable.innerHTML = '';
 
-
   files.forEach(function(file) {
-    files.map(f = f.owner)
-    new Set()
     dataTable.innerHTML += `
     <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
         <td class="py-3 px-6 text-left text-sm text-gray-700 font-medium">${file.filename}</td>
         
-        <td class="py-3 px-6 text-left text-sm text-gray-500">${file.owner}</td>
+        <td class="py-3 px-6 text-left text-sm text-gray-500">
+            <span class="${ file.owner === '1' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' } text-xs px-2 py-1 rounded-full">${ file.role === 'admin' ? 'admin' : 'user' }</span>
+        </td>
+
+        <td class="py-3 px-6 text-left text-sm text-gray-700">
+            ${file.username}
+        </td>
+
         
         <td class="py-3 px-6 text-center">
             <button onclick="download('${file.filename}', '${file.owner}')" 
@@ -58,16 +62,19 @@ async function loadFiles() {
         </td>
     </tr>`;
   });
-    
-}
-
+    /// กรองชื่อ User
+    const oweners = [...new Set(files.map(f => f.owner))];
+    const userList = document.getElementById('userList');
+    userList.innerHTML = ''
+    oweners.forEach(function(owener){
+        userList.innerHTML += `<option value="${owener}"></option>`;
+    });
+} 
 loadFiles();
-
-
-
 // function confim ลบไฟล์
  async function deleteFile(filename, owner) {
     if (!confirm('ลบไฟล์' + filename + 'จริงไหม')) return;
+    loadFiles();
     const fileDelete = '/files/' + owner + '/' + filename;
     await fetch(fileDelete, {
         method: 'delete',
@@ -75,6 +82,51 @@ loadFiles();
     });    
     loadFiles(); 
 }
+
+
+// กรองประเภทไฟล์
+document.getElementById('typeFilter').addEventListener('change', function() {
+    const selected = this.value;
+    const rows = document.querySelectorAll('#dataTable tr');
+
+    rows.forEach(function(row) {
+        const filename = row.children[0].textContent;
+        const ext = filename.split('.').pop().toLowerCase();
+
+        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (selected === '') {
+            row.style.display = '';
+        } 
+        else if (selected === 'image') {
+            if (imageExts.includes(ext)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        } 
+        else if (selected === 'pdf') {
+            if (ext === 'pdf') {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        } 
+        else if (selected === 'other') 
+        if (!imageExts.includes(ext) && ext !== 'pdf') {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+    })
+
+    
+
+})
+
+
+
+
+
 
 // กรองชื่อ file
 document.getElementById('searchInput').addEventListener('input', function() {
@@ -92,5 +144,18 @@ document.getElementById('searchInput').addEventListener('input', function() {
 });
 
 
+// กรอง User จาก dropdown
+document.getElementById('filterUser').addEventListener('input',function(){
+    const selected = this.value;
+    const row = document.querySelectorAll('#dataTable tr');
 
+    row.forEach(function(row) {
+        const owner =  row.children[1].textContent;
+        if (!selected || owner === selected) {
+            row.style.display = '';
+        }else {
+            row.style.display = 'none';
+        }
+    });
+});
 

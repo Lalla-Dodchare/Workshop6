@@ -153,7 +153,9 @@ app.get('/files', authenticateToken, (req, res) => {
                 if (fs.statSync(folderPath).isDirectory()) {
                     const files = fs.readdirSync(folderPath);
                     files.forEach(file => {
-                        allFiles.push({ filename: file, owner: folder });
+                        const user = users.find(u => u.id === Number(folder));
+                        const role = user ? user.role : 'user';
+                        allFiles.push({ filename: file, owner: folder, role: role, username: user ? user.username : folder });
                     });
                 }
             });
