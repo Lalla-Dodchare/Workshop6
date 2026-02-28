@@ -8,8 +8,10 @@ const port = 3000;
 const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
 // const { json } = require('stream/consumers');
+const archiver = require('archiver');
 const SECRET_KEY ='workshop6-secret-ke'
 
+app.listen();
 app.use(cors());
 app.use(express.json()); // ให้อ่าน JSON body ได้ (สำหรับ login)
 app.use(morgan('combined'));
@@ -131,6 +133,10 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
 //         res.json(files);
 //     })
 // });
+
+app.post('/backup', authenticateToken, (req, res) => {
+    
+})
 
 
 

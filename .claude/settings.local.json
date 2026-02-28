@@ -13,7 +13,8 @@
       "Bash(__NEW_LINE_7e993028161616c8__ echo \"\")",
       "Bash(kill:*)",
       "Bash(pkill:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(npm install archiver tar)"
     ]
   }
 }
