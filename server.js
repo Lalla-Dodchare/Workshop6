@@ -11,7 +11,6 @@ const morgan = require('morgan');
 const archiver = require('archiver');
 const SECRET_KEY ='workshop6-secret-ke'
 
-app.listen();
 app.use(cors());
 app.use(express.json()); // ให้อ่าน JSON body ได้ (สำหรับ login)
 app.use(morgan('combined'));
@@ -161,6 +160,28 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
 // });
 
 app.post('/backup', authenticateToken, (req, res) => {
+    let backupSource;
+    if (req.user.role === 'admin' || req.user.role === 'superadmin'){
+        backupSource = path.join(__dirname, 'uploads');
+    } else {
+        backupSource = path.join(__dirname, 'uploads', String(req.user.id));
+    }
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupFile = path.join(__dirname, 'backups', `${timestamp}.tar.gz`);
+    fs.mkdirSync(path.join(__dirname, 'backups'), { recursive: true});
+
+    const output = fs.createWriteStream(backupFile);
+    const archive = archiver('tar', { gzip: true});
+
+    output.on('close', () => {
+        logActivity('BACKUP', req.user.id + ':' + req.user.username, backupFile);
+        res.json({ message: 'Backup สำเร็จ', file: backupFile, size: archive.pointer()});
+    });
+
+    archive.pipe(output);
+    archive.directory(backupSource, false);
+    archive.finalize();
     
 })
 

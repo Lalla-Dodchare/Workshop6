@@ -15,6 +15,22 @@
 - ถ้าเขียนผิด อธิบายว่าผิดตรงไหน ทำไมถึงผิด แล้วให้แก้เอง
 - ใช้ภาษาไทย
 
+**วิธีอธิบายที่ดี (ชอบแบบนี้):**
+- ใช้ตัวอย่างที่เห็นภาพจริงๆ เช่น "tar = เอาไฟล์หลายไฟล์มามัดรวมเป็นก้อนเดียว", "gzip = เอาก้อนนั้นมาบีบให้เล็กลง"
+- ใช้แผนภาพง่ายๆ เช่น:
+  ```
+  file1.jpg  ─┐
+  file2.pdf  ─┼→  backup.tar (ก้อนเดียว)
+  file3.png  ─┘
+  ```
+- เปรียบเทียบกับโค้ดที่เขียนมาแล้ว เช่น "เหมือน route /files เลย แค่เปลี่ยนจาก อ่านรายการ เป็น บีบอัด"
+- บอกผลลัพธ์จริงของโค้ด เช่น `path.join(__dirname, 'uploads')` → `"c:\Users\peekm\...\Workshop6\uploads"`
+
+**วิธีอธิบายที่ห้ามทำ (ไม่ชอบ เข้าใจยาก):**
+- ห้ามเปรียบเทียบแบบนามธรรมเกินไป เช่น "archiver = เครื่องปั๊มสุญญากาศ, tar = ถุงใส่ของ, gzip = ดูดอากาศออก" → งง ไม่ช่วยเข้าใจ
+- ห้ามใช้ศัพท์เทคนิคโดยไม่อธิบายก่อน เช่น "stream", "pipe", "buffer" ต้องอธิบายว่าคืออะไรก่อนเสมอ
+- ห้ามอธิบายสั้นเกินไปจนไม่ได้อะไร ต้องมีตัวอย่างโค้ดจริงประกอบ
+
 **ลำดับสอน:**
 1. วาง HTML layout ใน dashboard.html (hardcode ข้อมูลปลอมก่อน)
 2. ใส่ Tailwind CSS ให้สวย
@@ -375,29 +391,50 @@ function logActivity(action, username, detail) {
 | 13 | Admin อัปโหลดไฟล์ได้ (ปุ่ม upload ใน dashboard) | `page/admin/dashboard.html` + `page/admin/admin.js` | ✅ |
 | 14 | Admin แชร์ไฟล์ให้ user (รายคน/ทุกคน) — `POST /share` | `server.js` + `page/admin/admin.js` | ✅ |
 
-### สิ่งที่ยังไม่ได้ทำ (รอเพื่อน / ต้องตัดสินใจก่อน)
+---
+
+### อัพเดทจากเพื่อน (28 ก.พ. 2026) — Backup เสร็จแล้ว!
+
+**route `POST /backup` ใน server.js เสร็จ 100% แล้ว** (บรรทัด 162-186)
+- admin/superadmin → backup ทั้งโฟลเดอร์ uploads/
+- user → backup แค่ของตัวเอง
+- ไฟล์ backup เก็บที่โฟลเดอร์ `backups/` เป็น `.tar.gz`
+- logActivity('BACKUP', ...) ใส่ไว้แล้ว
+
+**สิ่งที่ต้องทำต่อ (ฝั่ง admin dashboard):**
+
+| # | งาน | รายละเอียด | ความยาก |
+|---|------|-----------|---------|
+| 1 | เพิ่มปุ่ม Backup ใน dashboard | กดแล้ว fetch `POST /backup` พร้อมส่ง token | ง่าย |
+| 2 | แสดงรายการ backup ที่มีอยู่ | แสดงไฟล์ `.tar.gz` ที่อยู่ในโฟลเดอร์ backups/ เป็นรายการ (คล้าย Google Drive — เห็นไฟล์ backup พร้อมวันที่/ขนาด) | ปานกลาง |
+| 3 | ปุ่ม Download backup | ให้ admin โหลดไฟล์ .tar.gz ได้ | ง่าย |
+
+**ตัวอย่าง fetch สำหรับปุ่ม Backup:**
+```js
+async function backupFiles() {
+    const res = await fetch('/backup', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    alert(data.message + ' ขนาด: ' + data.size + ' bytes');
+}
+```
+
+> Recovery route (กู้คืน) เพื่อนกำลังทำอยู่ — พอเสร็จจะอัพเดทให้
+
+---
+
+### สิ่งที่ยังไม่ได้ทำ
 
 | # | งาน | ความยาก | ต้องรออะไร |
 |---|------|---------|-----------|
-| 1 | เปลี่ยนเก็บ users ลง JSON file (แทน array ในโค้ด) | ง่าย | ต้องถามเพื่อนก่อน — เพราะแก้ server.js ร่วมกัน |
-| 2 | เพิ่ม role `superadmin` ในระบบ | ง่าย | ต้องเปลี่ยนเป็น JSON file ก่อน |
-| 3 | Super Admin CRUD admin (สร้าง/แก้/ลบ admin) | ปานกลาง | ต้องมี JSON file + role superadmin ก่อน |
-| 4 | แบน user ชั่วคราว/ถาวร (admin แบนชั่วคราว, superadmin แบนถาวร) | ปานกลาง | ต้องมี JSON file ก่อน |
-| 5 | แยก log ตาม role (superadmin เห็นหมด, admin เห็นบางส่วน) | ง่าย | ต้องมี role superadmin ก่อน |
-| 6 | Super Admin กู้คืนไฟล์ทุก user (soft delete 30 วัน) | ยาก | รอเพื่อนทำ backup/restore route |
-| 7 | logActivity ใน BACKUP / RESTORE / RESTORE_ALL | ง่าย | รอเพื่อนสร้าง route |
-
-### ลำดับที่แนะนำสำหรับงานที่เหลือ
-
-```
-1. ถามเพื่อนเรื่องเปลี่ยน users เป็น JSON file
-2. เปลี่ยน users → JSON file (แก้แค่ 1 บรรทัด + สร้าง saveUsers())
-3. เพิ่ม role superadmin
-4. แบน user
-5. Super Admin CRUD admin
-6. แยก log ตาม role
-7. กู้คืนไฟล์ 30 วัน (รอเพื่อนทำ backup/restore)
-```
+| 1 | **เพิ่มปุ่ม Backup + แสดงรายการ backup ใน dashboard** | ง่าย-ปานกลาง | **ทำได้เลย! route เสร็จแล้ว** |
+| 2 | Super Admin CRUD admin (สร้าง/แก้/ลบ admin) | ปานกลาง | ทำได้เลย |
+| 3 | แบน user ชั่วคราว/ถาวร | ปานกลาง | ทำได้เลย |
+| 4 | แยก log ตาม role | ง่าย | ทำได้เลย |
+| 5 | UI ส่วนกู้คืน (Recovery) ใน dashboard | ปานกลาง | รอเพื่อนทำ restore route |
+| 6 | logActivity ใน RESTORE / RESTORE_ALL | ง่าย | รอเพื่อนสร้าง route |
 
 ### สรุป feature ใหม่ที่เพิ่มใน server.js (Claude ต้องรู้)
 
@@ -406,133 +443,7 @@ function logActivity(action, username, detail) {
 getFolderSize(folderPath)  // คำนวณขนาดโฟลเดอร์ (bytes) — วางก่อน route
 
 // route ใหม่:
-POST /share               // admin แชร์ไฟล์ให้ user — รับ { filename, targetUsers }
-                           // targetUsers = ['2','3'] หรือ ['all']
-                           // ใช้ fs.copyFileSync() คัดลอกไฟล์
-
-// แก้ไข route เดิม:
-POST /upload               // เพิ่มเช็ค getFolderSize() > 50MB → ปฏิเสธ
-GET /files (admin)         // เพิ่มส่ง role + username มาด้วย
-```
-
-
-## สิ่งที่เพิ่มมาใหม่
-
-> อัปเดตล่าสุด: 28 ก.พ. 2026
-
-### สิ่งที่ทำเสร็จแล้ว (ทั้งงานหลัก + Extra)
-
-| # | งาน | ไฟล์ที่แก้ | สถานะ |
-|---|------|-----------|--------|
-| 1 | วาง HTML layout dashboard.html | `page/admin/dashboard.html` | ✅ |
-| 2 | Tailwind CSS ให้สวย | `page/admin/dashboard.html` | ✅ |
-| 3 | DELETE /files/:filename (user + admin) | `server.js` | ✅ |
-| 4 | GET /files แบบ admin (เห็นไฟล์ทุก user พร้อม role + username) | `server.js` | ✅ |
-| 5 | admin.js เชื่อม fetch จริง (loadFiles, download, delete) | `page/admin/admin.js` | ✅ |
-| 6 | Logging — morgan + logActivity() ใส่ทุก route | `server.js` | ✅ |
-| 7 | Filter กรองชื่อ User (datalist dropdown) | `page/admin/admin.js` | ✅ |
-| 8 | Filter กรองประเภทไฟล์ (image/pdf/other) | `page/admin/admin.js` | ✅ |
-| 9 | Filter กรองชื่อไฟล์ (search input) | `page/admin/admin.js` | ✅ |
-| 10 | Badge สีตาม role (แดง=admin, เขียว=user) | `page/admin/admin.js` | ✅ |
-| 11 | แสดงชื่อเจ้าของไฟล์ (username) ในตาราง | `server.js` + `page/admin/admin.js` | ✅ |
-| 12 | จำกัดพื้นที่อัปโหลด 50 MB ต่อ user (`getFolderSize()`) | `server.js` | ✅ |
-| 13 | Admin อัปโหลดไฟล์ได้ (ปุ่ม upload ใน dashboard) | `page/admin/dashboard.html` + `page/admin/admin.js` | ✅ |
-| 14 | Admin แชร์ไฟล์ให้ user (รายคน/ทุกคน) — `POST /share` | `server.js` + `page/admin/admin.js` | ✅ |
-
-### สิ่งที่ยังไม่ได้ทำ (รอเพื่อน / ต้องตัดสินใจก่อน)
-
-| # | งาน | ความยาก | ต้องรออะไร |
-|---|------|---------|-----------|
-| 1 | เปลี่ยนเก็บ users ลง JSON file (แทน array ในโค้ด) | ง่าย | ต้องถามเพื่อนก่อน — เพราะแก้ server.js ร่วมกัน |
-| 2 | เพิ่ม role `superadmin` ในระบบ | ง่าย | ต้องเปลี่ยนเป็น JSON file ก่อน |
-| 3 | Super Admin CRUD admin (สร้าง/แก้/ลบ admin) | ปานกลาง | ต้องมี JSON file + role superadmin ก่อน |
-| 4 | แบน user ชั่วคราว/ถาวร (admin แบนชั่วคราว, superadmin แบนถาวร) | ปานกลาง | ต้องมี JSON file ก่อน |
-| 5 | แยก log ตาม role (superadmin เห็นหมด, admin เห็นบางส่วน) | ง่าย | ต้องมี role superadmin ก่อน |
-| 6 | Super Admin กู้คืนไฟล์ทุก user (soft delete 30 วัน) | ยาก | รอเพื่อนทำ backup/restore route |
-| 7 | logActivity ใน BACKUP / RESTORE / RESTORE_ALL | ง่าย | รอเพื่อนสร้าง route |
-
-### ลำดับที่แนะนำสำหรับงานที่เหลือ
-
-```
-1. ถามเพื่อนเรื่องเปลี่ยน users เป็น JSON file
-2. เปลี่ยน users → JSON file (แก้แค่ 1 บรรทัด + สร้าง saveUsers())
-3. เพิ่ม role superadmin
-4. แบน user
-5. Super Admin CRUD admin
-6. แยก log ตาม role
-7. กู้คืนไฟล์ 30 วัน (รอเพื่อนทำ backup/restore)
-```
-
-### สรุป feature ใหม่ที่เพิ่มใน server.js (Claude ต้องรู้)
-
-```js
-// function ใหม่ที่เพิ่ม:
-getFolderSize(folderPath)  // คำนวณขนาดโฟลเดอร์ (bytes) — วางก่อน route
-
-// route ใหม่:
-POST /share               // admin แชร์ไฟล์ให้ user — รับ { filename, targetUsers }
-                           // targetUsers = ['2','3'] หรือ ['all']
-                           // ใช้ fs.copyFileSync() คัดลอกไฟล์
-
-// แก้ไข route เดิม:
-POST /upload               // เพิ่มเช็ค getFolderSize() > 50MB → ปฏิเสธ
-GET /files (admin)         // เพิ่มส่ง role + username มาด้วย
-```
-
-## สิ่งที่เพิ่มมาใหม่
-
-> อัปเดตล่าสุด: 28 ก.พ. 2026
-
-### สิ่งที่ทำเสร็จแล้ว (ทั้งงานหลัก + Extra)
-
-| # | งาน | ไฟล์ที่แก้ | สถานะ |
-|---|------|-----------|--------|
-| 1 | วาง HTML layout dashboard.html | `page/admin/dashboard.html` | ✅ |
-| 2 | Tailwind CSS ให้สวย | `page/admin/dashboard.html` | ✅ |
-| 3 | DELETE /files/:filename (user + admin) | `server.js` | ✅ |
-| 4 | GET /files แบบ admin (เห็นไฟล์ทุก user พร้อม role + username) | `server.js` | ✅ |
-| 5 | admin.js เชื่อม fetch จริง (loadFiles, download, delete) | `page/admin/admin.js` | ✅ |
-| 6 | Logging — morgan + logActivity() ใส่ทุก route | `server.js` | ✅ |
-| 7 | Filter กรองชื่อ User (datalist dropdown) | `page/admin/admin.js` | ✅ |
-| 8 | Filter กรองประเภทไฟล์ (image/pdf/other) | `page/admin/admin.js` | ✅ |
-| 9 | Filter กรองชื่อไฟล์ (search input) | `page/admin/admin.js` | ✅ |
-| 10 | Badge สีตาม role (แดง=admin, เขียว=user) | `page/admin/admin.js` | ✅ |
-| 11 | แสดงชื่อเจ้าของไฟล์ (username) ในตาราง | `server.js` + `page/admin/admin.js` | ✅ |
-| 12 | จำกัดพื้นที่อัปโหลด 50 MB ต่อ user (`getFolderSize()`) | `server.js` | ✅ |
-| 13 | Admin อัปโหลดไฟล์ได้ (ปุ่ม upload ใน dashboard) | `page/admin/dashboard.html` + `page/admin/admin.js` | ✅ |
-| 14 | Admin แชร์ไฟล์ให้ user (รายคน/ทุกคน) — `POST /share` | `server.js` + `page/admin/admin.js` | ✅ |
-
-### สิ่งที่ยังไม่ได้ทำ (รอเพื่อน / ต้องตัดสินใจก่อน)
-
-| # | งาน | ความยาก | ต้องรออะไร |
-|---|------|---------|-----------|
-| 1 | เปลี่ยนเก็บ users ลง JSON file (แทน array ในโค้ด) | ง่าย | ต้องถามเพื่อนก่อน — เพราะแก้ server.js ร่วมกัน |
-| 2 | เพิ่ม role `superadmin` ในระบบ | ง่าย | ต้องเปลี่ยนเป็น JSON file ก่อน |
-| 3 | Super Admin CRUD admin (สร้าง/แก้/ลบ admin) | ปานกลาง | ต้องมี JSON file + role superadmin ก่อน |
-| 4 | แบน user ชั่วคราว/ถาวร (admin แบนชั่วคราว, superadmin แบนถาวร) | ปานกลาง | ต้องมี JSON file ก่อน |
-| 5 | แยก log ตาม role (superadmin เห็นหมด, admin เห็นบางส่วน) | ง่าย | ต้องมี role superadmin ก่อน |
-| 6 | Super Admin กู้คืนไฟล์ทุก user (soft delete 30 วัน) | ยาก | รอเพื่อนทำ backup/restore route |
-| 7 | logActivity ใน BACKUP / RESTORE / RESTORE_ALL | ง่าย | รอเพื่อนสร้าง route |
-
-### ลำดับที่แนะนำสำหรับงานที่เหลือ
-
-```
-1. ถามเพื่อนเรื่องเปลี่ยน users เป็น JSON file
-2. เปลี่ยน users → JSON file (แก้แค่ 1 บรรทัด + สร้าง saveUsers())
-3. เพิ่ม role superadmin
-4. แบน user
-5. Super Admin CRUD admin
-6. แยก log ตาม role
-7. กู้คืนไฟล์ 30 วัน (รอเพื่อนทำ backup/restore)
-```
-
-### สรุป feature ใหม่ที่เพิ่มใน server.js (Claude ต้องรู้)
-
-```js
-// function ใหม่ที่เพิ่ม:
-getFolderSize(folderPath)  // คำนวณขนาดโฟลเดอร์ (bytes) — วางก่อน route
-
-// route ใหม่:
+POST /backup              // backup ไฟล์เป็น .tar.gz — admin ได้ทั้งหมด, user ได้แค่ของตัวเอง
 POST /share               // admin แชร์ไฟล์ให้ user — รับ { filename, targetUsers }
                            // targetUsers = ['2','3'] หรือ ['all']
                            // ใช้ fs.copyFileSync() คัดลอกไฟล์
