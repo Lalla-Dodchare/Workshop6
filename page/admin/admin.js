@@ -234,3 +234,13 @@ document.getElementById('filterUser').addEventListener('input',function(){
     });
 });
 
+
+/// แสดงรายการที่ backup
+async function backupFile() {
+    const res = await fetch('/backup', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token } 
+    });
+    const data = await res.json();
+    alert(data.message + 'ขนาด:' + data.size + 'bytes');
+}

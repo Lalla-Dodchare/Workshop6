@@ -52,7 +52,7 @@ app.post('/login', (req, res) => {
 
     // step 3: ถ้าไม่เจอ → ส่ง error กลับ
     if (!user) {
-        logActivity('LOGIN_FAILED', 'unknow', 'wrong credentials');
+        logActivity('LOGIN_FAILED', username, 'wrong credentials');
         return res.status(401).json({ error: 'username หรือ password ไม่ถูกต้อง' });
     }
 
@@ -76,6 +76,7 @@ app.post('/login', (req, res) => {
         users.push(newUser);
         saveUsers();
         res.json({ message: 'สมัครสมาชิกสำเร็จ'});
+        logActivity('REGISTER',username, 'new user')
     })
 
 
@@ -84,7 +85,7 @@ function authenticateToken(req, res, next){
     const token = authHeader && authHeader.split(' ')[1]
 
     if(!token) {
-        logActivity('AUTH_FAILED', 'unknow', 'No token');
+        logActivity('AUTH_FAILED', 'unknow', 'No token =>' + req.method + ' ' + req.originalUrl);
         return res.status(401).json({ error: 'ไม่มี token'});
     }
 
@@ -99,7 +100,6 @@ function authenticateToken(req, res, next){
         next();
     });
 }
-
 
 
 // ===== ตั้งค่าที่เก็บไฟล์อัปโหลด =====
@@ -141,10 +141,6 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
          });
          return totalSize;
     }
-
-
-
-
 
 
 // แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
@@ -247,7 +243,6 @@ app.get('/files', authenticateToken, (req, res) => {
 
 
 
-
 // Download สำหรับ admin 
 app.get('/download/:owner/:filename', authenticateToken, (req, res) => {
     const filePath = path.join(__dirname, 'uploads', req.params.owner, req.params.filename);
@@ -299,10 +294,50 @@ app.post('/share', authenticateToken, (req, res) => {
         fs.copyFileSync(from, to);
     })
     res.json({ message: 'แชร์สำเร็จ' });
-}) 
+    logActivity('SHARE', req.user.id + ':' + req.user.username, filename + ' → ' + targetUsers.join(', '))
+})
     
 
 
+
+
+
+
+// superadmin crud — ดูรายการ user ทั้งหมด
+app.get('/users', authenticateToken, (req, res) => {
+    if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ error: 'เฉพาะ Super Admin เท่านั้น' });
+    }
+    res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role })));
+});
+
+// superadmin crud — สร้าง user ใหม่
+app.post('/users', authenticateToken, (req, res) => {
+    if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ error: 'เฉพาะ Super Admin เท่านั้น' });
+    }
+    const { username, password, role } = req.body;
+
+    const repeatUser = users.find(u => u.username === username);
+    if (repeatUser) {
+        return res.status(400).json({ error: 'username นี้มีคนใช้แล้ว' });
+    }
+
+    const newId = Math.max(...users.map(u => u.id)) + 1;
+    const newUser = { id: newId, username, password, role };
+    users.push(newUser);
+    saveUsers();
+    logActivity('CREATE_USER', req.user.id + ':' + req.user.username, username + ' (' + role + ')');
+    res.json({ message: 'สร้าง user สำเร็จ' });
+});
+
+
+// ดูรายการ Backup
+app.get('/backups', authenticateToken, (req, res) => {
+    const file = fs.readdirSync(path.join(__dirname, 'backups'))
+    const typeFile = file.filter(f => f.endsWith('.tar.gz'))
+    res.json(typeFile);
+})
 
 
 

@@ -24,3 +24,17 @@
 {"timestamp":"2026-02-28T06:49:50.362Z","action":"UPLOAD_SUCCESS","username":"1:admin","detail":"8a106e83-5fe0-4a75-8820-6da1249a6a79.png.png"}
 {"timestamp":"2026-02-28T09:18:57.886Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"admin"}
 {"timestamp":"2026-02-28T09:19:11.609Z","action":"AUTH_FAILED","username":"unknow","detail":"No token"}
+{"timestamp":"2026-03-01T05:15:51.337Z","action":"DELETE","username":"1:admin","detail":"IMG_9134.jpg"}
+{"timestamp":"2026-03-01T05:16:27.367Z","action":"UPLOAD_SUCCESS","username":"1:admin","detail":" w2-1_T002_67141535_Lalla Dodchare.JPG"}
+{"timestamp":"2026-03-01T05:16:47.595Z","action":"SHARE","username":"1:admin","detail":" w2-1_T002_67141535_Lalla Dodchare.JPG → 2"}
+{"timestamp":"2026-03-01T05:41:52.782Z","action":"DELETE","username":"1:admin","detail":"8a106e83-5fe0-4a75-8820-6da1249a6a79.png.png"}
+{"timestamp":"2026-03-01T06:13:43.073Z","action":"DELETE","username":"1:admin","detail":" w2-1_T002_67141535_Lalla Dodchare.JPG"}
+{"timestamp":"2026-03-01T06:13:46.883Z","action":"AUTH_FAILED","username":"unknow","detail":"No token"}
+{"timestamp":"2026-03-01T06:14:19.811Z","action":"AUTH_FAILED","username":"unknow","detail":"No token"}
+{"timestamp":"2026-03-01T06:16:26.371Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T06-16-26-308Z.tar.gz"}
+{"timestamp":"2026-03-01T06:16:42.467Z","action":"UPLOAD_SUCCESS","username":"1:admin","detail":"3-health-insurance-plans-600.gif"}
+{"timestamp":"2026-03-01T06:16:49.455Z","action":"DELETE","username":"1:admin","detail":"3-health-insurance-plans-600.gif"}
+{"timestamp":"2026-03-01T06:16:50.829Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T06-16-50-788Z.tar.gz"}
+{"timestamp":"2026-03-01T06:17:00.546Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T06-17-00-497Z.tar.gz"}
+{"timestamp":"2026-03-01T06:18:12.678Z","action":"DELETE","username":"1:admin","detail":"package-lock.json"}
+{"timestamp":"2026-03-01T06:18:14.463Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T06-18-14-430Z.tar.gz"}
