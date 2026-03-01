@@ -10,6 +10,7 @@ const morgan = require('morgan');
 // const { json } = require('stream/consumers');
 const archiver = require('archiver');
 const  tar = require('tar');
+const sizeOf = require('image-size');
 const SECRET_KEY ='workshop6-secret-ke'
 
 app.use(cors());
@@ -237,10 +238,34 @@ app.get('/files', authenticateToken, (req, res) => {
             });
             res.json(allFiles);
         });
+        
+
+
     } else {
         fs.readdir(path.join('uploads', String(req.user.id)), (err, files) => {
             if (err) return res.status(500).json({ error: 'Unable to list files' });
-            res.json(files);
+            const result = [];
+            files.forEach(function(filename){
+                const filePath = path.join('uploads', String(req.user.id), filename);
+                const stat = fs.statSync(filePath);
+                const ext = path.extname(filename).toLowerCase();
+                let dimensions = null;
+                try {
+                    dimensions = sizeOf(filePath);
+                } catch (e) {
+                }
+
+                result.push({
+                    filename: filename,
+                    size: stat.size,
+                    type: ext,
+                    birthtime: stat.birthtime,
+                    modified: stat.mtime,
+                    dimensions: dimensions
+                });
+            })
+            
+            res.json(result);
         });
     }
 });

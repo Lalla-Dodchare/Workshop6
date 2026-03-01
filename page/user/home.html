@@ -90,15 +90,15 @@
                 const tr = document.createElement('tr');
                 tr.className = 'border-b hover:bg-gray-50 transition';
                 tr.innerHTML = `
-                    <td class="p-2">${file}</td>
+                    <td class="p-2">${file.filename}</td>
                     <td class="p-2">
-                        <button onclick="previewFile('${file}')" class="text-purple-600 hover:underline cursor-pointer">Preview</button>
+                        <button onclick="previewFile('${file.filename}')" class="text-purple-600 hover:underline cursor-pointer">Preview</button>
                     </td>
                     <td class="p-2">
-                        <button onclick="download('${file}')" class="text-blue-600 hover:underline cursor-pointer">Download</button>
+                        <button onclick="download('${file.filename}')" class="text-blue-600 hover:underline cursor-pointer">Download</button>
                     </td>
                     <td class="p-2">
-                        <button onclick="deleteFile('${file}')" class="text-red-600 hover:underline cursor-pointer">ลบ</button>
+                        <button onclick="deleteFile('${file.filename}')" class="text-red-600 hover:underline cursor-pointer">ลบ</button>
                     </td>
                 `;
                 fileList.appendChild(tr);
