@@ -38,3 +38,11 @@
 {"timestamp":"2026-03-01T06:17:00.546Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T06-17-00-497Z.tar.gz"}
 {"timestamp":"2026-03-01T06:18:12.678Z","action":"DELETE","username":"1:admin","detail":"package-lock.json"}
 {"timestamp":"2026-03-01T06:18:14.463Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T06-18-14-430Z.tar.gz"}
+{"timestamp":"2026-03-01T08:22:59.314Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"admin"}
+{"timestamp":"2026-03-01T08:23:04.925Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T08-23-04-881Z.tar.gz"}
+{"timestamp":"2026-03-01T10:36:48.436Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T10-36-48-390Z.tar.gz"}
+{"timestamp":"2026-03-01T18:29:29.129Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T18-29-29-079Z.tar.gz"}
+{"timestamp":"2026-03-01T18:30:31.157Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T18-30-31-121Z.tar.gz"}
+{"timestamp":"2026-03-01T18:31:51.221Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T18-31-51-173Z.tar.gz"}
+{"timestamp":"2026-03-01T18:37:49.245Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T18-37-49-215Z.tar.gz"}
+{"timestamp":"2026-03-01T18:37:55.898Z","action":"RESTORE","username":"1:admin","detail":"3/"}

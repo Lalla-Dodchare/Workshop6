@@ -146,10 +146,11 @@ async function loadFiles() {
     });
 } 
 loadFiles();
+loadBackups();
+
 // function confim ลบไฟล์
  async function deleteFile(filename, owner) {
     if (!confirm('ลบไฟล์' + filename + 'จริงไหม')) return;
-    loadFiles();
     const fileDelete = '/files/' + owner + '/' + filename;
     await fetch(fileDelete, {
         method: 'delete',
@@ -243,4 +244,66 @@ async function backupFile() {
     });
     const data = await res.json();
     alert(data.message + 'ขนาด:' + data.size + 'bytes');
+    loadFiles();
+    loadBackups()
 }
+
+/// สร้าง Backup
+async function loadBackups() {
+    const listBackup = await fetch('/backups', {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const listFile = await listBackup.json();
+    const showList = document.getElementById("backupList");
+     showList.innerHTML = '';
+    listFile.forEach(function(list) {
+     showList.innerHTML += `<div>${list}<button onclick="listBackupFiles('${list}')">ดูไฟล์</button></div>`;
+    })
+} 
+/// ขั้นตอน recovery
+async function listBackupFiles(filename) {
+    const recoveryFile = await fetch('/backup/' + filename + '/list', {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    
+    const fromSize = await recoveryFile.json();
+    const boxShow = document.getElementById('recoveryList');
+    boxShow.innerHTML = ''; 
+
+    fromSize.forEach(function(listSF) {
+        boxShow.innerHTML += `
+            <div>
+                <input type="checkbox" class="backup-check" value="${listSF.path}" />
+                <span>${listSF.path} (${listSF.size} bytes)</span>
+            </div>`;
+    });
+    boxShow.innerHTML += `<button onclick="recoveryFiles('${filename}')">กู้คืนไฟล์ที่เลือก</button>`
+}
+/// แสดงรายการสำหรับกู้คืนได้
+ async function recoveryFiles(filename) {
+    const checked = document.querySelectorAll('#recoveryList input[type="checkbox"]:checked');
+    const selectedFiles = [];
+    checked.forEach(function(box){
+        selectedFiles.push(box.value);
+    });
+    if (selectedFiles.length === 0) {
+        alert ('กรุณาเลือกไฟล์ที่ต้องการกู้คืน');
+        return;
+    }
+    const fileSelect = await fetch('/backup/' + filename + '/recover', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ selectedFiles })
+    });
+    const res = await fileSelect.json();
+    alert(res.message);
+    loadFiles();
+ }
+
+
+

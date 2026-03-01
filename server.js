@@ -10,6 +10,7 @@ const morgan = require('morgan');
 // const { json } = require('stream/consumers');
 const archiver = require('archiver');
 const  tar = require('tar');
+const sizeOf = require('image-size');
 const SECRET_KEY ='workshop6-secret-ke'
 
 app.use(cors());
@@ -93,7 +94,7 @@ function authenticateToken(req, res, next){
 
     jwt.verify(token, SECRET_KEY, (err, decoded) => {
         if (err) {
-            logActivity('TOKEN_ERROR', 'unknow', 'Invalid token')
+            logActivity('TOKEN_ERROR', 'unknow', 'Invalid token =>' + req.method + ' ' + req.originalUrl);
             return res.status(403).json({ error: 'token ไม่ถูกต้อง'});
         }
         req.user = decoded;
@@ -233,10 +234,34 @@ app.get('/files', authenticateToken, (req, res) => {
             });
             res.json(allFiles);
         });
+        
+
+
     } else {
         fs.readdir(path.join('uploads', String(req.user.id)), (err, files) => {
             if (err) return res.status(500).json({ error: 'Unable to list files' });
-            res.json(files);
+            const result = [];
+            files.forEach(function(filename){
+                const filePath = path.join('uploads', String(req.user.id), filename);
+                const stat = fs.statSync(filePath);
+                const ext = path.extname(filename).toLowerCase();
+                let dimensions = null;
+                try {
+                    dimensions = sizeOf(filePath);
+                } catch (e) {
+                }
+
+                result.push({
+                    filename: filename,
+                    size: stat.size,
+                    type: ext,
+                    birthtime: stat.birthtime,
+                    modified: stat.mtime,
+                    dimensions: dimensions
+                });
+            })
+            
+            res.json(result);
         });
     }
 });
@@ -306,6 +331,7 @@ app.post('/share', authenticateToken, (req, res) => {
 // superadmin crud — ดูรายการ user ทั้งหมด
 app.get('/users', authenticateToken, (req, res) => {
     if (req.user.role !== 'superadmin') {
+        logActivity('Security Audit', req.user.id + ':' + req.user.role + ':' + req.user.username ,'พยายามเข้ามาใช้งานทั้งที่ไม่มีสิทธิ์')
         return res.status(403).json({ error: 'เฉพาะ Super Admin เท่านั้น' });
     }
     res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role })));
