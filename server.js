@@ -251,7 +251,6 @@ app.get('/files', authenticateToken, (req, res) => {
                     dimensions = sizeOf(filePath);
                 } catch (e) {
                 }
-
                 result.push({
                     filename: filename,
                     size: stat.size,
@@ -322,9 +321,6 @@ app.post('/share', authenticateToken, (req, res) => {
     res.json({ message: 'แชร์สำเร็จ' });
     logActivity('SHARE', req.user.id + ':' + req.user.username, filename + ' → ' + targetUsers.join(', '))
 })
-    
-
-
 
 
 

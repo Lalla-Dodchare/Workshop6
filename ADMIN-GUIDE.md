@@ -43,6 +43,12 @@
 - อย่าเขียนโค้ดให้ทั้งหมด ต้องสอนให้เขียนเอง
 - ดูตารางแบ่งงานด้านล่าง ห้ามทำสิ่งที่ไม่ใช่ของตัวเอง
 
+**กฎสำหรับ Claude (แก้ UI — สำคัญมาก!):**
+1. **สร้างแค่ HTML/CSS** — ห้ามเขียน JS logic ใหม่ (addEventListener, fetch, function ใหม่) ยกเว้นเจ้าของบอกให้ทำ
+2. **ถ้าลบ HTML element → เช็ค JS ด้วย** — ถ้ามี JS ใน `admin.js` อ้างถึง element ที่ลบ (getElementById, querySelector) ต้องลบ/comment JS นั้นด้วย ไม่งั้นจะ error
+3. **ถ้า element ต้องใช้ token → ห้ามใช้ `<img src="...">`** — เพราะ `<img>` ส่ง Authorization header ไม่ได้ ต้องใช้ fetch + blob แทน
+4. **ก่อนแก้ไฟล์ อ่านทั้ง `dashboard.html` + `admin.js` ให้จบก่อน** — เพราะ JS แยกไฟล์ ต้องเช็คทั้ง 2 ไฟล์ก่อนแก้
+
 ---
 
 ## สถานะตอนนี้

@@ -45,6 +45,12 @@
 - อย่าเขียน GET /files แบบ admin (เห็นไฟล์ทุก user) — เพื่อนทำ
 - อย่าเขียนโค้ดให้ทั้งหมด ต้องสอนให้เขียนเอง
 
+**กฎสำหรับ Claude (แก้ UI — สำคัญมาก!):**
+1. **สร้างแค่ HTML/CSS** — ห้ามเขียน JS logic ใหม่ (addEventListener, fetch, function ใหม่) ยกเว้นเจ้าของบอกให้ทำ
+2. **ถ้าลบ HTML element → เช็ค JS ด้วย** — ถ้ามี JS อ้างถึง element ที่ลบ ต้องลบ/comment JS นั้นด้วย ไม่งั้นจะ error
+3. **ถ้า element ต้องใช้ token → ห้ามใช้ `<img src="...">`** — เพราะ `<img>` ส่ง Authorization header ไม่ได้ ต้องใช้ fetch + blob แทน
+4. **ก่อนแก้ไฟล์ อ่านทั้ง HTML + JS ในไฟล์ให้จบก่อน** — อย่าแก้แค่ครึ่งบนแล้วลืมเช็คครึ่งล่าง
+
 ---
 
 ## สถานะตอนนี้
@@ -68,22 +74,33 @@
 - [x] script.js — สลับฟอร์ม Login/Register + เช็ค password ตรงกัน
 - [x] Filter ชื่อไฟล์ (ฝั่ง admin — admin.js)
 
-**กำลังทำ:**
-- [x] Backup (TAR + Gzip) — route `POST /backup` เสร็จแล้ว (server.js บรรทัด 162-186)
-  - [x] ชั้น 1: กำหนด scope (admin → ทั้งหมด, user → แค่ของตัวเอง, superadmin → ทั้งหมด)
-  - [x] ชั้น 2: ตั้งชื่อไฟล์ backup ด้วย timestamp
-  - [x] ชั้น 3: สร้างโฟลเดอร์ backups/
-  - [x] ชั้น 4: สร้าง stream + archiver
-  - [x] ชั้น 5: output.on('close') → ส่งผลกลับ + log
-  - [x] ชั้น 6: archive.pipe(output) + archive.directory() + archive.finalize()
-- [ ] Preview ไฟล์แบบละเอียด — ดูหัวข้อ "Preview ไฟล์แบบละเอียด" ด้านล่าง
-
 **เสร็จเพิ่ม:**
-- [x] Recovery — route `GET /backup/:filename/list` + `POST /backup/:filename/recover` (server.js บรรทัด 191-213)
+- [x] Backup (TAR + Gzip) — route `POST /backup` เสร็จแล้ว
+- [x] Recovery — route `GET /backup/:filename/list` + `POST /backup/:filename/recover`
+- [x] `GET /files` ส่ง metadata (size, birthtime, mtime, dimensions) แทน string เฉยๆ
+- [x] `npm install image-size` + `require('image-size')` ใน server.js
+- [x] UI: Sidebar แบบ Google Drive (หน้าแรก, ไดรฟ์ของฉัน, แชร์กับฉัน, ล่าสุด, ที่ติดตาม, ถังขยะ, พื้นที่เก็บข้อมูล)
+- [x] UI: Grid view (cards) แทนตาราง — แสดง thumbnail รูป + icon ไฟล์ + วันที่
+- [x] UI: Search bar ย้ายไปแถบบน สไตล์ Google Drive
+- [x] UI: ปุ่ม + ใหม่ (ยังไม่เชื่อม function)
 
-**ยังไม่ได้ทำ:**
-- [ ] เพิ่มปุ่ม Backup + Recovery ในหน้า user (page/user/home.html)
-- [ ] เพิ่มปุ่ม Backup + Recovery ในหน้า admin — เพื่อนทำ (page/admin/)
+**ยังไม่ได้ทำ (Frontend — home.html):**
+- [ ] เชื่อม function ปุ่ม + ใหม่ → เปิด file picker → upload
+- [ ] เชื่อม function sidebar แต่ละปุ่ม (ไดรฟ์ของฉัน, แชร์กับฉัน, ล่าสุด, ที่ติดตาม, ถังขยะ)
+- [ ] คลิกขวา card → context menu (Preview, Download, ลบ, แชร์)
+- [ ] ดับเบิ้ลคลิก card → เปิด Preview modal พร้อมข้อมูลละเอียด (size, วันที่, dimensions)
+- [ ] แก้ `previewFile()` ให้รองรับไฟล์ครบ — ตอนนี้มีแค่ รูป + PDF, ขาด: วิดีโอ (`<video>`), เสียง (`<audio>`), text (`<pre>`)
+- [ ] Drag to Select + Keyboard Shortcuts — ลากเมาส์เลือกหลาย card, Ctrl+A ครอบหมด, Ctrl+C/V คัดลอก-วาง, ย้ายไฟล์เข้าโฟลเดอร์ได้ (ไม่มี Ctrl+Z)
+- [ ] Upload โฟลเดอร์ทั้งอัน — ลากโฟลเดอร์จากเครื่องมาโยนใส่เว็บได้เลย + animation แบบ Google Drive (ทำหลัง Drag to Select เสร็จ)
+- [ ] แถบพื้นที่เก็บข้อมูล — เชื่อมกับ API ให้แสดง x MB / 50 MB จริง
+- [ ] ปุ่ม Backup + Recovery ในหน้า user
+
+**ยังไม่ได้ทำ (Backend — server.js):**
+- [ ] ระบบถังขยะ — ย้ายไฟล์ไป trash/ แทนลบถาวร + route กู้คืน/ลบจริง
+- [ ] API พื้นที่ใช้งาน — route `GET /storage` ส่ง usedSize + maxSize กลับ
+
+**เพื่อนทำ:**
+- [ ] เพิ่มปุ่ม Backup + Recovery ในหน้า admin (page/admin/)
 
 ---
 
