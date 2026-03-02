@@ -60,6 +60,42 @@
         <div id="backupList" class="mt-4"></div>
         <div id="recoveryList"></div>
     </div>
+    <div>
+        <h2>จัดการ User</h2>
+        <table>
+           <thead>
+                 <tr>
+                     <th class="py-3 px-6 text-left font-bold">ID</th>
+                     <th class="py-3 px-6 text-left font-bold">User</th>
+                     <th class="py-3 px-6 text-left font-bold">Role</th>
+                     <th class="py-3 px-6 text-left font-bold">แก้ไข</th>
+                    <th class="py-3 px-6 text-left font-bold">ลบ</th>
+                </tr>
+           </thead>
+           <tbody id="userTable">
+                <tr class="py-3 px-6 text-center text-sm">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td><button>แก้ไข</button></td>
+                    <td><button>ลบ</button></td>
+                </tr>
+           </tbody>
+        </table>
+        <div>
+            <span>Username</span>
+            <input type="text" id="">
+            <span>Password</span>
+            <input type="text" id="">
+            <span>Role</span>
+            <select name="" id="newRole">
+                <option value="user">user</option>
+                <option value="admin"></option>
+            </select>
+            <button onclick="createUser()">create user</button>
+        </div>
+    </div>
+    
 
 
     <div class="flex justify-center mb-12">

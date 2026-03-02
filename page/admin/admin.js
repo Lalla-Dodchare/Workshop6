@@ -60,6 +60,19 @@ async function shareFile(filename, owner) {
     loadFiles();
 }
 
+/// createUser
+const { username, password, role } = req.Authorization
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -79,6 +92,48 @@ async function download(filename, owner) {
 };
 
 
+async function loadUsers() {
+    const  res = await fetch('/users', {
+        headers : { 'Authorization':'Bearer ' + token }
+    });
+    if (!res.ok) {
+        console.log('โหลดไฟล์ไม่ได้');
+        return;
+    }
+    const showUserRes = await res.json();
+    const showFile = document.getElementById('userTable');
+    showFile.innerHTML = '';
+
+    showUserRes.forEach(function(user) {
+        showFile.innerHTML += 
+        `<tr>
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.role}</td>
+            <td><button onclick="editUser(${user.id})">แก้ไข</button></td>
+            <td><button onclick="deleteUser(${user.id})">ลบ</button></td>
+        </tr>`;
+    })
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // function ที่โหลดรายการไฟล์
 async function loadFiles() {
     const res = await fetch('/files', {
@@ -90,7 +145,6 @@ async function loadFiles() {
     }
     const files = await res.json();
     const dataTable = document.getElementById("dataTable");
-    console.log(files);
     dataTable.innerHTML = '';
 
   files.forEach(function(file) {
@@ -147,6 +201,7 @@ async function loadFiles() {
 } 
 loadFiles();
 loadBackups();
+loadUsers();
 
 // function confim ลบไฟล์
  async function deleteFile(filename, owner) {

@@ -46,3 +46,8 @@
 {"timestamp":"2026-03-01T18:31:51.221Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T18-31-51-173Z.tar.gz"}
 {"timestamp":"2026-03-01T18:37:49.245Z","action":"BACKUP","username":"1:admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-01T18-37-49-215Z.tar.gz"}
 {"timestamp":"2026-03-01T18:37:55.898Z","action":"RESTORE","username":"1:admin","detail":"3/"}
+{"timestamp":"2026-03-02T03:42:00.184Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"admin"}
+{"timestamp":"2026-03-02T03:42:22.953Z","action":"LOGIN_FAILED","username":"superadmin","detail":"wrong credentials"}
+{"timestamp":"2026-03-02T03:45:03.792Z","action":"LOGIN_SUCCESS","username":"4:super admin","detail":"superadmin"}
+{"timestamp":"2026-03-02T15:57:04.614Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-02T15-57-04-547Z.tar.gz"}
+{"timestamp":"2026-03-02T15:57:19.528Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-02T15-57-19-490Z.tar.gz"}

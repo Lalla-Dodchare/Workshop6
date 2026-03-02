@@ -11,6 +11,7 @@ const morgan = require('morgan');
 const archiver = require('archiver');
 const  tar = require('tar');
 const sizeOf = require('image-size');
+const { error } = require('console');
 const SECRET_KEY ='workshop6-secret-ke'
 
 app.use(cors());
@@ -357,13 +358,44 @@ app.post('/users', authenticateToken, (req, res) => {
     res.json({ message: 'สร้าง user สำเร็จ' });
 });
 
+app.put('/users/:id', authenticateToken, (req, res) => {
+        if (req.user.role !== 'superadmin') {
+            return res.status(403).json({ error: 'เฉพาะ Super Admin เท่านั้น' });
+        }
+        const user = users.find(u => u.id === Number(req.params.id));
+    if (!user) {
+        return res.status(404).json({ error: 'ไม่พบ user'})
+    }
+        const { username, password, role} = req.body
+        user.username = username;
+        user.password = password;
+        user.role = role;
+        saveUsers();
+        logActivity('EDIT_USER', req.user.id + ':' + req.user.username,username + ' (' + role + ')');
+        res.json({ message: 'แก้ไข user สำเร็จ'})
+    });
+
+app.delete('/users/:id', authenticateToken,  (req, res) => {
+    if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ error: 'เฉพาะ Super Admin เท่านั้น' });
+    }
+    const user = users.find(u => u.id === Number(req.params.id));
+    if (!user) {
+        return res.status(404).json({ error: 'ไม่พบ user'});
+    } users = users.filter(u => u.id !== Number(req.params.id));
+    saveUsers();
+    logActivity('DELETE_USER', req.user.id + ':' + req.user.username, user.username );
+    res.json({message: 'ลบ user สำเร็จ'})
+    
+})
+    
+
 
 // ดูรายการ Backup
 app.get('/backups', authenticateToken, (req, res) => {
     const file = fs.readdirSync(path.join(__dirname, 'backups'))
     const typeFile = file.filter(f => f.endsWith('.tar.gz'))
-    res.json(typeFile);
-})
+}) 
 
 
 
