@@ -33,6 +33,7 @@ let users = JSON.parse(fs.readFileSync('user.json', 'utf8'));
 function saveUsers() {
     fs.writeFileSync('user.json', JSON.stringify(users, null, 4));
 }
+    fs.mkdirSync(path.join(__dirname, 'trash'),{ recursive: true});
 
 // function logActivity() บันทึกว่า "ใคร ทำอะไร เมื่อไหร่" ลงไฟล์ logs.txt
 function logActivity(action, username, detail) {
@@ -289,7 +290,8 @@ app.get('/download/:filename', authenticateToken, (req, res) => {
 // Delete สำหรับ  userz
 app.delete('/files/:filename', authenticateToken, (req, res) => {
     const fileDelete = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
-    fs.unlinkSync(fileDelete);
+    fs.mkdirSync(path.join(__dirname, 'trash', String(req.user.id)), { recursive: true});
+    fs.renameSync(fileDelete, path.join(__dirname, 'trash', String(req.user.id), req.params.filename));
     logActivity('DELETE', req.user.id + ':' + req.user.username, req.params.filename);
     res.json({ message: 'ลบสำเร็จ' });
 });
@@ -299,10 +301,63 @@ app.delete('/files/:filename', authenticateToken, (req, res) => {
 // Delete สำหรับ admin
 app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
     const fileDelete = path.join(__dirname, 'uploads', req.params.owner, req.params.filename);
-    fs.unlinkSync(fileDelete);
-    logActivity('DELETE', req.user.id + ':' + req.user.username, req.params.filename);
+    fs.mkdirSync(path.join(__dirname, 'trash', req.params.owner), { recursive: true});
+    fs.renameSync(fileDelete, path.join(__dirname, 'trash', req.params.owner, req.params.filename));
+    logActivity('DELETE', req.params.owner + ':' + req.user.username, req.params.filename);
     res.json({ message: 'ลบสำเร็จ'});
 })
+    app.get('/trash', authenticateToken, (req, res) => {
+    fs.readdir(path.join('trash', String(req.user.id)), (err, files) => {
+            if (err) return res.status(500).json({ error: 'Unable to list files' });
+            const result = [];
+            files.forEach(function(filename){
+                const filePath = path.join('trash', String(req.user.id), filename);
+                const stat = fs.statSync(filePath);
+                const ext = path.extname(filename).toLowerCase();
+                let dimensions = null;
+                try {
+                    dimensions = sizeOf(filePath);
+                } catch (e) {
+                }
+                result.push({
+                    filename: filename,
+                    size: stat.size,
+                    type: ext,
+                    birthtime: stat.birthtime,
+                    modified: stat.mtime,
+                    dimensions: dimensions
+                });
+            })
+            res.json(result);
+        });   
+});
+
+app.post('/trash/:filename/restore', authenticateToken, (req, res) => {
+    fs.mkdirSync(path.join(__dirname, 'uploads', String(req.user.id)), { recursive: true});
+    fs.renameSync(path.join(__dirname, 'trash', String(req.user.id), req.params.filename), path.join(__dirname, 'uploads', String(req.user.id), req.params.filename));
+    logActivity('RESTORE', req.user.id + ':' + req.user.username, req.params.filename);
+    res.json({ message: 'กู้คืนสำเร็จ'});
+})
+
+app.delete('/trash', authenticateToken, (req, res) => {
+    const trashFolder = path.join(__dirname, 'trash', String(req.user.id));
+    const files = fs.readdirSync(trashFolder);
+    files.forEach(function(filename) {
+        fs.unlinkSync(path.join(trashFolder, filename));
+    })
+    logActivity('EMPTY_TRASH', req.user.id + ':' + req.user.username, files.length + ' files');
+    res.json({ message: 'ลบถาวรทั้งหมดสำเร็จ'});
+})
+
+
+app.delete('/trash/:filename', authenticateToken, (req, res) => {
+    fs.unlinkSync(path.join(__dirname, 'trash', String(req.user.id), req.params.filename));
+    logActivity('DELETE_PERMANENT', req.user.id + ':' + req.user.username, req.params.filename);
+    res.json({ message: 'ลบถาวรสำเร็จ'});
+})
+    
+
+    
 
 
 /// function แชร์ไฟล์
