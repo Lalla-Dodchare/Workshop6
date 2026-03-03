@@ -36,13 +36,29 @@ function saveUsers() {
     fs.mkdirSync(path.join(__dirname, 'trash'),{ recursive: true});
 
 // function logActivity() บันทึกว่า "ใคร ทำอะไร เมื่อไหร่" ลงไฟล์ logs.txt
-function logActivity(action, username, detail) {
+function logActivity(action, username, detail, role) {
     const entry = {
         timestamp : new Date().toISOString(),
-        action, username, detail
+        action, username, detail, role
     };
     fs.appendFileSync('logs.txt', JSON.stringify(entry) + '\n');
 }
+
+app.get('/logs', authenticateToken, (req, res) => {
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+        return res.status(403).json({ error: 'เฉพาะ super admin กับ admin เท่านั้น'});
+    } 
+    const read = fs.readFileSync('logs.txt', 'utf8');
+    const lineOne = read.split('\n');
+    const filter = lineOne.filter(line => line);
+    const allLine = filter.map(line => JSON.parse(line))
+})
+
+
+
+
+
+
 
 
 // ===== API Login (ชั่วคราว — ยังไม่มี middleware ตรวจ token, ยังไม่แยกโฟลเดอร์ตาม user) =====
@@ -57,6 +73,9 @@ app.post('/login', (req, res) => {
     if (!user) {
         logActivity('LOGIN_FAILED', username, 'wrong credentials');
         return res.status(401).json({ error: 'username หรือ password ไม่ถูกต้อง' });
+    }
+    if (user.banned) {
+        return res.status(403).json({ error: 'บัญชีนี้ถูกระงับ' })
     }
 
     // step 4: ถ้าเจอ → สร้าง token ฝัง id, username, role ลงไป
@@ -144,20 +163,6 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
          });
          return totalSize;
     }
-
-
-// แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
-// app.get('/files', authenticateToken, (req, res) => {
-//     fs.readdir(path.join('uploads', req.user.username), (err, files) => {
-//         if (req.user.role === 'admin') {
-//             fs.readdir('uploads/req.user.username')
-//             res.json({ filename: "report.pdf", owner: "user1" })
-//         } else {
-//             fs.readdir(path.join('uploads', req.user.username));
-//         }
-//         res.json(files);
-//     })
-// });
 
 // Backup
 app.post('/backup', authenticateToken, (req, res) => {
@@ -391,7 +396,7 @@ app.get('/users', authenticateToken, (req, res) => {
         logActivity('Security Audit', req.user.id + ':' + req.user.role + ':' + req.user.username ,'พยายามเข้ามาใช้งานทั้งที่ไม่มีสิทธิ์')
         return res.status(403).json({ error: 'เฉพาะ Super Admin เท่านั้น' });
     }
-    res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role })));
+    res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role, banned: u.banned })));
 });
 
 // superadmin crud — สร้าง user ใหม่
@@ -455,8 +460,31 @@ app.get('/backups', authenticateToken, (req, res) => {
 }) 
 
 
+// ban user
+app.put('/users/:id/ban', authenticateToken, (req, res) => {
+    if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ error: 'เฉพาะ super admin เท่านั้น'});
+    } const user = users.find ( u => u.id === Number(req.params.id));
+    if (!user) {
+        return res.status(404).json({ error: 'ไม่พบ user'});
+    } 
+    user.banned = !user.banned;
+    saveUsers();
+    logActivity('BAN_USER', req.user.id + ':' + req.user.username, user.username );
+    res.json({ message: user.banned ? 'แบน user สำเร็จ' : 'ปลดแบน user สำเร็จ' });
+})
 
 
+
+
+
+
+
+
+
+
+
+  
 
 
 
