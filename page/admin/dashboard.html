@@ -34,11 +34,6 @@
                     <input type="text" id="searchInput" placeholder="ค้นหาชื่อไฟล์..." class="border border-gray-200 rounded-lg px-4 py-2 pr-8 w-56 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     <button onclick="document.getElementById('searchInput').value=''; document.getElementById('searchInput').dispatchEvent(new Event('input'))" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer text-sm">&times;</button>
                 </div>
-                <div class="relative">
-                    <input list="userList" id="filterUser" placeholder="กรอง User..." class="border border-gray-200 rounded-lg px-4 py-2 pr-8 w-56 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                    <button onclick="document.getElementById('filterUser').value=''; document.getElementById('filterUser').dispatchEvent(new Event('input'))" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer text-sm">&times;</button>
-                </div>
-                <datalist id="userList"></datalist>
                 <select id="typeFilter" class="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     <option value="">All</option>
                     <option value="image">Image</option>
@@ -64,17 +59,7 @@
             </div>
         </div>
 
-        <!-- Backup & Recovery -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold text-gray-800">Backup & Recovery</h2>
-                <button onclick="backupFile()" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition font-medium text-sm cursor-pointer">สร้าง Backup</button>
-            </div>
-            <div id="backupList" class="space-y-2"></div>
-            <div id="recoveryList" class="mt-4 space-y-2"></div>
-        </div>
-
-        <!-- จัดการ User -->
+        <!-- จัดการ User (สลับขึ้นมาก่อน) -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <h2 class="text-lg font-bold text-gray-800 mb-4">จัดการ User</h2>
 
@@ -131,6 +116,15 @@
                     <tbody id="trashTable" class="text-sm"></tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- Backup & Recovery (สลับลงมาล่าง) -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-gray-800">Backup & Recovery</h2>
+                <button onclick="backupFile()" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition font-medium text-sm cursor-pointer">สร้าง Backup</button>
+            </div>
+            <div id="backupList" class="space-y-2"></div>
         </div>
 
     </div>

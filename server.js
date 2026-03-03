@@ -323,7 +323,8 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
     fs.renameSync(fileDelete, path.join(__dirname, 'trash', req.params.owner, req.params.filename));
     logActivity('DELETE', req.params.owner + ':' + req.user.username, req.params.filename, req.user.role);
     res.json({ message: 'ลบสำเร็จ'});
-j
+})
+
 /// เปิดดู trash
     app.get('/trash', authenticateToken, (req, res) => {
     fs.readdir(path.join(__dirname, 'trash', String(req.user.id)), (err, files) => {
@@ -476,9 +477,18 @@ app.get('/backups', authenticateToken, (req, res) => {
         });
     });
     res.json(result);
-}) 
+})
 
-
+// ลบ backup
+app.delete('/backups/:filename', authenticateToken, (req, res) => {
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+        return res.status(403).json({ error: 'เฉพาะ admin เท่านั้น' });
+    }
+    const filePath = path.join(__dirname, 'backups', req.params.filename);
+    fs.unlinkSync(filePath);
+    logActivity('DELETE_BACKUP', req.user.id + ':' + req.user.username, req.params.filename, req.user.role);
+    res.json({ message: 'ลบ backup สำเร็จ' });
+})
 
 
 

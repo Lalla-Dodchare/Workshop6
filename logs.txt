@@ -167,3 +167,26 @@
 {"timestamp":"2026-03-03T22:25:12.534Z","action":"CREATE_USER","username":"4:super admin","detail":"sena (admin)","role":"superadmin"}
 {"timestamp":"2026-03-03T22:25:55.874Z","action":"EDIT_USER","username":"4:super admin","detail":"admin sena (user)","role":"superadmin"}
 {"timestamp":"2026-03-03T22:25:59.779Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:40:41.616Z","action":"LOGIN_SUCCESS","username":"4:super admin","detail":"loginlegin สำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:42:44.376Z","action":"RESTORE","username":"4:super admin","detail":"1/,2/,2/ w2-1_T002_67141535_Lalla Dodchare.JPG,2/IMG_9138.jpg,2/package-lock.json,3/,4/,4/635087130_892148363688200_4537091663824376603_n.jpg","role":"superadmin"}
+{"timestamp":"2026-03-03T22:44:30.254Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T22-44-30-192Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T22:44:49.075Z","action":"DELETE","username":"4:super admin","detail":"635087130_892148363688200_4537091663824376603_n.jpg","role":"superadmin"}
+{"timestamp":"2026-03-03T22:56:41.861Z","action":"RESTORE","username":"4:super admin","detail":"635087130_892148363688200_4537091663824376603_n.jpg","role":"superadmin"}
+{"timestamp":"2026-03-03T22:56:47.522Z","action":"DELETE_USER","username":"4:super admin","detail":"admin sena","role":"superadmin"}
+{"timestamp":"2026-03-03T22:57:00.566Z","action":"RESTORE","username":"4:super admin","detail":"1/,2/,2/ w2-1_T002_67141535_Lalla Dodchare.JPG,2/IMG_9138.jpg,2/package-lock.json,3/,4/,4/635087130_892148363688200_4537091663824376603_n.jpg","role":"superadmin"}
+{"timestamp":"2026-03-03T22:57:07.150Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T22-57-07-100Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T22:59:40.618Z","action":"LOGIN_SUCCESS","username":"4:super admin","detail":"loginlegin สำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:59:54.733Z","action":"DELETE_BACKUP","username":"4:super admin","detail":"2026-03-01T06-16-26-308Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T23:00:05.828Z","action":"DELETE_BACKUP","username":"4:super admin","detail":"2026-03-03T22-57-07-100Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T23:00:13.094Z","action":"DELETE_BACKUP","username":"4:super admin","detail":"2026-03-01T06-16-50-788Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T23:00:15.396Z","action":"DELETE_BACKUP","username":"4:super admin","detail":"2026-03-01T06-17-00-497Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T23:00:18.676Z","action":"DELETE_BACKUP","username":"4:super admin","detail":"2026-03-01T06-18-14-430Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T23:00:22.539Z","action":"DELETE_BACKUP","username":"4:super admin","detail":"2026-03-01T08-23-04-881Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T23:00:26.240Z","action":"DELETE_BACKUP","username":"4:super admin","detail":"2026-03-01T10-36-48-390Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T23:00:30.590Z","action":"DELETE_BACKUP","username":"4:super admin","detail":"2026-03-03T22-44-30-192Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T23:00:35.698Z","action":"DELETE_BACKUP","username":"4:super admin","detail":"2026-03-03T22-24-12-435Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T23:01:48.603Z","action":"UPLOAD_SUCCESS","username":"4:super admin","detail":"8E2259EB-FEB8-4E14-A780-38DF653AF56F.JPG","role":"superadmin"}
+{"timestamp":"2026-03-03T23:01:56.514Z","action":"UPLOAD_SUCCESS","username":"4:super admin","detail":"CSI 205.jpeg","role":"superadmin"}
+{"timestamp":"2026-03-03T23:02:09.043Z","action":"UPLOAD_SUCCESS","username":"4:super admin","detail":"Csi 101 week2.m4a","role":"superadmin"}
+{"timestamp":"2026-03-03T23:03:02.139Z","action":"DELETE","username":"4:super admin","detail":" w2-1_T002_67141535_Lalla Dodchare.JPG","role":"superadmin"}
+{"timestamp":"2026-03-03T23:03:09.040Z","action":"DELETE","username":"4:super admin","detail":"data-1744388284159.csv","role":"superadmin"}

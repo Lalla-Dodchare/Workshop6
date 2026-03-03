@@ -23,11 +23,5 @@
         "password": "lily123",
         "role": "user",
         "banned": false
-    },
-    {
-        "id": 6,
-        "username": "admin sena",
-        "password": "adminsena123",
-        "role": "user"
     }
 ]

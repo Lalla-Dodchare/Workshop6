@@ -528,6 +528,38 @@ async function emptyTrash() {
     loadTrash();
 }
 
-async  function loadLogs(role) {
-    
+/// กู้คืนทั้งหมด — ดึงรายการไฟล์จาก backup แล้ว recover ทุกไฟล์
+async function recoverAll(filename) {
+    if (!confirm('กู้คืนไฟล์ทั้งหมดจาก ' + filename + ' จริงไหม?')) return;
+    // ดึงรายการไฟล์ใน backup ก่อน
+    const listRes = await fetch('/backup/' + filename + '/list', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const files = await listRes.json();
+    const allPaths = files.map(function(f) { return f.path; });
+
+    // recover ทุกไฟล์
+    const recoverRes = await fetch('/backup/' + filename + '/recover', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ selectedFiles: allPaths })
+    });
+    const data = await recoverRes.json();
+    alert(data.message);
+    loadFiles();
+}
+
+/// ลบ backup
+async function deleteBackup(filename) {
+    if (!confirm('ลบ backup ' + filename + ' จริงไหม?')) return;
+    const res = await fetch('/backups/' + filename, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    alert(data.message);
+    loadBackups();
 }
