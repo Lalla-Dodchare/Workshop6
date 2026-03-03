@@ -56,43 +56,56 @@
     </div>
     <div class="mt-8">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Backup & Recovery</h2>
-        <button onclick="backupFile()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition font-medium">สร้าง Backup</button>
-        <div id="backupList" class="mt-4"></div>
-        <div id="recoveryList"></div>
+        <button onclick="backupFile()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition font-medium mb-4">สร้าง Backup</button>
+        <div id="backupList" class="mt-4 space-y-2"></div>
+        <div id="recoveryList" class="mt-4 bg-white rounded-xl shadow-sm p-4 space-y-2"></div>
     </div>
-    <div>
-        <h2>จัดการ User</h2>
-        <table>
-           <thead>
-                 <tr>
-                     <th class="py-3 px-6 text-left font-bold">ID</th>
-                     <th class="py-3 px-6 text-left font-bold">User</th>
-                     <th class="py-3 px-6 text-left font-bold">Role</th>
-                     <th class="py-3 px-6 text-left font-bold">แก้ไข</th>
-                    <th class="py-3 px-6 text-left font-bold">ลบ</th>
-                </tr>
-           </thead>
-           <tbody id="userTable">
-                <tr class="py-3 px-6 text-center text-sm">
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td><button>แก้ไข</button></td>
-                    <td><button>ลบ</button></td>
-                </tr>
-           </tbody>
-        </table>
-        <div>
-            <span>Username</span>
-            <input type="text" id="newUsername">
-            <span>Password</span>
-            <input type="text" id="newPassword">
-            <span>Role</span>
-            <select name="" id="newRole">
+    <div class="mt-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">จัดการ User</h2>
+
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="newUsername" placeholder="Username" class="border rounded-lg px-4 py-2 w-48">
+            <input type="text" id="newPassword" placeholder="Password" class="border rounded-lg px-4 py-2 w-48">
+            <select id="newRole" class="border rounded-lg px-4 py-2">
                 <option value="user">user</option>
-                <option value="admin"></option>
+                <option value="admin">admin</option>
+                <option value="superadmin">superadmin</option>
             </select>
-            <button onclick="createUser()">create user</button>
+            <button onclick="createUser()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition font-medium">สร้าง User</button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse bg-white rounded-xl overflow-hidden shadow-sm">
+                <thead class="bg-white text-gray-800 uppercase text-xs border-b-2 border-gray-100">
+                    <tr class="border-b">
+                        <th class="py-3 px-6 text-left font-bold">ID</th>
+                        <th class="py-3 px-6 text-left font-bold">Username</th>
+                        <th class="py-3 px-6 text-left font-bold">Role</th>
+                        <th class="py-3 px-6 text-center font-bold">แก้ไข</th>
+                        <th class="py-3 px-6 text-center font-bold">ลบ</th>
+                        <th class="py-3 px-6 text-center font-bold">Banned</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable"></tbody>
+            </table>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Trash</h2>
+            <button onclick="emptyTrash()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition font-medium mb-4">ล้างถังขยะทั้งหมด</button>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse bg-white rounded-xl overflow-hidden shadow-sm">
+                    <thead class="bg-white text-gray-800 uppercase text-xs border-b-2 border-gray-100">
+                        <tr class="border-b">
+                            <th class="py-3 px-6 text-left font-bold">File name</th>
+                            <th class="py-3 px-6 text-left font-bold">Size</th>
+                            <th class="py-3 px-6 text-center font-bold">Recovery</th>
+                            <th class="py-3 px-6 text-center font-bold">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trashTable"></tbody>
+                </table>
+            </div>
         </div>
     </div>
     

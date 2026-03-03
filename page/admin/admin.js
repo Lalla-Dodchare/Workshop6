@@ -1,5 +1,3 @@
-const { application } = require("express");
-
 // --- function  เช็คว่า login แล้วหรือยัง ---
 const token = localStorage.getItem('token')
 if (!token) {
@@ -95,8 +93,9 @@ async function loadUsers() {
             <td>${user.id}</td>
             <td>${user.username}</td>
             <td>${user.role}</td>
-            <td><button onclick="editUser(${user.id})">แก้ไข</button></td>
-            <td><button onclick="deleteUser(${user.id})">ลบ</button></td>
+            <td><button onclick="editUser(${user.id})">Edit</button></td>
+            <td><button onclick="deleteUser(${user.id})">Delete</button></td>
+            <td><button onclick="banuser(${user.id})">${user.banned ? 'ปลดแบน' : 'แบน'}</button></td>
         </tr>`;
     })
 }
@@ -175,6 +174,7 @@ async function loadFiles() {
 loadFiles();
 loadBackups();
 loadUsers();
+loadTrash();
 
 // confim ลบไฟล์
  async function deleteFile(filename, owner) {
@@ -198,15 +198,40 @@ async function deleteUser(id) {
     loadUsers();
 }
 
-async function editUser(id) {
-    const username = prompt('ใส่ username ใหม่');
-    const password = prompt('ใส่ password ใหม่');
-    const rloe = prompt('ใส่ role ใหม่');
+
+// ปุ่ม แบน
+async function banuser(id) {
+    if (!confirm('แบน user คนนี้จริงๆใช่ไหม')) return;
+    const banUser = await fetch('/users/' + id + '/ban', {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const res = await banUser.json();
+    alert(res.message);
+    loadUsers();
 }
 
 
 
 
+
+
+async function editUser(id) {
+    const username = prompt('ใส่ username ใหม่');
+    const password = prompt('ใส่ password ใหม่');
+    const role = prompt('ใส่ role ใหม่');
+    const url = '/users/' + id; 
+    await fetch(url, {
+        method: 'PUT',
+        headers: { 
+            'Authorization': 'Bearer ' + token ,
+            'Content-Type': `application/json`
+        },
+        body: JSON.stringify({ username, password, role })
+    });
+    const res = await fetch(url.json);
+    alert(res.message); 
+}
 
 
 /// createUser
@@ -376,5 +401,66 @@ async function listBackupFiles(filename) {
     loadFiles();
  }
 
+ /// แสดงรายการไฟล์ที่กู้คืน
+async function loadTrash() {
+    const file = await fetch('/trash',{
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    const showFile = await file.json();
+    const fileTrash = document.getElementById('trashTable');
+    fileTrash.innerHTML = '';
 
+    showFile.forEach(function(file) {
+        fileTrash.innerHTML += 
+        `<tr>
+            <td>${file.filename}</td>
+            <td>${file.size}</td>
+            <td>
+                <button onclick="restoreFile('${file.filename}')">restoreFile</button>
+                </td>
+            <td>
+                <button onclick="deletePermanent('${file.filename}')">deletePermanent</button>
+            </td>
+        </tr>`;
+    })
+}
+
+///        file ที่ถูกกู้คืนกลับมา
+async function restoreFile(filename) {
+    const file = await fetch(`/trash/${filename}/restore`, {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + token }
+    });
+    const res =  await file.json();
+    alert(res.message);
+    loadTrash();
+}
+
+// ปุ่มลบถาวร
+async function deletePermanent(filename) {
+    const fileDelete = await fetch(`/trash/${filename}` ,{
+        method: 'DELETE',
+        headers: {'Authorization': 'Bearer ' + token}
+    });
+    const res = await fileDelete.json();
+    alert(res.message);
+    loadTrash();
+}
+
+// ปุ่มล้างถังขยะ
+async function emptyTrash() {
+    if (!confirm('ต้องการล้างถังขยะทั้งหมดจริงไหม')) return;
+    const trash = await fetch('/trash' ,{
+        method: 'DELETE',
+        headers: {'Authorization': 'Bearer ' + token}
+    });
+    const res = await trash.json();
+    alert(res.message);
+    loadFiles();
+    loadBackups();
+    loadTrash();
+}
 
