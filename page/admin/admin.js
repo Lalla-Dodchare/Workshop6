@@ -1,3 +1,5 @@
+const { application } = require("express");
+
 // --- function  เช็คว่า login แล้วหรือยัง ---
 const token = localStorage.getItem('token')
 if (!token) {
@@ -26,13 +28,12 @@ async function uploadFile() {
         loadFiles();
     } else { 
         const data = await response.json();
-        alert(data.error);
-         
+        alert(data.error);     
     }
-
-
-
 }
+
+
+
 
 // ปุ่ม share
 async function shareFile(filename, owner) {
@@ -59,22 +60,6 @@ async function shareFile(filename, owner) {
     alert(data.message);
     loadFiles();
 }
-
-/// createUser
-const { username, password, role } = req.Authorization
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // ปุ่ม Download
@@ -114,19 +99,7 @@ async function loadUsers() {
             <td><button onclick="deleteUser(${user.id})">ลบ</button></td>
         </tr>`;
     })
-
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -203,7 +176,7 @@ loadFiles();
 loadBackups();
 loadUsers();
 
-// function confim ลบไฟล์
+// confim ลบไฟล์
  async function deleteFile(filename, owner) {
     if (!confirm('ลบไฟล์' + filename + 'จริงไหม')) return;
     const fileDelete = '/files/' + owner + '/' + filename;
@@ -213,6 +186,47 @@ loadUsers();
     });    
     loadFiles(); 
 }
+
+//  confim ลบ user
+async function deleteUser(id) {
+    if (!confirm('ลบ user คนนี้จริงๆใช่ไหม')) return;
+    const userDelete = '/users/' + id;
+    await fetch(userDelete, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    loadUsers();
+}
+
+async function editUser(id) {
+    const username = prompt('ใส่ username ใหม่');
+    const password = prompt('ใส่ password ใหม่');
+    const rloe = prompt('ใส่ role ใหม่');
+}
+
+
+
+
+
+
+/// createUser
+async function createUser() {
+    const username = document.getElementById('newUsername').value
+    const password = document.getElementById('newPassword').value
+    const role = document.getElementById('newRole').value
+    const createRes = await fetch('/users', {
+    method : 'POST',
+    headers : {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': `application/json`
+    },
+    body: JSON.stringify({ username, password, role })
+  });
+  const data = await createRes.json();
+  alert(data.message);
+  loadUsers();
+}
+
 
 
 // กรองประเภทไฟล์
@@ -291,6 +305,8 @@ document.getElementById('filterUser').addEventListener('input',function(){
 });
 
 
+    ///  backup && recovery
+
 /// แสดงรายการที่ backup
 async function backupFile() {
     const res = await fetch('/backup', {
@@ -328,8 +344,8 @@ async function listBackupFiles(filename) {
     boxShow.innerHTML = ''; 
 
     fromSize.forEach(function(listSF) {
-        boxShow.innerHTML += `
-            <div>
+        boxShow.innerHTML += 
+            `<div>
                 <input type="checkbox" class="backup-check" value="${listSF.path}" />
                 <span>${listSF.path} (${listSF.size} bytes)</span>
             </div>`;

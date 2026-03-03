@@ -144,20 +144,6 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
          return totalSize;
     }
 
-
-// แสดงรายการไฟล์ที่มีในเซิร์ฟเวอร์
-// app.get('/files', authenticateToken, (req, res) => {
-//     fs.readdir(path.join('uploads', req.user.username), (err, files) => {
-//         if (req.user.role === 'admin') {
-//             fs.readdir('uploads/req.user.username')
-//             res.json({ filename: "report.pdf", owner: "user1" })
-//         } else {
-//             fs.readdir(path.join('uploads', req.user.username));
-//         }
-//         res.json(files);
-//     })
-// });
-
 // Backup
 app.post('/backup', authenticateToken, (req, res) => {
     let backupSource;
@@ -392,6 +378,16 @@ app.get('/backups', authenticateToken, (req, res) => {
     const file = fs.readdirSync(path.join(__dirname, 'backups'))
     const typeFile = file.filter(f => f.endsWith('.tar.gz'))
 }) 
+
+
+
+
+
+
+
+
+
+
 
 
 
