@@ -25,9 +25,27 @@
     <!-- Sidebar -->
     <aside class="w-56 min-h-[calc(100vh-56px)] pt-2 pb-4 pl-3 pr-2 hidden md:block">
         <!-- ปุ่ม + ใหม่ -->
-        <button id="btn-new" class="flex items-center gap-2 px-5 py-4 mb-3 bg-white rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer">
-            <span class="text-2xl text-blue-600">+</span> <span class="text-sm font-medium text-gray-700">ใหม่</span>
-        </button>
+        <div class="relative">
+            <button id="btn-new" class="flex items-center gap-2 px-5 py-4 mb-3 bg-white rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer">
+                <span class="text-2xl text-blue-600">+</span> <span class="text-sm font-medium text-gray-700">ใหม่</span>
+            </button>
+            <!-- Dropdown — TODO: เชื่อมเอง กดปุ่ม #btn-new → toggle hidden ของ #newDropdown + กดที่อื่นปิด -->
+            <div id="newDropdown" class="hidden absolute left-0 top-full mt-1 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.15)] py-2 w-[280px] z-50">
+                <button id="newUploadFile" class="w-full text-left px-4 py-2.5 text-sm text-[#1f1f1f] hover:bg-[#f1f3f4] flex items-center gap-3 cursor-pointer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#5f6368"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                    อัปโหลดไฟล์
+                </button>
+                <button id="newUploadFolder" class="w-full text-left px-4 py-2.5 text-sm text-[#1f1f1f] hover:bg-[#f1f3f4] flex items-center gap-3 cursor-pointer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#5f6368"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10zM8 13.01l1.41-1.42L11 13.17V9.02h2v4.15l1.59-1.59L16 13.01 12 17l-4-3.99z"/></svg>
+                    อัปโหลดโฟลเดอร์
+                </button>
+                <hr class="my-1.5 border-[#e0e0e0]">
+                <button id="newFolder" class="w-full text-left px-4 py-2.5 text-sm text-[#1f1f1f] hover:bg-[#f1f3f4] flex items-center gap-3 cursor-pointer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#5f6368"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+                    สร้างโฟลเดอร์ใหม่
+                </button>
+            </div>
+        </div>
         <nav class="space-y-0.5 text-sm">
             <a id="nav-home" href="#" class="flex items-center gap-3 px-3 py-1.5 rounded-full bg-[#c2e7ff] text-[#001d35] font-medium">
                 🏠 หน้าแรก
@@ -62,7 +80,8 @@
     </aside>
 
     <!-- เนื้อหาหลัก -->
-    <div class="flex-1 max-w-4xl mx-auto p-6">
+    <!-- mainContext -->
+     <div id="mainContent" class="flex-1 max-w-4xl mx-auto p-6">
     <!-- ส่วน Upload (ซ่อนไว้ เปิดจากปุ่ม + ใหม่) -->
     <input type="file" id="fileInput" class="hidden">
     <button id="uploadBtn" class="hidden"></button>
@@ -114,7 +133,122 @@
         </table>
     </div>
 
+    <!-- Empty state (ถ้าไม่มีไฟล์) — TODO: เชื่อมเอง แสดงเมื่อ files.length === 0 -->
+    <div id="fileListEmpty" class="hidden flex flex-col items-center justify-center py-20">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" class="mb-4">
+            <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" fill="#dadce0"/>
+        </svg>
+        <p class="text-[#5f6368] text-lg">ยังไม่มีไฟล์ในไดรฟ์</p>
+        <p class="text-[#80868b] text-sm mt-1">กดปุ่ม "+ ใหม่" เพื่ออัปโหลดไฟล์</p>
     </div>
+
+    </div>
+
+    <!-- ===== หน้าถังขยะ (ซ่อนไว้) — TODO: เชื่อมเอง กดปุ่ม #nav-trash → ซ่อน mainContent + แสดง trashView ===== -->
+    <div id="trashView" class="flex-1 max-w-4xl mx-auto p-6 hidden">
+        <!-- แถบข้อความบน -->
+        <div class="flex items-center justify-between bg-[#f0f4f9] rounded-xl px-4 py-3 mb-5">
+            <p class="text-sm text-[#5f6368]">รายการในถังขยะจะถูกลบถาวรหลัง 30 วัน</p>
+            <!-- TODO: เชื่อมเอง กด #emptyTrashBtn → เปิด #confirmEmptyTrashModal -->
+            <button id="emptyTrashBtn" class="text-sm text-[#1a73e8] hover:bg-[#d3e3fd] px-3 py-1.5 rounded-lg transition cursor-pointer font-medium">ล้างถังขยะ</button>
+        </div>
+
+        <!-- หัวข้อ + ปุ่มสลับ view -->
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-medium text-[#1f1f1f]">ไฟล์ในถังขยะ</span>
+            <div class="flex items-center bg-[#e8eaed] rounded-full p-0.5">
+                <button id="btn-trash-list-view" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white transition cursor-pointer" title="มุมมองรายการ">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#444746"><path d="M3 14h4v-4H3v4zm0 5h4v-4H3v4zM3 9h4V5H3v4zm5 5h13v-4H8v4zm0 5h13v-4H8v4zM8 5v4h13V5H8z"/></svg>
+                </button>
+                <button id="btn-trash-grid-view" class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm transition cursor-pointer" title="มุมมองตาราง">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#444746"><path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid ถังขยะ — TODO: เชื่อมเอง fetch GET /trash แล้ว render card เหมือน fileList -->
+        <div id="trashList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <!-- JS จะเพิ่ม card ตรงนี้ -->
+        </div>
+
+        <!-- ตาราง List view ถังขยะ — ซ่อนไว้ -->
+        <div id="trashListTable" class="hidden">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-xs text-[#444746] border-b border-[#dadce0]">
+                        <th class="text-left py-2 px-3 font-medium">ชื่อ</th>
+                        <th class="text-left py-2 px-3 font-medium hidden md:table-cell">วันที่ลบ</th>
+                        <th class="text-left py-2 px-3 font-medium hidden lg:table-cell">ขนาด</th>
+                        <th class="w-10"></th>
+                    </tr>
+                </thead>
+                <tbody id="trashListBody">
+                    <!-- JS จะเพิ่ม row ตรงนี้ -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty state ถังขยะว่าง -->
+        <div id="trashEmpty" class="hidden flex flex-col items-center justify-center py-20">
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" class="mb-4">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#dadce0"/>
+            </svg>
+            <p class="text-[#5f6368] text-lg">ถังขยะว่างเปล่า</p>
+            <p class="text-[#80868b] text-sm mt-1">ไฟล์ที่ลบจะปรากฏที่นี่</p>
+        </div>
+    </div>
+
+    <!-- ===== File Info Side Panel (เลื่อนเข้าจากขวา) — TODO: เชื่อมเอง กด fileInfo() → แสดง #fileInfoPanel + ใส่ข้อมูลไฟล์ ===== -->
+    <div id="fileInfoPanel" class="hidden w-[320px] min-h-[calc(100vh-56px)] bg-white border-l border-[#dadce0] flex-shrink-0 overflow-y-auto">
+        <div class="flex items-center justify-between p-4 border-b border-[#dadce0]">
+            <h3 id="infoFilename" class="font-medium text-[#1f1f1f] truncate flex-1">ชื่อไฟล์</h3>
+            <!-- TODO: เชื่อมเอง กด #closeInfoBtn → ซ่อน #fileInfoPanel -->
+            <button id="closeInfoBtn" class="w-8 h-8 rounded-full hover:bg-[#e8eaed] flex items-center justify-center cursor-pointer text-[#5f6368]">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+        </div>
+        <!-- Tabs -->
+        <div class="flex border-b border-[#dadce0]">
+            <button id="infoTabDetails" class="flex-1 py-3 text-sm font-medium text-[#1a73e8] border-b-2 border-[#1a73e8] cursor-pointer">รายละเอียด</button>
+            <button id="infoTabActivity" class="flex-1 py-3 text-sm font-medium text-[#5f6368] hover:text-[#1f1f1f] cursor-pointer">กิจกรรม</button>
+        </div>
+        <!-- Preview thumbnail -->
+        <div id="infoPreview" class="h-[200px] bg-[#f0f4f9] flex items-center justify-center m-4 rounded-xl overflow-hidden">
+            <span class="text-5xl">📄</span>
+        </div>
+        <!-- Details — TODO: เชื่อมเอง ใส่ข้อมูลจริงจาก file object -->
+        <div class="px-4 pb-4 space-y-4">
+            <div>
+                <p class="text-xs text-[#5f6368] mb-1">ประเภท</p>
+                <p id="infoType" class="text-sm text-[#1f1f1f]">—</p>
+            </div>
+            <div>
+                <p class="text-xs text-[#5f6368] mb-1">ขนาด</p>
+                <p id="infoSize" class="text-sm text-[#1f1f1f]">—</p>
+            </div>
+            <div>
+                <p class="text-xs text-[#5f6368] mb-1">เจ้าของ</p>
+                <p id="infoOwner" class="text-sm text-[#1f1f1f]">—</p>
+            </div>
+            <div>
+                <p class="text-xs text-[#5f6368] mb-1">แก้ไขล่าสุด</p>
+                <p id="infoModified" class="text-sm text-[#1f1f1f]">—</p>
+            </div>
+            <div>
+                <p class="text-xs text-[#5f6368] mb-1">สร้างเมื่อ</p>
+                <p id="infoCreated" class="text-sm text-[#1f1f1f]">—</p>
+            </div>
+            <div>
+                <p class="text-xs text-[#5f6368] mb-1">ขนาดรูป</p>
+                <p id="infoDimensions" class="text-sm text-[#1f1f1f]">—</p>
+            </div>
+            <div>
+                <p class="text-xs text-[#5f6368] mb-1">ตำแหน่ง</p>
+                <p class="text-sm text-[#1f1f1f] flex items-center gap-1"><span>📁</span> ไดรฟ์ของฉัน</p>
+            </div>
+        </div>
+    </div>
+
     </div> <!-- ปิด flex -->
 
     <!-- Context Menu (เมนูจุดจุดจุด) -->
@@ -141,6 +275,35 @@
         </button>
     </div>
 
+    <!-- Context Menu สำหรับถังขยะ (กู้คืน + ลบถาวร) -->
+    <div id="trashContextMenu" class="fixed bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[100] hidden min-w-[200px]">
+        <!-- TODO: เชื่อมเอง onclick → fetch POST /trash/:filename/restore แล้ว reload -->
+        <button id="trashRestoreBtn" class="w-full text-left px-4 py-2 text-sm hover:bg-[#e8eaed] flex items-center gap-3 cursor-pointer">
+            <span class="text-base">♻️</span> กู้คืน
+        </button>
+        <hr class="my-1 border-gray-200">
+        <!-- TODO: เชื่อมเอง onclick → confirm แล้ว fetch DELETE /trash/:filename -->
+        <button id="trashDeletePermanentBtn" class="w-full text-left px-4 py-2 text-sm hover:bg-[#e8eaed] text-red-600 flex items-center gap-3 cursor-pointer">
+            <span class="text-base">🗑️</span> ลบถาวร
+        </button>
+    </div>
+
+    <!-- Modal ยืนยันล้างถังขยะ — TODO: เชื่อมเอง กด #emptyTrashBtn → แสดง modal นี้, กดยืนยัน → fetch DELETE /trash -->
+    <div id="confirmEmptyTrashModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-lg w-[400px] mx-4">
+            <div class="p-5">
+                <h3 class="font-medium text-lg text-[#1f1f1f] mb-2">ลบถาวร?</h3>
+                <p class="text-sm text-[#5f6368]">ไฟล์ทั้งหมดในถังขยะจะถูกลบถาวรและไม่สามารถกู้คืนได้</p>
+            </div>
+            <div class="flex justify-end gap-2 px-5 pb-4">
+                <!-- TODO: เชื่อมเอง กด → ซ่อน modal -->
+                <button id="cancelEmptyTrash" class="px-4 py-2 text-sm text-[#1a73e8] hover:bg-[#e8eaed] rounded-full cursor-pointer">ยกเลิก</button>
+                <!-- TODO: เชื่อมเอง กด → fetch DELETE /trash แล้วซ่อน modal + reload trash -->
+                <button id="confirmEmptyTrash" class="px-4 py-2 text-sm text-white bg-[#d93025] hover:bg-[#b3261e] rounded-full cursor-pointer">ลบถาวร</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Preview -->
     <div id="previewModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-2xl shadow-lg max-w-3xl w-full mx-4 max-h-[90vh] flex flex-col">
@@ -149,6 +312,62 @@
                 <button onclick="closeModal()" class="text-gray-500 hover:text-red-500 text-2xl cursor-pointer">&times;</button>
             </div>
             <div id="modalBody" class="p-4 overflow-auto flex-1 flex items-center justify-center">
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Modal เปลี่ยนชื่อ — TODO: เชื่อมเอง renameFile() → แสดง modal + pre-fill ชื่อเดิม, กดตกลง → fetch rename API ===== -->
+    <div id="renameModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-lg w-[400px] mx-4">
+            <div class="p-5">
+                <h3 class="font-medium text-lg text-[#1f1f1f] mb-4">เปลี่ยนชื่อ</h3>
+                <input id="renameInput" type="text" class="w-full px-3 py-2.5 border border-[#dadce0] rounded-lg text-sm text-[#1f1f1f] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition" placeholder="ชื่อไฟล์ใหม่">
+            </div>
+            <div class="flex justify-end gap-2 px-5 pb-4">
+                <button id="renameCancelBtn" class="px-4 py-2 text-sm text-[#1a73e8] hover:bg-[#e8eaed] rounded-full cursor-pointer">ยกเลิก</button>
+                <button id="renameConfirmBtn" class="px-5 py-2 text-sm text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-full cursor-pointer">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Modal แชร์ — TODO: เชื่อมเอง shareFile() → แสดง modal + ใส่ชื่อไฟล์, กดเสร็จสิ้น → fetch POST /share ===== -->
+    <div id="shareModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-lg w-[480px] mx-4">
+            <div class="p-5">
+                <h3 class="font-medium text-lg text-[#1f1f1f] mb-1">แชร์ "<span id="shareFilename" class="text-[#1a73e8]"></span>"</h3>
+                <div class="mt-4">
+                    <input id="shareInput" type="text" placeholder="เพิ่มชื่อผู้ใช้..." class="w-full px-4 py-2.5 border border-[#dadce0] rounded-full text-sm focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition">
+                </div>
+                <!-- รายชื่อ user ที่จะแชร์ให้ — TODO: เชื่อมเอง พิมพ์ชื่อแล้วกด Enter → เพิ่ม chip ตรงนี้ -->
+                <div id="shareUserList" class="mt-3 flex flex-wrap gap-2 min-h-[32px]">
+                    <!-- ตัวอย่าง chip (ลบ static นี้ออกเมื่อเชื่อม JS)
+                    <span class="inline-flex items-center gap-1 bg-[#e8eaed] rounded-full px-3 py-1 text-sm text-[#1f1f1f]">
+                        user1 <button class="text-[#5f6368] hover:text-[#1f1f1f] text-xs ml-1">✕</button>
+                    </span>
+                    -->
+                </div>
+            </div>
+            <hr class="border-[#dadce0]">
+            <div class="p-5">
+                <p class="text-sm font-medium text-[#1f1f1f] mb-2">การเข้าถึงทั่วไป</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-[#e8eaed] flex items-center justify-center flex-shrink-0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#5f6368"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm text-[#1f1f1f]">จำกัดเฉพาะคนที่เพิ่ม</p>
+                        <p class="text-xs text-[#5f6368]">เฉพาะคนที่มีสิทธิ์เข้าถึงเท่านั้นที่เปิดได้</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center px-5 pb-4">
+                <!-- TODO: เชื่อมเอง กด → copy link -->
+                <button id="shareCopyLinkBtn" class="flex items-center gap-2 px-4 py-2 text-sm text-[#1a73e8] hover:bg-[#d3e3fd] rounded-full transition cursor-pointer">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#1a73e8"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+                    คัดลอกลิงก์
+                </button>
+                <!-- TODO: เชื่อมเอง กด → ซ่อน modal (ถ้ามี user ที่เพิ่ม → fetch POST /share ก่อน) -->
+                <button id="shareConfirmBtn" class="px-5 py-2 text-sm text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-full cursor-pointer">เสร็จสิ้น</button>
             </div>
         </div>
     </div>
@@ -303,7 +522,191 @@
             })
         })
     }
+
+    // ปุ่ม + ใหม่ 
+    document.getElementById('btn-new').addEventListener('click', () => {
+        document.getElementById('newDropdown').classList.toggle('hidden');
+    });
+
+    document.getElementById('newUploadFile').addEventListener('click', () => {
+        document.getElementById('newDropdown').classList.add('hidden');
+        document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput').addEventListener('change', () => {
+        document.getElementById('uploadBtn').click();
+    })
+
+    document.getElementById('nav-trash').addEventListener('click', () => {
+        document.getElementById('mainContent').classList.add('hidden');
+        document.getElementById('trashView').classList.remove('hidden');
+        loadTrash();
+    })
+
+    document.getElementById('toggleSuggested').addEventListener('click', () => {
+    const fileList = document.getElementById('fileList');
+    const fileTable = document.getElementById('fileListTable');
+    const arrow = document.getElementById('toggleArrow');
+    
+    if (arrow.classList.contains('rotate-180')) {
+        // กำลังยุบอยู่ → กางออก → แสดง view ที่ควรแสดง
+        // เช็คว่าก่อนยุบอยู่ view ไหน → ดูจาก btn ที่ active
+        if (document.getElementById('btn-list-view').classList.contains('bg-white')) {
+            fileTable.classList.remove('hidden');
+        } else {
+            fileList.classList.remove('hidden');
+        }
+    } else {
+        // กาง → ยุบ → ซ่อนทั้งคู่
+        fileList.classList.add('hidden');
+        fileTable.classList.add('hidden');
+    }
+    arrow.classList.toggle('rotate-180');
+});
+
+
+
+
+    document.getElementById('toggleFolders').addEventListener('click', () => {
+        document.getElementById('folderList').classList.toggle('hidden');
+        document.getElementById('toggleFolderArrow').classList.toggle('rotate-180');
+    })
+
+    document.getElementById('btn-list-view').addEventListener('click', () => {
+        const isCollapsed = document.getElementById('toggleArrow').classList.contains('rotate-180');
+        if (!isCollapsed) {
+        document.getElementById('fileListTable').classList.remove('hidden');
+        document.getElementById('fileList').classList.add('hidden');
+        }
+        // สลับ highlight
+        document.getElementById('btn-list-view').classList.add('bg-white', 'shadow-sm');
+        document.getElementById('btn-grid-view').classList.remove('bg-white', 'shadow-sm');
+    })
+
+    document.getElementById('btn-grid-view').addEventListener('click', () => {
+        const isCollapsed = document.getElementById('toggleArrow').classList.contains('rotate-180');
+        if (!isCollapsed) {
+        document.getElementById('fileList').classList.remove('hidden');
+        document.getElementById('fileListTable').classList.add('hidden');
+        }
+        // สลับ highlight
+        document.getElementById('btn-grid-view').classList.add('bg-white', 'shadow-sm');
+        document.getElementById('btn-list-view').classList.remove('bg-white', 'shadow-sm');
+    })
+
     loadFiles();
+
+    function loadTrash(){
+        fetch('/trash',{
+            headers: { 'Authorization': 'Bearer ' + token}
+        })
+        .then(res => res.json())
+        .then(files =>{
+            // === Grid view ===
+            const trashList  = document.getElementById('trashList');
+            trashList.innerHTML = '';
+
+            // === List view ===
+            const trashListBody = document.getElementById('trashListBody');
+            trashListBody.innerHTML = '';
+
+            files.forEach(file =>{
+                const ext = '.' + file.filename.split('.').pop().toLowerCase();
+                const iconData = getFileIcon(ext);
+                const isImage = file.dimensions;
+
+                // --- Grid card ---
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl border border-[#dadce0] hover:border-[#1a73e8] hover:shadow-md transition cursor-pointer overflow-hidden group';
+                card.dataset.filename = file.filename;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-2 px-3 py-2.5 border-b border-[#dadce0]">
+                        <span class="text-base flex-shrink-0">${iconData.icon}</span>
+                        <span class="text-[13px] font-medium text-[#1f1f1f] truncate flex-1">${file.filename}</span>
+                        <button class="dots-btn flex-shrink-0 w-7 h-7 rounded-full hover:bg-[#e8eaed] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer" onclick="event.stopPropagation(); openTrashContextMenu(event, '${file.filename}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#5f6368"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+                        </button>
+                    </div>
+                    <div class="h-[140px] bg-[#f0f4f9] flex items-center justify-center overflow-hidden thumb-area">
+                        <span class="text-5xl">${iconData.icon}</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-3 py-2 border-t border-[#dadce0]">
+                        <div class="w-6 h-6 rounded-full bg-[#1a73e8] flex items-center justify-center flex-shrink-0">
+                            <span class="text-white text-[10px] font-bold">${(tokenname || 'U')[0].toUpperCase()}</span>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs text-[#5f6368] truncate">คุณเปิด • ${formatDate(file.modified)}</p>
+                        </div>
+                    </div>
+                `;
+
+                // โหลด thumbnail ด้วย fetch+blob (ส่ง token ได้)
+                if (isImage) {
+                    fetch('/download/' + file.filename, {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    })
+                    .then(r => r.blob())
+                    .then(blob => {
+                        const thumbArea = card.querySelector('.thumb-area');
+                        thumbArea.innerHTML = `<img src="${URL.createObjectURL(blob)}" class="h-full w-full object-cover">`;
+                    });
+                }
+
+                // ดับเบิ้ลคลิก → preview
+                card.addEventListener('dblclick', () => previewFile(file.filename));
+                // คลิกขวา → context menu
+                card.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    openTrashContextMenu(e, file.filename);
+                });
+
+                trashList.appendChild(card);
+
+                // --- List row ---
+                const row = document.createElement('tr');
+                row.className = 'border-b border-[#dadce0] hover:bg-[#e8eaed]/50 transition cursor-pointer group';
+                row.dataset.filename = file.filename;
+                row.innerHTML = `
+                    <td class="py-2 px-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-base flex-shrink-0">${iconData.icon}</span>
+                            <span class="text-sm text-[#1f1f1f] truncate">${file.filename}</span>
+                        </div>
+                    </td>
+                    <td class="py-2 px-3 hidden md:table-cell">
+                        <span class="text-xs text-[#5f6368]">คุณเปิด • ${formatDate(file.modified)}</span>
+                    </td>
+                    <td class="py-2 px-3 hidden lg:table-cell">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-[#1a73e8] flex items-center justify-center flex-shrink-0">
+                                <span class="text-white text-[10px] font-bold">${(tokenname || 'U')[0].toUpperCase()}</span>
+                            </div>
+                            <span class="text-xs text-[#5f6368]">ฉัน</span>
+                        </div>
+                    </td>
+                    <td class="py-2 px-3 hidden lg:table-cell">
+                        <div class="flex items-center gap-1">
+                            <span class="text-sm">📁</span>
+                            <span class="text-xs text-[#5f6368]">ไดรฟ์ของฉัน</span>
+                        </div>
+                    </td>
+                    <td class="py-2 px-1">
+                        <button class="w-7 h-7 rounded-full hover:bg-[#dadce0] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer" onclick="event.stopPropagation(); openTrashContextMenu(event, '${file.filename}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#5f6368"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+                        </button>
+                    </td>
+                `;
+                row.addEventListener('dblclick', () => previewFile(file.filename));
+                row.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    openTrashContextMenu(e, file.filename);
+                });
+                trashListBody.appendChild(row);
+            })
+        })
+    }
+    loadTrash();
 
         document.getElementById('uploadBtn').addEventListener('click',() =>{
             const fileInput = document.getElementById('fileInput');
@@ -323,6 +726,46 @@
                 fileInput.value = '';
             })
         })
+    document.getElementById('trashRestoreBtn').addEventListener('click', () =>{
+        document.getElementById('trashContextMenu').classList.add('hidden'); 
+        fetch('/trash/' + contextTarget + '/restore', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token}
+        })
+        .then(res => res.json())
+        .then(data =>{
+            alert(data.message);
+            loadTrash();
+        })
+    });
+
+    document.getElementById('trashDeletePermanentBtn').addEventListener('click', () =>{
+        if (!confirm('ลบถาวร? จะกู้คืนไม่ได้แล้ว')) return;
+        document.getElementById('trashContextMenu').classList.add('hidden'); 
+        fetch('/trash/' + contextTarget, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token}
+        })
+        .then(res => res.json())
+        .then(data =>{
+            alert(data.message);
+            loadTrash();
+        })
+    });
+
+    document.getElementById('emptyTrashBtn').addEventListener('click', () =>{
+        if (!confirm('ล้างถังขยะทั้งหมด? จะกู้คืนไม่ได้แล้ว')) return;
+        document.getElementById('trashContextMenu').classList.add('hidden'); 
+        fetch('/trash', {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token}
+        })
+        .then(res => res.json())
+        .then(data =>{
+            alert(data.message);
+            loadTrash();
+        })
+    });
 
         async function download(filename) {
             const res = await fetch('/download/' + filename,{
@@ -408,6 +851,25 @@
             });
         }
 
+        function openTrashContextMenu(e, filename) {
+            contextTarget = filename;
+            const menu = document.getElementById('trashContextMenu');
+            menu.classList.remove('hidden');
+            // วาง menu ตรงตำแหน่งเมาส์ แต่ไม่ให้ล้นจอ
+            let x = e.clientX;
+            let y = e.clientY;
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            // รอ render แล้วเช็คว่าล้นจอไหม
+            requestAnimationFrame(() => {
+                const rect = menu.getBoundingClientRect();
+                if (rect.right > window.innerWidth) x = window.innerWidth - rect.width - 8;
+                if (rect.bottom > window.innerHeight) y = window.innerHeight - rect.height - 8;
+                menu.style.left = x + 'px';
+                menu.style.top = y + 'px';
+            });
+        }
+
         // กดที่ไหนก็ปิด context menu
         document.addEventListener('click', () => {
             document.getElementById('contextMenu').classList.add('hidden');
@@ -425,9 +887,58 @@
         // highlight = เพิ่ม class "bg-white shadow-sm" ให้ปุ่มที่เลือก + ลบจากปุ่มอีกอัน
 
         // --- Placeholder functions (ยังไม่ทำจริง) ---
+        // TODO: เชื่อมเอง — renameFile: แสดง #renameModal + pre-fill #renameInput ด้วยชื่อเดิม
+        //   กดตกลง → ส่ง fetch rename API (ถ้ามี) → ปิด modal → loadFiles()
         function renameFile(filename) { alert('เปลี่ยนชื่อ: ' + filename + ' (ยังไม่ได้ทำ)'); }
+
+        // TODO: เชื่อมเอง — shareFile: แสดง #shareModal + ใส่ชื่อไฟล์ใน #shareFilename
+        //   พิมพ์ชื่อ user ใน #shareInput → กด Enter เพิ่ม chip ใน #shareUserList
+        //   กดเสร็จสิ้น → fetch POST /share { filename, targetUsers: [...] }
         function shareFile(filename) { alert('แชร์: ' + filename + ' (ยังไม่ได้ทำ)'); }
+
+        // TODO: เชื่อมเอง — fileInfo: แสดง #fileInfoPanel + ใส่ข้อมูลไฟล์จาก file object
+        //   ต้องหา file object จาก filename (เก็บไว้ใน array ตอน loadFiles)
+        //   ใส่: #infoFilename, #infoType, #infoSize, #infoOwner, #infoModified, #infoCreated, #infoDimensions
+        //   ถ้าเป็นรูป → fetch + blob ใส่ #infoPreview
         function fileInfo(filename) { alert('ข้อมูลไฟล์: ' + filename + ' (ยังไม่ได้ทำ)'); }
+
+        // --- ปุ่ม + ใหม่ (Dropdown) ---
+        // TODO: เชื่อมเอง — กด #btn-new → toggle hidden ของ #newDropdown
+        // TODO: เชื่อมเอง — กด #newUploadFile → trigger click ของ #fileInput → พอเลือกไฟล์แล้ว auto upload
+        // TODO: เชื่อมเอง — กด #newUploadFolder → trigger file picker แบบ folder (webkitdirectory)
+        // TODO: เชื่อมเอง — กด #newFolder → (ถ้ามี API สร้างโฟลเดอร์)
+        // TODO: เชื่อมเอง — กดที่อื่นปิด dropdown (เพิ่มใน document click listener ที่มีอยู่แล้ว)
+
+        // --- Sidebar Navigation ---
+        // TODO: เชื่อมเอง — กด #nav-home / #nav-myfiles → ซ่อน #trashView + แสดง mainContent + highlight nav active
+        // TODO: เชื่อมเอง — กด #nav-trash → ซ่อน mainContent + แสดง #trashView + fetch GET /trash แล้ว render
+        //   mainContent = document.querySelector('.flex-1.max-w-4xl') (div แรก)
+        //   highlight = เพิ่ม class "bg-[#c2e7ff] text-[#001d35] font-medium" + ลบ "hover:bg-[#e8eaed] text-[#444746]" จาก nav ที่เลือก
+        //   ลบ highlight จาก nav อื่นทั้งหมด
+        // TODO: เชื่อมเอง — กด #nav-storage → (ถ้ามี) แสดง popup รายละเอียดพื้นที่
+
+        // --- ถังขยะ ---
+        // TODO: เชื่อมเอง — สร้าง function loadTrash() คล้าย loadFiles() แต่ fetch GET /trash
+        //   render card ใน #trashList / row ใน #trashListBody
+        //   ถ้า files.length === 0 → ซ่อน grid + แสดง #trashEmpty
+        //   card คลิกขวา → เปิด #trashContextMenu (ไม่ใช่ contextMenu ปกติ)
+        // TODO: เชื่อมเอง — #trashRestoreBtn กด → fetch POST /trash/:filename/restore → loadTrash()
+        // TODO: เชื่อมเอง — #trashDeletePermanentBtn กด → confirm แล้ว fetch DELETE /trash/:filename → loadTrash()
+        // TODO: เชื่อมเอง — #emptyTrashBtn กด → แสดง #confirmEmptyTrashModal
+        // TODO: เชื่อมเอง — #confirmEmptyTrash กด → fetch DELETE /trash → ปิด modal → loadTrash()
+        // TODO: เชื่อมเอง — #cancelEmptyTrash กด → ซ่อน #confirmEmptyTrashModal
+
+        // --- แถบพื้นที่เก็บข้อมูล ---
+        // TODO: เชื่อมเอง — fetch GET /storage → ได้ { usedSize, maxSize }
+        //   คำนวณ % แล้วใส่ style width ให้ #storageBar
+        //   ใส่ข้อความ #storageText เช่น "1.5 MB จาก 50 MB ที่ใช้"
+        //   ถ้าเกิน 80% → เปลี่ยนสี bar เป็นเหลือง (#fbbc04), เกิน 95% → แดง (#ea4335)
+
+        // --- Preview เพิ่ม video/audio/text ---
+        // TODO: เชื่อมเอง — ใน previewFile() เพิ่ม else if สำหรับ:
+        //   video: ['mp4','webm','mov'] → modalBody.innerHTML = `<video src="${blobUrl}" controls class="max-w-full max-h-[70vh] rounded-lg"></video>`
+        //   audio: ['mp3','wav','ogg'] → modalBody.innerHTML = `<audio src="${blobUrl}" controls class="w-full"></audio>`
+        //   text: ['txt','json','js','css','html'] → fetch → blob.text() → modalBody.innerHTML = `<pre class="w-full text-sm bg-[#f8f9fa] p-4 rounded-lg overflow-auto max-h-[70vh] whitespace-pre-wrap">${text}</pre>`
 
         // --- Filter ชื่อไฟล์ ---
         document.getElementById('searchInput').addEventListener('input', (e) => {
