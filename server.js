@@ -57,11 +57,12 @@ app.get('/logs', authenticateToken, (req, res) => {
     let result;
     if (roleFilter) {
         result = allLine.filter(log => {
-            (log.role === roleFilter );
+            return log.role === roleFilter;
         })
     } else {
         result = allLine;
     }
+    res.json(result);
 })
 
 
@@ -148,9 +149,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // อัปโหลดไฟล์จาก Client -> Server
-const MAX_SIZE = 50 * 1024 * 1024
 app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
     const userFolder = path.join('uploads', String(req.user.id))
+    const MAX_SIZE = 50 * 1024 * 1024
     const currentSize = getFolderSize(userFolder);
 
     if (currentSize > MAX_SIZE) {
@@ -322,9 +323,7 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
     res.json({ message: 'ลบสำเร็จ'});
 })
     app.get('/trash', authenticateToken, (req, res) => {
-    const trashFolder = path.join('trash', String(req.user.id));
-    if (!fs.existsSync(trashFolder)) return res.json([]);
-    fs.readdir(trashFolder, (err, files) => {
+    fs.readdir(path.join('trash', String(req.user.id)), (err, files) => {
             if (err) return res.status(500).json({ error: 'Unable to list files' });
             const result = [];
             files.forEach(function(filename){
@@ -346,7 +345,7 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
                 });
             })
             res.json(result);
-        }); 
+        });   
 });
 
 app.post('/trash/:filename/restore', authenticateToken, (req, res) => {
@@ -372,12 +371,9 @@ app.delete('/trash/:filename', authenticateToken, (req, res) => {
     logActivity('DELETE_PERMANENT', req.user.id + ':' + req.user.username, req.params.filename);
     res.json({ message: 'ลบถาวรสำเร็จ'});
 })
+    
 
-app.get('/storage', authenticateToken, (req, res) => {
-    const userFolder = path.join('uploads', String(req.user.id));
-    const usedSize = getFolderSize(userFolder);
-    res.json({ usedSize: usedSize, maxSize: MAX_SIZE });
-});
+    
 
 
 /// function แชร์ไฟล์
