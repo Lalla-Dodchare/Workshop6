@@ -52,6 +52,16 @@ app.get('/logs', authenticateToken, (req, res) => {
     const lineOne = read.split('\n');
     const filter = lineOne.filter(line => line);
     const allLine = filter.map(line => JSON.parse(line))
+
+    const roleFilter = req.query.role;
+    let result;
+    if (roleFilter) {
+        result = allLine.filter(log => {
+            (log.role === roleFilter );
+        })
+    } else {
+        result = allLine;
+    }
 })
 
 
