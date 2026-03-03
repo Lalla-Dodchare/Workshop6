@@ -12,16 +12,22 @@
         "role": "user"
     },
     {
-        "id": 3,
-        "username": null,
-        "password": null,
-        "role": null,
-        "banned": true
-    },
-    {
         "id": 4,
         "username": "super admin",
         "password": "superadmin123",
         "role": "superadmin"
+    },
+    {
+        "id": 5,
+        "username": "Lily",
+        "password": "lily123",
+        "role": "user",
+        "banned": false
+    },
+    {
+        "id": 6,
+        "username": "admin sena",
+        "password": "adminsena123",
+        "role": "user"
     }
 ]

@@ -106,3 +106,64 @@
 {"timestamp":"2026-03-03T17:09:33.558Z","action":"RESTORE","username":"2:Peerapan Uaichai","detail":"Rectangle 1.pdf"}
 {"timestamp":"2026-03-03T17:09:40.216Z","action":"DELETE","username":"2:Peerapan Uaichai","detail":"Rectangle 1.pdf"}
 {"timestamp":"2026-03-03T17:09:44.653Z","action":"DELETE_PERMANENT","username":"2:Peerapan Uaichai","detail":"Rectangle 1.pdf"}
+{"timestamp":"2026-03-03T19:12:13.190Z","action":"LOGIN_SUCCESS","username":"4:super admin","detail":"loginlegin สำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T19:12:13.386Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T19:12:16.324Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T19:12:16.986Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T19:43:19.849Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T19:54:47.914Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T21:38:22.680Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T21:38:39.027Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T21-38-38-964Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T21:38:44.499Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T21-38-44-458Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T21:39:03.526Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T21:39:32.155Z","action":"UPLOAD_SUCCESS","username":"4:super admin","detail":" w2-1_T002_67141535_Lalla Dodchare.JPG","role":"superadmin"}
+{"timestamp":"2026-03-03T21:39:42.639Z","action":"DELETE","username":"4:super admin","detail":"635087130_892148363688200_4537091663824376603_n.jpg","role":"superadmin"}
+{"timestamp":"2026-03-03T21:39:44.538Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T21-39-44-500Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T21:47:54.476Z","action":"REGISTER","username":"lalladodchare","detail":"new user","role":"user"}
+{"timestamp":"2026-03-03T21:48:24.599Z","action":"LOGIN_FAILED","username":"Lalla Dodchare","detail":"wrong credentials","role":"unknown"}
+{"timestamp":"2026-03-03T21:48:38.895Z","action":"LOGIN_FAILED","username":"lalla dodchare","detail":"wrong credentials","role":"unknown"}
+{"timestamp":"2026-03-03T21:48:39.871Z","action":"LOGIN_FAILED","username":"lalla dodchare","detail":"wrong credentials","role":"unknown"}
+{"timestamp":"2026-03-03T21:48:41.214Z","action":"LOGIN_FAILED","username":"lalla dodchare","detail":"wrong credentials","role":"unknown"}
+{"timestamp":"2026-03-03T21:48:41.690Z","action":"LOGIN_FAILED","username":"lalla dodchare","detail":"wrong credentials","role":"unknown"}
+{"timestamp":"2026-03-03T21:48:43.358Z","action":"LOGIN_FAILED","username":"lalla dodchare","detail":"wrong credentials","role":"unknown"}
+{"timestamp":"2026-03-03T21:49:02.652Z","action":"LOGIN_SUCCESS","username":"1:admin","detail":"loginlegin สำเร็จ","role":"admin"}
+{"timestamp":"2026-03-03T21:49:02.806Z","action":"Security Audit","username":"1:admin:admin","detail":"พยายามเข้ามาใช้งานทั้งที่ไม่มีสิทธิ์","role":"admin"}
+{"timestamp":"2026-03-03T21:49:25.035Z","action":"Security Audit","username":"1:admin:admin","detail":"พยายามเข้ามาใช้งานทั้งที่ไม่มีสิทธิ์","role":"admin"}
+{"timestamp":"2026-03-03T21:49:28.103Z","action":"Security Audit","username":"1:admin:admin","detail":"พยายามเข้ามาใช้งานทั้งที่ไม่มีสิทธิ์","role":"admin"}
+{"timestamp":"2026-03-03T21:49:45.352Z","action":"LOGIN_SUCCESS","username":"4:super admin","detail":"loginlegin สำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T21:49:45.468Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T21:50:08.565Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T21-50-08-511Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T21:50:31.218Z","action":"BAN_USER","username":"4:super admin","detail":null,"role":"superadmin"}
+{"timestamp":"2026-03-03T21:50:49.506Z","action":"DELETE_USER","username":"4:super admin","detail":"lalladodchare","role":"superadmin"}
+{"timestamp":"2026-03-03T21:50:56.918Z","action":"RESTORE","username":"4:super admin","detail":"635087130_892148363688200_4537091663824376603_n.jpg","role":"superadmin"}
+{"timestamp":"2026-03-03T21:51:02.764Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T21:51:20.715Z","action":"UPLOAD_SUCCESS","username":"4:super admin","detail":"3-health-insurance-plans-600.gif","role":"superadmin"}
+{"timestamp":"2026-03-03T21:51:30.867Z","action":"UPLOAD_SUCCESS","username":"4:super admin","detail":"calendar.png","role":"superadmin"}
+{"timestamp":"2026-03-03T21:51:42.155Z","action":"DELETE","username":"4:super admin","detail":"635087130_892148363688200_4537091663824376603_n.jpg","role":"superadmin"}
+{"timestamp":"2026-03-03T21:52:14.062Z","action":"CREATE_USER","username":"4:super admin","detail":"Lily (user)","role":"superadmin"}
+{"timestamp":"2026-03-03T21:53:08.830Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T21-53-08-780Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T21:53:13.987Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T21:53:17.550Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:05:16.121Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:05:29.768Z","action":"DELETE","username":"4:super admin","detail":"calendar.png","role":"superadmin"}
+{"timestamp":"2026-03-03T22:05:31.379Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T22-05-31-339Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T22:05:37.487Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:07:37.551Z","action":"UPLOAD_SUCCESS","username":"4:super admin","detail":"CSI 202.jpeg","role":"superadmin"}
+{"timestamp":"2026-03-03T22:07:48.003Z","action":"DELETE","username":"4:super admin","detail":"CSI 202.jpeg","role":"superadmin"}
+{"timestamp":"2026-03-03T22:07:50.673Z","action":"DELETE","username":"4:super admin","detail":"3-health-insurance-plans-600.gif","role":"superadmin"}
+{"timestamp":"2026-03-03T22:07:53.223Z","action":"DELETE","username":"4:super admin","detail":" w2-1_T002_67141535_Lalla Dodchare.JPG","role":"superadmin"}
+{"timestamp":"2026-03-03T22:07:58.328Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T22-07-58-302Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T22:08:02.037Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:23:01.910Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:23:54.247Z","action":"RESTORE","username":"4:super admin","detail":" w2-1_T002_67141535_Lalla Dodchare.JPG","role":"superadmin"}
+{"timestamp":"2026-03-03T22:23:55.949Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:24:01.503Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:24:06.149Z","action":"EMPTY_TRASH","username":"4:super admin","detail":"4 files","role":"superadmin"}
+{"timestamp":"2026-03-03T22:24:08.507Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
+{"timestamp":"2026-03-03T22:24:12.495Z","action":"BACKUP","username":"4:super admin","detail":"/Users/lalladodchare/Documents/all_code/lalla_lab68/class_top/Workshop6/backups/2026-03-03T22-24-12-435Z.tar.gz","role":"superadmin"}
+{"timestamp":"2026-03-03T22:24:26.085Z","action":"DELETE_USER","username":"4:super admin","detail":null,"role":"superadmin"}
+{"timestamp":"2026-03-03T22:24:31.152Z","action":"BAN_USER","username":"4:super admin","detail":"Lily","role":"superadmin"}
+{"timestamp":"2026-03-03T22:24:46.308Z","action":"BAN_USER","username":"4:super admin","detail":"Lily","role":"superadmin"}
+{"timestamp":"2026-03-03T22:25:12.534Z","action":"CREATE_USER","username":"4:super admin","detail":"sena (admin)","role":"superadmin"}
+{"timestamp":"2026-03-03T22:25:55.874Z","action":"EDIT_USER","username":"4:super admin","detail":"admin sena (user)","role":"superadmin"}
+{"timestamp":"2026-03-03T22:25:59.779Z","action":"DELETE_BY_ADMIN","username":"4:super admin","detail":"ลบสำเร็จ","role":"superadmin"}
