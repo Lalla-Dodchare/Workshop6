@@ -16,6 +16,13 @@
 - ใช้ภาษาไทย
 - คนนี้เพิ่งเริ่มเรียน — อธิบายง่ายๆ อย่าใช้ศัพท์ยากเกินไป
 
+**วิธีสอนที่ชอบ (แบบ step-by-step):**
+- ให้โครงโค้ดมาก่อน (skeleton) แล้วให้เติมเอง
+- ถามทีละคำถาม เช่น "ต้องใช้ middleware อะไร?" "ส่งข้อมูลอะไรกลับ?" ให้คิดเอง
+- พอเขียนมา → รีวิวทีละจุด ชี้ว่าผิดตรงไหน + บอกทำไมผิด + ให้แก้เอง
+- ถ้างงจริงๆ → เฉลยให้ดูพร้อมอธิบาย แล้วให้ทำอันถัดไปเอง
+- เทียบกับโค้ดที่ทำมาแล้ว เช่น "เหมือน dropdown เมื่อกี้เลย แค่เปลี่ยนชื่อ element"
+
 **วิธีอธิบายที่ดี (ชอบแบบนี้):**
 - ใช้ตัวอย่างที่เห็นภาพจริงๆ เช่น "tar = เอาไฟล์หลายไฟล์มามัดรวมเป็นก้อนเดียว", "gzip = เอาก้อนนั้นมาบีบให้เล็กลง"
 - ใช้แผนภาพง่ายๆ เช่น:
@@ -83,24 +90,44 @@
 - [x] UI: Grid view (cards) แทนตาราง — แสดง thumbnail รูป + icon ไฟล์ + วันที่
 - [x] UI: Search bar ย้ายไปแถบบน สไตล์ Google Drive
 - [x] UI: ปุ่ม + ใหม่ (ยังไม่เชื่อม function)
+- [x] UI: ปุ่ม + ใหม่ dropdown (อัปโหลดไฟล์, อัปโหลดโฟลเดอร์, สร้างโฟลเดอร์ใหม่) — HTML พร้อม, เหลือเชื่อม JS
+- [x] UI: หน้าถังขยะ (#trashView) — grid/list + แถบข้อความ + ปุ่มล้างถังขยะ + empty state — HTML พร้อม, เหลือเชื่อม JS
+- [x] UI: Trash context menu (กู้คืน + ลบถาวร) — HTML พร้อม, เหลือเชื่อม JS
+- [x] UI: Modal ยืนยันล้างถังขยะ (#confirmEmptyTrashModal) — HTML พร้อม, เหลือเชื่อม JS
+- [x] UI: Rename modal (#renameModal) — HTML พร้อม, เหลือเชื่อม JS
+- [x] UI: Share modal (#shareModal) — input ชื่อ user + chip list + คัดลอกลิงก์ — HTML พร้อม, เหลือเชื่อม JS
+- [x] UI: File Info side panel (#fileInfoPanel) — ประเภท, ขนาด, เจ้าของ, วันที่, dimensions — HTML พร้อม, เหลือเชื่อม JS
+- [x] UI: Empty state ไฟล์ (#fileListEmpty) + ถังขยะ (#trashEmpty) — HTML พร้อม, เหลือเชื่อม JS
+- [x] UI: แถบพื้นที่เก็บข้อมูล (#storageBar + #storageText) — HTML มีแล้ว, เหลือเชื่อม API
+- [x] TODO comments ครบทุกจุดที่ต้องเชื่อม JS — ดูใน `<script>` ท้ายไฟล์ home.html
 
-**ยังไม่ได้ทำ (Frontend — home.html):**
-- [ ] เชื่อม function ปุ่ม + ใหม่ → เปิด file picker → upload
-- [ ] เชื่อม function sidebar แต่ละปุ่ม (ไดรฟ์ของฉัน, แชร์กับฉัน, ล่าสุด, ที่ติดตาม, ถังขยะ)
-- [ ] คลิกขวา card → context menu (Preview, Download, ลบ, แชร์)
-- [ ] ดับเบิ้ลคลิก card → เปิด Preview modal พร้อมข้อมูลละเอียด (size, วันที่, dimensions)
-- [ ] แก้ `previewFile()` ให้รองรับไฟล์ครบ — ตอนนี้มีแค่ รูป + PDF, ขาด: วิดีโอ (`<video>`), เสียง (`<audio>`), text (`<pre>`)
-- [ ] Drag to Select + Keyboard Shortcuts — ลากเมาส์เลือกหลาย card, Ctrl+A ครอบหมด, Ctrl+C/V คัดลอก-วาง, ย้ายไฟล์เข้าโฟลเดอร์ได้ (ไม่มี Ctrl+Z)
-- [ ] Upload โฟลเดอร์ทั้งอัน — ลากโฟลเดอร์จากเครื่องมาโยนใส่เว็บได้เลย + animation แบบ Google Drive (ทำหลัง Drag to Select เสร็จ)
-- [ ] แถบพื้นที่เก็บข้อมูล — เชื่อมกับ API ให้แสดง x MB / 50 MB จริง
+**ยังไม่ได้ทำ (Frontend — home.html) — เหลือแค่เชื่อม JS:**
+- [ ] เชื่อม function ปุ่ม + ใหม่ → toggle #newDropdown + trigger #fileInput + auto upload
+- [ ] เชื่อม function sidebar navigation → สลับ mainContent ↔ trashView + highlight active
+- [ ] เชื่อม function ถังขยะ → loadTrash(), กู้คืน, ลบถาวร, ล้างทั้งหมด
+- [ ] เชื่อม Toggle ซ่อน/แสดง (โฟลเดอร์ที่แนะนำ + ไฟล์ที่แนะนำ)
+- [ ] เชื่อม สลับ List/Grid view
+- [ ] เชื่อม renameFile() → เปิด #renameModal + fetch rename API
+- [ ] เชื่อม shareFile() → เปิด #shareModal + fetch POST /share
+- [ ] เชื่อม fileInfo() → เปิด #fileInfoPanel + ใส่ข้อมูลจริง
+- [ ] เชื่อม แถบพื้นที่เก็บข้อมูล → fetch GET /storage
+- [ ] แก้ `previewFile()` ให้รองรับไฟล์ครบ — เพิ่ม video (`<video>`), audio (`<audio>`), text (`<pre>`)
+- [ ] Drag to Select + Keyboard Shortcuts — ลากเมาส์เลือกหลาย card, Ctrl+A ครอบหมด
+- [ ] Upload โฟลเดอร์ทั้งอัน — ลากโฟลเดอร์จากเครื่องมาโยนใส่เว็บได้เลย
 - [ ] ปุ่ม Backup + Recovery ในหน้า user
 
 **ยังไม่ได้ทำ (Backend — server.js):**
-- [ ] ระบบถังขยะ — ย้ายไฟล์ไป trash/ แทนลบถาวร + route กู้คืน/ลบจริง
+- [x] ระบบถังขยะ — ย้ายไฟล์ไป `trash/` แทนลบถาวร ✅ เสร็จแล้ว
+  - `DELETE /files/:filename` (user) → renameSync ไป trash/{userId}/
+  - `DELETE /files/:owner/:filename` (admin) → renameSync ไป trash/{owner}/
+  - `GET /trash` → ดูรายการไฟล์ในถังขยะ (พร้อม metadata)
+  - `POST /trash/:filename/restore` → กู้คืนไฟล์กลับไป uploads/
+  - `DELETE /trash` → ลบไฟล์ในถังขยะทั้งหมด (ถาวร)
+  - `DELETE /trash/:filename` → ลบไฟล์เดียวถาวร
 - [ ] API พื้นที่ใช้งาน — route `GET /storage` ส่ง usedSize + maxSize กลับ
 
 **เพื่อนทำ:**
-- [ ] เพิ่มปุ่ม Backup + Recovery ในหน้า admin (page/admin/)
+- [x] เพิ่มปุ่ม Backup + Recovery ในหน้า admin (page/admin/) — ลัลลาเชื่อม fetch แล้วใน admin.js
 
 ---
 
