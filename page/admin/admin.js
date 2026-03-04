@@ -88,14 +88,22 @@ async function loadUsers() {
     showFile.innerHTML = '';
 
     showUserRes.forEach(function(user) {
-        showFile.innerHTML += 
-        `<tr>
-            <td>${user.id}</td>
-            <td>${user.username}</td>
-            <td>${user.role}</td>
-            <td><button onclick="editUser(${user.id})">Edit</button></td>
-            <td><button onclick="deleteUser(${user.id})">Delete</button></td>
-            <td><button onclick="banuser(${user.id})">${user.banned ? 'ปลดแบน' : 'แบน'}</button></td>
+        showFile.innerHTML +=
+        `<tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+            <td class="py-3 px-6 text-left text-gray-700">${user.id}</td>
+            <td class="py-3 px-6 text-left text-gray-700 font-medium">${user.username}</td>
+            <td class="py-3 px-6 text-left">
+                <span class="${user.role === 'superadmin' ? 'bg-purple-100 text-purple-700' : user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'} text-xs px-2 py-1 rounded-full">${user.role}</span>
+            </td>
+            <td class="py-3 px-6 text-center">
+                <button onclick="editUser(${user.id})" class="bg-amber-500 hover:bg-amber-600 text-white text-xs py-1.5 px-4 rounded shadow-sm transition duration-200 cursor-pointer">Edit</button>
+            </td>
+            <td class="py-3 px-6 text-center">
+                <button onclick="deleteUser(${user.id})" class="bg-red-500 hover:bg-red-600 text-white text-xs py-1.5 px-4 rounded shadow-sm transition duration-200 cursor-pointer">Delete</button>
+            </td>
+            <td class="py-3 px-6 text-center">
+                <button onclick="banuser(${user.id})" class="${user.banned ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-500 hover:bg-gray-600'} text-white text-xs py-1.5 px-4 rounded shadow-sm transition duration-200 cursor-pointer">${user.banned ? 'ปลดแบน' : 'แบน'}</button>
+            </td>
         </tr>`;
     })
 }
@@ -221,7 +229,7 @@ async function editUser(id) {
     const password = prompt('ใส่ password ใหม่');
     const role = prompt('ใส่ role ใหม่');
     const url = '/users/' + id; 
-    await fetch(url, {
+    const userEdit = await fetch(url, {
         method: 'PUT',
         headers: { 
             'Authorization': 'Bearer ' + token ,
@@ -229,8 +237,8 @@ async function editUser(id) {
         },
         body: JSON.stringify({ username, password, role })
     });
-    const res = await fetch(url.json);
-    alert(res.message); 
+    const data = await userEdit.json();
+    alert(data.message); 
 }
 
 
@@ -249,6 +257,8 @@ async function createUser() {
   });
   const data = await createRes.json();
   alert(data.message);
+  document.getElementById('newUsername').value = '';
+  document.getElementById('newPassword').value = '';
   loadUsers();
 }
 
@@ -281,12 +291,13 @@ document.getElementById('typeFilter').addEventListener('change', function() {
                 row.style.display = 'none';
             }
         } 
-        else if (selected === 'other') 
+        else if (selected === 'other'){ 
         if (!imageExts.includes(ext) && ext !== 'pdf') {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
             }
+        }
     })
 
     
@@ -320,7 +331,7 @@ document.getElementById('filterUser').addEventListener('input',function(){
     const row = document.querySelectorAll('#dataTable tr');
 
     row.forEach(function(row) {
-        const owner =  row.children[1].textContent;
+        const owner =  row.children[2].textContent;
         if (!selected || owner === selected) {
             row.style.display = '';
         }else {
@@ -344,7 +355,7 @@ async function backupFile() {
     loadBackups()
 }
 
-/// สร้าง Backup
+/// โหลดรายการ Backup แสดงเป็น card
 async function loadBackups() {
     const listBackup = await fetch('/backups', {
         method: 'GET',
@@ -352,34 +363,80 @@ async function loadBackups() {
     });
     const listFile = await listBackup.json();
     const showList = document.getElementById("backupList");
-     showList.innerHTML = '';
-    listFile.forEach(function(list) {
-     showList.innerHTML += `<div>${list}<button onclick="listBackupFiles('${list}')">ดูไฟล์</button></div>`;
-    })
-} 
-/// ขั้นตอน recovery
+    showList.innerHTML = '';
+
+    if (listFile.length === 0) {
+        showList.innerHTML = '<p class="text-gray-400 text-sm">ยังไม่มี backup</p>';
+        return;
+    }
+
+    listFile.forEach(function(backup) {
+        // แปลง size ให้อ่านง่าย (bytes → KB/MB)
+        let sizeText = backup.size + ' bytes';
+        if (backup.size > 1024 * 1024) {
+            sizeText = (backup.size / 1024 / 1024).toFixed(2) + ' MB';
+        } else if (backup.size > 1024) {
+            sizeText = (backup.size / 1024).toFixed(2) + ' KB';
+        }
+
+        // แปลงวันที่ให้อ่านง่าย
+        const dateText = new Date(backup.date).toLocaleString('th-TH');
+
+        showList.innerHTML += `
+        <div class="bg-gray-50 rounded-lg p-4 mb-3 border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="font-medium text-gray-800 text-sm">${backup.filename}</p>
+                    <p class="text-gray-400 text-xs mt-1">ขนาด: ${sizeText}  |  วันที่: ${dateText}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="listBackupFiles('${backup.filename}')"
+                        class="bg-blue-500 hover:bg-blue-600 text-white text-xs py-1.5 px-3 rounded transition cursor-pointer">ดูไฟล์</button>
+                    <button onclick="recoverAll('${backup.filename}')"
+                        class="bg-green-500 hover:bg-green-600 text-white text-xs py-1.5 px-3 rounded transition cursor-pointer">กู้คืนทั้งหมด</button>
+                    <button onclick="deleteBackup('${backup.filename}')"
+                        class="bg-red-500 hover:bg-red-600 text-white text-xs py-1.5 px-3 rounded transition cursor-pointer">ลบ</button>
+                </div>
+            </div>
+            <div id="recovery-${backup.filename.replace(/\./g, '_')}" class="mt-3 hidden"></div>
+        </div>`;
+    });
+}
+
+/// กดดูไฟล์ → ขยายใต้ card นั้น
 async function listBackupFiles(filename) {
     const recoveryFile = await fetch('/backup/' + filename + '/list', {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + token }
     });
-    
+
     const fromSize = await recoveryFile.json();
-    const boxShow = document.getElementById('recoveryList');
-    boxShow.innerHTML = ''; 
+    // หา div ใต้ card ของ backup ตัวนี้
+    const boxId = 'recovery-' + filename.replace(/\./g, '_');
+    const boxShow = document.getElementById(boxId);
+
+    // ถ้ากดซ้ำ → ซ่อน/แสดง (toggle)
+    if (!boxShow.classList.contains('hidden') && boxShow.innerHTML !== '') {
+        boxShow.classList.add('hidden');
+        return;
+    }
+
+    boxShow.innerHTML = '';
+    boxShow.classList.remove('hidden');
 
     fromSize.forEach(function(listSF) {
-        boxShow.innerHTML += 
-            `<div>
-                <input type="checkbox" class="backup-check" value="${listSF.path}" />
-                <span>${listSF.path} (${listSF.size} bytes)</span>
+        boxShow.innerHTML +=
+            `<div class="flex items-center gap-2 py-1">
+                <input type="checkbox" class="backup-check rounded" value="${listSF.path}" />
+                <span class="text-sm text-gray-600">${listSF.path} (${listSF.size} bytes)</span>
             </div>`;
     });
-    boxShow.innerHTML += `<button onclick="recoveryFiles('${filename}')">กู้คืนไฟล์ที่เลือก</button>`
+    boxShow.innerHTML += `<button onclick="recoveryFiles('${filename}')"
+        class="bg-green-500 hover:bg-green-600 text-white text-xs py-1.5 px-4 rounded mt-3 transition cursor-pointer">กู้คืนไฟล์ที่เลือก</button>`;
 }
 /// แสดงรายการสำหรับกู้คืนได้
  async function recoveryFiles(filename) {
-    const checked = document.querySelectorAll('#recoveryList input[type="checkbox"]:checked');
+    const checked = document.querySelectorAll('.backup-check:checked');
     const selectedFiles = [];
     checked.forEach(function(box){
         selectedFiles.push(box.value);
@@ -414,15 +471,22 @@ async function loadTrash() {
     fileTrash.innerHTML = '';
 
     showFile.forEach(function(file) {
-        fileTrash.innerHTML += 
-        `<tr>
-            <td>${file.filename}</td>
-            <td>${file.size}</td>
-            <td>
-                <button onclick="restoreFile('${file.filename}')">restoreFile</button>
-                </td>
-            <td>
-                <button onclick="deletePermanent('${file.filename}')">deletePermanent</button>
+        let sizeText = file.size + ' bytes';
+        if (file.size > 1024 * 1024) {
+            sizeText = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        } else if (file.size > 1024) {
+            sizeText = (file.size / 1024).toFixed(2) + ' KB';
+        }
+
+        fileTrash.innerHTML +=
+        `<tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+            <td class="py-3 px-6 text-left text-gray-700 font-medium">${file.filename}</td>
+            <td class="py-3 px-6 text-left text-gray-500">${sizeText}</td>
+            <td class="py-3 px-6 text-center">
+                <button onclick="restoreFile('${file.filename}')" class="bg-green-500 hover:bg-green-600 text-white text-xs py-1.5 px-4 rounded shadow-sm transition duration-200 cursor-pointer">Restore</button>
+            </td>
+            <td class="py-3 px-6 text-center">
+                <button onclick="deletePermanent('${file.filename}')" class="bg-red-500 hover:bg-red-600 text-white text-xs py-1.5 px-4 rounded shadow-sm transition duration-200 cursor-pointer">Delete</button>
             </td>
         </tr>`;
     })
@@ -464,3 +528,38 @@ async function emptyTrash() {
     loadTrash();
 }
 
+/// กู้คืนทั้งหมด — ดึงรายการไฟล์จาก backup แล้ว recover ทุกไฟล์
+async function recoverAll(filename) {
+    if (!confirm('กู้คืนไฟล์ทั้งหมดจาก ' + filename + ' จริงไหม?')) return;
+    // ดึงรายการไฟล์ใน backup ก่อน
+    const listRes = await fetch('/backup/' + filename + '/list', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const files = await listRes.json();
+    const allPaths = files.map(function(f) { return f.path; });
+
+    // recover ทุกไฟล์
+    const recoverRes = await fetch('/backup/' + filename + '/recover', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ selectedFiles: allPaths })
+    });
+    const data = await recoverRes.json();
+    alert(data.message);
+    loadFiles();
+}
+
+/// ลบ backup
+async function deleteBackup(filename) {
+    if (!confirm('ลบ backup ' + filename + ' จริงไหม?')) return;
+    const res = await fetch('/backups/' + filename, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    alert(data.message);
+    loadBackups();
+}

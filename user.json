@@ -12,13 +12,6 @@
         "role": "user"
     },
     {
-        "id": 3,
-        "username": null,
-        "password": null,
-        "role": null,
-        "banned": true
-    },
-    {
         "id": 4,
         "username": "super admin",
         "password": "superadmin123",
@@ -26,8 +19,9 @@
     },
     {
         "id": 5,
-        "username": "nem",
-        "password": "nem",
-        "role": "user"
+        "username": "Lily",
+        "password": "lily123",
+        "role": "user",
+        "banned": false
     }
 ]

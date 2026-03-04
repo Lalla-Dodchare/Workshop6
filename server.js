@@ -58,7 +58,17 @@ app.get('/logs', authenticateToken, (req, res) => {
     const lineOne = read.split('\n');
     const filter = lineOne.filter(line => line);
     const allLine = filter.map(line => JSON.parse(line));
-    res.json(allLine);
+
+    const roleFilter = req.query.role;
+    let result;
+    if (roleFilter) {
+        result = allLine.filter(log => {
+            return log.role === roleFilter;
+        })
+    } else {
+        result = allLine;
+    }
+    res.json(result);
 })
 
 
@@ -77,16 +87,18 @@ app.post('/login', (req, res) => {
 
     // step 3: ถ้าไม่เจอ → ส่ง error กลับ
     if (!user) {
-        logActivity('LOGIN_FAILED', username, 'wrong credentials');
+        logActivity('LOGIN_FAILED', username, 'wrong credentials', 'unknown');
         return res.status(401).json({ error: 'username หรือ password ไม่ถูกต้อง' });
     }
     if (user.banned) {
-        return res.status(403).json({ error: 'บัญชีนี้ถูกระงับ' })
+        logActivity('ACCOUNT_BANNED', username, 'This account is banned.', user.role);
+        return res.status(403).json({ error: 'บัญชีนี้ถูกระงับ' });
+        
     }
 
     // step 4: ถ้าเจอ → สร้าง token ฝัง id, username, role ลงไป
     const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, SECRET_KEY);
-    logActivity('LOGIN_SUCCESS', user.id + ':' + user.username, user.role);
+    logActivity('LOGIN_SUCCESS', user.id + ':' + user.username, 'loginlegin สำเร็จ', user.role);
     // step 5: ส่ง token + ข้อมูล user กลับไปให้ client (ไม่ส่ง password กลับ)
     res.json({
         token, user: { id: user.id, username: user.username, role: user.role }
@@ -104,7 +116,7 @@ app.post('/login', (req, res) => {
         users.push(newUser);
         saveUsers();
         res.json({ message: 'สมัครสมาชิกสำเร็จ'});
-        logActivity('REGISTER',username, 'new user')
+        logActivity('REGISTER',username, 'new user', 'user')
     })
 
 
@@ -113,7 +125,7 @@ function authenticateToken(req, res, next){
     const token = authHeader && authHeader.split(' ')[1]
 
     if(!token) {
-        logActivity('AUTH_FAILED', 'unknow', 'No token =>' + req.method + ' ' + req.originalUrl);
+        logActivity('AUTH_FAILED', 'unknow', 'No token =>' + req.method + ' ' + req.originalUrl, 'unknow');
         return res.status(401).json({ error: 'ไม่มี token'});
     }
 
@@ -121,7 +133,7 @@ function authenticateToken(req, res, next){
 
     jwt.verify(token, SECRET_KEY, (err, decoded) => {
         if (err) {
-            logActivity('TOKEN_ERROR', 'unknow', 'Invalid token =>' + req.method + ' ' + req.originalUrl);
+            logActivity('TOKEN_ERROR', 'unknow', 'Invalid token =>' + req.method + ' ' + req.originalUrl, 'unknow');
             return res.status(403).json({ error: 'token ไม่ถูกต้อง'});
         }
         req.user = decoded;
@@ -148,15 +160,15 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // อัปโหลดไฟล์จาก Client -> Server
-const MAX_SIZE = 50 * 1024 * 1024
 app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
     const userFolder = path.join('uploads', String(req.user.id))
+    const MAX_SIZE = 50 * 1024 * 1024
     const currentSize = getFolderSize(userFolder);
 
     if (currentSize > MAX_SIZE) {
         return res.status(400).json({ error: 'พื้นที่เต็ม ไม่สามารถอัปโหลดได้ (จำกัด 50 MB)' })
     }
-    logActivity('UPLOAD_SUCCESS', req.user.id + ':' + req.user.username, req.file.originalname);
+    logActivity('UPLOAD_SUCCESS', req.user.id + ':' + req.user.username, req.file.originalname, req.user.role);
     res.json({ message: 'File uploaded successfully', filename: req.file.filename });
 });
 
@@ -203,7 +215,7 @@ app.post('/backup', authenticateToken, (req, res) => {
     const archive = archiver('tar', { gzip: true});
 
     output.on('close', () => {
-        logActivity('BACKUP', req.user.id + ':' + req.user.username, backupFile);
+        logActivity('BACKUP', req.user.id + ':' + req.user.username, backupFile, req.user.role);
         res.json({ message: 'Backup สำเร็จ', file: backupFile, size: archive.pointer()});
     });
 
@@ -236,7 +248,7 @@ app.post('/backup/:filename/recover', authenticateToken, async (req, res) => {
         file: backupPath,
         cwd: path.join(__dirname, 'uploads'),
     }, selectedFiles)
-    logActivity('RESTORE', req.user.id + ':' + req.user.username, selectedFiles.join(','));
+    logActivity('RESTORE', req.user.id + ':' + req.user.username, selectedFiles.join(','), req.user.role);
     res.json({ message: 'Recovery สำเร็จ', restored: selectedFiles.length});
 })
 
@@ -312,7 +324,7 @@ app.get('/files', authenticateToken, (req, res) => {
 // Download สำหรับ admin 
 app.get('/download/:owner/:filename', authenticateToken, (req, res) => {
     const filePath = path.join(__dirname, 'uploads', req.params.owner, req.params.filename);
-    logActivity('DOWNLOAD', req.user.id + ':' + req.user.username, req.params.filename);
+    logActivity('DOWNLOAD', req.user.id + ':' + req.user.username, req.params.filename, req.user.role);
     res.download(filePath);
 });
 
@@ -322,7 +334,7 @@ app.get('/download/:owner/:filename', authenticateToken, (req, res) => {
 // ให้ Client ดาวน์โหลดไฟล์จาก Server
 app.get('/download/:filename', authenticateToken, (req, res) => {
     const filePath = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
-    logActivity('DOWNLOAD', req.user.id + ':' + req.user.username, req.params.filename);
+    logActivity('DOWNLOAD', req.user.id + ':' + req.user.username, req.params.filename, req.user.role);
     res.download(filePath);
 });
 
@@ -332,7 +344,7 @@ app.delete('/files/:filename', authenticateToken, (req, res) => {
     const fileDelete = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
     fs.mkdirSync(path.join(__dirname, 'trash', String(req.user.id)), { recursive: true});
     fs.renameSync(fileDelete, path.join(__dirname, 'trash', String(req.user.id), req.params.filename));
-    logActivity('DELETE', req.user.id + ':' + req.user.username, req.params.filename);
+    logActivity('DELETE', req.user.id + ':' + req.user.username, req.params.filename, req.user.role);
     res.json({ message: 'ลบสำเร็จ' });
 });
 
@@ -343,17 +355,17 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
     const fileDelete = path.join(__dirname, 'uploads', req.params.owner, req.params.filename);
     fs.mkdirSync(path.join(__dirname, 'trash', req.params.owner), { recursive: true});
     fs.renameSync(fileDelete, path.join(__dirname, 'trash', req.params.owner, req.params.filename));
-    logActivity('DELETE', req.params.owner + ':' + req.user.username, req.params.filename);
+    logActivity('DELETE', req.params.owner + ':' + req.user.username, req.params.filename, req.user.role);
     res.json({ message: 'ลบสำเร็จ'});
 })
+
+/// เปิดดู trash
     app.get('/trash', authenticateToken, (req, res) => {
-    const trashFolder = path.join('trash', String(req.user.id));
-    if (!fs.existsSync(trashFolder)) return res.json([]);
-    fs.readdir(trashFolder, (err, files) => {
+    fs.readdir(path.join(__dirname, 'trash', String(req.user.id)), (err, files) => {
             if (err) return res.status(500).json({ error: 'Unable to list files' });
             const result = [];
             files.forEach(function(filename){
-                const filePath = path.join('trash', String(req.user.id), filename);
+                const filePath = path.join(__dirname,'trash', String(req.user.id), filename);
                 const stat = fs.statSync(filePath);
                 const ext = path.extname(filename).toLowerCase();
                 let dimensions = null;
@@ -371,7 +383,7 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
                 });
             })
             res.json(result);
-        }); 
+        });   
 });
 // ===== (มาแกะด้วย) เปลี่ยนชื่อไฟล์ =====
 // — รับ newName จาก body → fs.renameSync เปลี่ยนชื่อจริงบน disk
@@ -387,7 +399,7 @@ app.put('/files/:filename/rename', authenticateToken, (req, res) => {
 app.post('/trash/:filename/restore', authenticateToken, (req, res) => {
     fs.mkdirSync(path.join(__dirname, 'uploads', String(req.user.id)), { recursive: true});
     fs.renameSync(path.join(__dirname, 'trash', String(req.user.id), req.params.filename), path.join(__dirname, 'uploads', String(req.user.id), req.params.filename));
-    logActivity('RESTORE', req.user.id + ':' + req.user.username, req.params.filename);
+    logActivity('RESTORE', req.user.id + ':' + req.user.username, req.params.filename, req.user.role);
     res.json({ message: 'กู้คืนสำเร็จ'});
 })
 
@@ -397,7 +409,7 @@ app.delete('/trash', authenticateToken, (req, res) => {
     files.forEach(function(filename) {
         fs.unlinkSync(path.join(trashFolder, filename));
     })
-    logActivity('EMPTY_TRASH', req.user.id + ':' + req.user.username, files.length + ' files');
+    logActivity('EMPTY_TRASH', req.user.id + ':' + req.user.username, files.length + ' files', req.user.role);
     res.json({ message: 'ลบถาวรทั้งหมดสำเร็จ'});
 })
 
@@ -411,15 +423,12 @@ app.get('/trash/download/:filename', authenticateToken, (req, res) => {
 
 app.delete('/trash/:filename', authenticateToken, (req, res) => {
     fs.unlinkSync(path.join(__dirname, 'trash', String(req.user.id), req.params.filename));
-    logActivity('DELETE_PERMANENT', req.user.id + ':' + req.user.username, req.params.filename);
+    logActivity('DELETE_PERMANENT', req.user.id + ':' + req.user.username, req.params.filename, req.user.role);
     res.json({ message: 'ลบถาวรสำเร็จ'});
 })
+    
 
-app.get('/storage', authenticateToken, (req, res) => {
-    const userFolder = path.join('uploads', String(req.user.id));
-    const usedSize = getFolderSize(userFolder);
-    res.json({ usedSize: usedSize, maxSize: MAX_SIZE });
-});
+    
 
 
 
@@ -450,7 +459,7 @@ app.post('/share', authenticateToken, (req, res) => {
     })
     saveShares();
     res.json({ message: 'แชร์สำเร็จ' });
-    logActivity('SHARE', req.user.id + ':' + req.user.username, filename + ' → ' + targetUsers.join(', '))
+    logActivity('SHARE', req.user.id + ':' + req.user.username, filename + ' → ' + targetUsers.join(', '), req.user.role)
 })
 
 // ===== (มาแกะด้วย) ดูรายการไฟล์ที่เกี่ยวกับการแชร์ — ทั้งขาเข้า (คนอื่นแชร์ให้ฉัน) + ขาออก (ฉันแชร์ให้คนอื่น) =====
@@ -499,7 +508,7 @@ app.get('/shared', authenticateToken, (req, res) => {
 // superadmin crud — ดูรายการ user ทั้งหมด
 app.get('/users', authenticateToken, (req, res) => {
     if (req.user.role !== 'superadmin') {
-        logActivity('Security Audit', req.user.id + ':' + req.user.role + ':' + req.user.username ,'พยายามเข้ามาใช้งานทั้งที่ไม่มีสิทธิ์')
+        logActivity('Security Audit', req.user.id + ':' + req.user.role + ':' + req.user.username ,'พยายามเข้ามาใช้งานทั้งที่ไม่มีสิทธิ์', req.user.role)
         return res.status(403).json({ error: 'เฉพาะ Super Admin เท่านั้น' });
     }
     res.json(users.map(u => ({ id: u.id, username: u.username, role: u.role, banned: u.banned })));
@@ -521,7 +530,7 @@ app.post('/users', authenticateToken, (req, res) => {
     const newUser = { id: newId, username, password, role };
     users.push(newUser);
     saveUsers();
-    logActivity('CREATE_USER', req.user.id + ':' + req.user.username, username + ' (' + role + ')');
+    logActivity('CREATE_USER', req.user.id + ':' + req.user.username, username + ' (' + role + ')', req.user.role);
     res.json({ message: 'สร้าง user สำเร็จ' });
 });
 
@@ -538,7 +547,7 @@ app.put('/users/:id', authenticateToken, (req, res) => {
         user.password = password;
         user.role = role;
         saveUsers();
-        logActivity('EDIT_USER', req.user.id + ':' + req.user.username,username + ' (' + role + ')');
+        logActivity('EDIT_USER', req.user.id + ':' + req.user.username,username + ' (' + role + ')', req.user.role);
         res.json({ message: 'แก้ไข user สำเร็จ'})
     });
 
@@ -551,7 +560,7 @@ app.delete('/users/:id', authenticateToken,  (req, res) => {
         return res.status(404).json({ error: 'ไม่พบ user'});
     } users = users.filter(u => u.id !== Number(req.params.id));
     saveUsers();
-    logActivity('DELETE_USER', req.user.id + ':' + req.user.username, user.username );
+    logActivity('DELETE_USER', req.user.id + ':' + req.user.username, user.username, req.user.role );
     res.json({message: 'ลบ user สำเร็จ'})
     
 })
@@ -564,13 +573,38 @@ app.get('/backup-list', authenticateToken, (req, res) => {
     const file = fs.readdirSync(path.join(__dirname, 'backups'))
     const typeFile = file.filter(f => f.endsWith('.tar.gz'))
 
+    // ===== (มาแกะด้วย) กรอง backup ตาม userId — admin เห็นหมด, user เห็นแค่ของตัวเอง =====
+    let filtered;
     if (req.user.role === 'admin' || req.user.role === 'superadmin') {
-        res.json(typeFile);
+        filtered = typeFile;
     } else {
-        const myBackups = typeFile.filter(f => f.startsWith(req.user.id + '_'));
-        res.json(myBackups);
+        filtered = typeFile.filter(f => f.startsWith(req.user.id + '_'));
     }
-}) 
+
+    // ===== (มาแกะด้วย) ส่ง metadata ด้วย — ขนาดไฟล์ + วันที่สร้าง =====
+    const result = [];
+    filtered.forEach(function(filename){
+        const filePath = path.join(__dirname, 'backups', filename);
+        const read = fs.statSync(filePath);
+        result.push({
+            filename: filename,
+            size: read.size,
+            date: read.birthtime
+        });
+    });
+    res.json(result);
+})
+
+// ลบ backup
+app.delete('/backups/:filename', authenticateToken, (req, res) => {
+    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+        return res.status(403).json({ error: 'เฉพาะ admin เท่านั้น' });
+    }
+    const filePath = path.join(__dirname, 'backups', req.params.filename);
+    fs.unlinkSync(filePath);
+    logActivity('DELETE_BACKUP', req.user.id + ':' + req.user.username, req.params.filename, req.user.role);
+    res.json({ message: 'ลบ backup สำเร็จ' });
+})
 
 
 // ban user
@@ -583,7 +617,7 @@ app.put('/users/:id/ban', authenticateToken, (req, res) => {
     } 
     user.banned = !user.banned;
     saveUsers();
-    logActivity('BAN_USER', req.user.id + ':' + req.user.username, user.username );
+    logActivity('BAN_USER', req.user.id + ':' + req.user.username, user.username, req.user.role );
     res.json({ message: user.banned ? 'แบน user สำเร็จ' : 'ปลดแบน user สำเร็จ' });
 })
 
