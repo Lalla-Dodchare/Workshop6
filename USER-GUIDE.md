@@ -101,33 +101,66 @@
 - [x] UI: แถบพื้นที่เก็บข้อมูล (#storageBar + #storageText) — HTML มีแล้ว, เหลือเชื่อม API
 - [x] TODO comments ครบทุกจุดที่ต้องเชื่อม JS — ดูใน `<script>` ท้ายไฟล์ home.html
 
-**ยังไม่ได้ทำ (Frontend — home.html) — เหลือแค่เชื่อม JS:**
-- [ ] เชื่อม function ปุ่ม + ใหม่ → toggle #newDropdown + trigger #fileInput + auto upload
-- [ ] เชื่อม function sidebar navigation → สลับ mainContent ↔ trashView + highlight active
-- [ ] เชื่อม function ถังขยะ → loadTrash(), กู้คืน, ลบถาวร, ล้างทั้งหมด
-- [ ] เชื่อม Toggle ซ่อน/แสดง (โฟลเดอร์ที่แนะนำ + ไฟล์ที่แนะนำ)
-- [ ] เชื่อม สลับ List/Grid view
-- [ ] เชื่อม renameFile() → เปิด #renameModal + fetch rename API
-- [ ] เชื่อม shareFile() → เปิด #shareModal + fetch POST /share
-- [ ] เชื่อม fileInfo() → เปิด #fileInfoPanel + ใส่ข้อมูลจริง
-- [ ] เชื่อม แถบพื้นที่เก็บข้อมูล → fetch GET /storage
-- [ ] แก้ `previewFile()` ให้รองรับไฟล์ครบ — เพิ่ม video (`<video>`), audio (`<audio>`), text (`<pre>`)
-- [ ] Drag to Select + Keyboard Shortcuts — ลากเมาส์เลือกหลาย card, Ctrl+A ครอบหมด
-- [ ] Upload โฟลเดอร์ทั้งอัน — ลากโฟลเดอร์จากเครื่องมาโยนใส่เว็บได้เลย
-- [ ] ปุ่ม Backup + Recovery ในหน้า user
+**เสร็จแล้ว (Frontend JS — เชื่อมเสร็จ):**
+- [x] เชื่อม function ปุ่ม + ใหม่ → toggle #newDropdown + trigger #fileInput + auto upload
+- [x] เชื่อม function sidebar navigation → สลับ mainContent ↔ trashView
+- [x] เชื่อม function ถังขยะ → loadTrash(), กู้คืน, ลบถาวร, ล้างทั้งหมด + openTrashContextMenu
+- [x] เชื่อม Toggle ซ่อน/แสดง (ไฟล์ที่แนะนำ) — รู้จัก collapse state + view mode
+- [x] เชื่อม สลับ List/Grid view — รู้จัก collapse state
 
-**ยังไม่ได้ทำ (Backend — server.js):**
-- [x] ระบบถังขยะ — ย้ายไฟล์ไป `trash/` แทนลบถาวร ✅ เสร็จแล้ว
+**เสร็จแล้ว (Frontend JS — เชื่อมเสร็จ รอบ 2 — Claude เขียนให้ ต้องมาแกะด้วย!):**
+- [x] เชื่อม renameFile() → เปิด #renameModal + fetch PUT /files/:filename/rename
+- [x] เชื่อม shareFile() → เปิด #shareModal + chip UI + fetch POST /share
+- [x] เชื่อม fileInfo() → เปิด #fileInfoPanel + ใส่ข้อมูลจริง + thumbnail
+- [x] เชื่อม แถบพื้นที่เก็บข้อมูล loadStorage() → fetch GET /storage + progress bar
+- [x] แก้ `previewFile()` ให้รองรับไฟล์ครบ — เพิ่ม video, audio, text
+- [x] Multi-select — Ctrl+Click, Shift+Click range select, rubber band (ลากเมาส์เลือก), checkmark, Action Bar
+- [x] Upload โฟลเดอร์ — webkitdirectory + X-Folder-Path header + folder navigation (เข้า/ออกโฟลเดอร์)
+- [x] สร้างโฟลเดอร์ใหม่ — POST /folders + prompt ชื่อ
+- [x] Drag & Drop upload — ลากไฟล์มาวางบนเว็บ + overlay
+- [x] ปุ่ม Backup + Recovery ในหน้า user — loadBackups(), createBackup, openRecovery()
+- [x] showView() — สลับ mainContent / trashView / backupView
+
+**เสร็จแล้ว (Backend — server.js):**
+- [x] ระบบถังขยะ — ย้ายไฟล์ไป `trash/` แทนลบถาวร ✅
   - `DELETE /files/:filename` (user) → renameSync ไป trash/{userId}/
   - `DELETE /files/:owner/:filename` (admin) → renameSync ไป trash/{owner}/
   - `GET /trash` → ดูรายการไฟล์ในถังขยะ (พร้อม metadata)
   - `POST /trash/:filename/restore` → กู้คืนไฟล์กลับไป uploads/
   - `DELETE /trash` → ลบไฟล์ในถังขยะทั้งหมด (ถาวร)
   - `DELETE /trash/:filename` → ลบไฟล์เดียวถาวร
-- [ ] API พื้นที่ใช้งาน — route `GET /storage` ส่ง usedSize + maxSize กลับ
+- [x] API พื้นที่ใช้งาน — route `GET /storage` ส่ง usedSize + maxSize กลับ ✅
+- [x] แก้ `GET /backups` → เปลี่ยนเป็น `GET /backup-list` (ชนกับ express.static) + เพิ่มกรอง userId ✅
+
+**เสร็จแล้ว (Backend — server.js รอบ 2 — Claude เขียนให้ ต้องมาแกะด้วย!):**
+- [x] แก้ `POST /share` — ลบ admin-only check + รับ username แทน ID
+- [x] เพิ่ม `PUT /files/:filename/rename` — เปลี่ยนชื่อไฟล์
+- [x] เพิ่ม `POST /folders` — สร้างโฟลเดอร์ใหม่
+- [x] แก้ `GET /files` — รองรับ ?path= query + ส่ง isFolder + สร้างโฟลเดอร์ user ถ้ายังไม่มี
+- [x] แก้ multer destination — อ่าน X-Folder-Path header สำหรับ upload เข้า subfolder
+- [x] แก้ image-size v2 — เปลี่ยน require + ใช้ Buffer แทน filepath
+
+**เสร็จแล้ว (Backend + Frontend รอบ 3 — Claude เขียนให้ ต้องมาแกะด้วย!):**
+- [x] เพิ่ม `GET /trash/download/:filename` — ดาวน์โหลดไฟล์จากถังขยะ (ใช้โชว์ thumbnail ในหน้าถังขยะ)
+- [x] เพิ่ม `shares.json` — เก็บข้อมูลว่าใครแชร์ไฟล์ให้ใคร (fromUserId, fromUsername, toUserId, toUsername, sharedAt)
+- [x] แก้ `POST /share` — บันทึกข้อมูลการแชร์ลง shares.json ด้วย
+- [x] เพิ่ม `GET /shared` — ดูไฟล์ที่แชร์กับฉัน + ที่ฉันแชร์ (bidirectional เหมือน Google Drive)
+  - incoming = คนอื่นแชร์ให้ฉัน (toUserId ตรง)
+  - outgoing = ฉันแชร์ให้คนอื่น (fromUserId ตรง)
+- [x] เพิ่ม `#sharedView` ใน home.html — หน้าแสดงไฟล์ที่แชร์ (grid/list + avatar สี + badge ทิศทาง)
+- [x] เพิ่ม `loadShared()` ใน home.html — fetch GET /shared แล้วแสดงผล
+- [x] ลบ sidebar: ติดตาม (nav-starred), ล่าสุด (nav-recent), พื้นที่เก็บข้อมูล (nav-storage)
+- [x] แก้ถังขยะ thumbnail — เปลี่ยน fetch จาก `/download/` เป็น `/trash/download/`
+- [x] แก้ `POST /backup` — ใส่ userId prefix ในชื่อไฟล์ backup เช่น `2_2026-03-01T06-16-26.tar.gz`
+- [x] เปลี่ยนชื่อ route `GET /backups` → `GET /backup-list` — เพราะ express.static ชนกับโฟลเดอร์ backups/
+- [x] แก้ `GET /backup-list` — กรอง backup ตาม userId (user เห็นแค่ของตัวเอง, admin เห็นทั้งหมด)
 
 **เพื่อนทำ:**
 - [x] เพิ่มปุ่ม Backup + Recovery ในหน้า admin (page/admin/) — ลัลลาเชื่อม fetch แล้วใน admin.js
+
+> ⚠️ **สำคัญสำหรับเพื่อน:** route `GET /backups` เปลี่ยนเป็น `GET /backup-list` แล้ว!
+> ถ้า admin.js ยังใช้ `fetch('/backups')` ต้องแก้เป็น `fetch('/backup-list')` ด้วย
+> (เหตุผล: express.static(__dirname) ชนกับโฟลเดอร์ backups/ ทำให้ได้ 301 redirect แทน JSON)
 
 ---
 

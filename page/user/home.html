@@ -20,6 +20,25 @@
         </div>
     </div>
 
+    <!-- Selection Action Bar (ซ่อนไว้ จนกว่าจะเลือกไฟล์) -->
+<div id="selectionBar" class="hidden items-center bg-[#e8f0fe] px-4 py-2 gap-3 border-b border-[#c2d9f7]">
+    <button onclick="clearSelection()" class="w-8 h-8 rounded-full hover:bg-[#d3e3fd] flex items-center justify-center cursor-pointer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#1a73e8"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+    <span id="selectionCount" class="text-sm font-medium text-[#1a73e8]">เลือกไว้ 0 รายการ</span>
+    <div class="flex items-center gap-1 ml-4">
+        <button onclick="shareSelected()" class="w-9 h-9 rounded-full hover:bg-[#d3e3fd] flex items-center justify-center cursor-pointer" title="แชร์">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#5f6368"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        </button>
+        <button onclick="downloadSelected()" class="w-9 h-9 rounded-full hover:bg-[#d3e3fd] flex items-center justify-center cursor-pointer" title="ดาวน์โหลด">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#5f6368"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        </button>
+        <button onclick="deleteSelected()" class="w-9 h-9 rounded-full hover:bg-[#d3e3fd] flex items-center justify-center cursor-pointer" title="ย้ายไปถังขยะ">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#5f6368"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+    </div>
+</div>
+
     <!-- Layout: Sidebar + เนื้อหา -->
     <div class="flex">
     <!-- Sidebar -->
@@ -56,18 +75,13 @@
             <a id="nav-shared" href="#" class="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-[#e8eaed] text-[#444746]">
                 👥 แชร์กับฉัน
             </a>
-            <a id="nav-recent" href="#" class="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-[#e8eaed] text-[#444746]">
-                🕐 ล่าสุด
-            </a>
-            <a id="nav-starred" href="#" class="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-[#e8eaed] text-[#444746]">
-                ⭐ ที่ติดตาม
-            </a>
             <hr class="my-3 border-gray-200">
             <a id="nav-trash" href="#" class="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-[#e8eaed] text-[#444746]">
                 🗑️ ถังขยะ
             </a>
-            <a id="nav-storage" href="#" class="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-[#e8eaed] text-[#444746]">
-                ☁️ พื้นที่เก็บข้อมูล
+            <hr class="my-3 border-gray-200">
+            <a id="nav-backup" href="#" class="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-[#e8eaed] text-[#444746]">
+                💾 สำรองข้อมูล
             </a>
         </nav>
         <!-- แถบพื้นที่ใช้งาน -->
@@ -84,6 +98,7 @@
      <div id="mainContent" class="flex-1 max-w-4xl mx-auto p-6">
     <!-- ส่วน Upload (ซ่อนไว้ เปิดจากปุ่ม + ใหม่) -->
     <input type="file" id="fileInput" class="hidden">
+    <input type="file" id="folderInput" class="hidden" webkitdirectory multiple>
     <button id="uploadBtn" class="hidden"></button>
     <!-- ส่วน "โฟลเดอร์ที่แนะนำ" -->
     <button id="toggleFolders" class="flex items-center gap-2 mb-3 cursor-pointer hover:bg-[#e8eaed] rounded-lg px-2 py-1 transition">
@@ -198,8 +213,96 @@
         </div>
     </div>
 
-    <!-- ===== File Info Side Panel (เลื่อนเข้าจากขวา) — TODO: เชื่อมเอง กด fileInfo() → แสดง #fileInfoPanel + ใส่ข้อมูลไฟล์ ===== -->
-    <div id="fileInfoPanel" class="hidden w-[320px] min-h-[calc(100vh-56px)] bg-white border-l border-[#dadce0] flex-shrink-0 overflow-y-auto">
+    <!-- ===== (มาแกะด้วย) หน้าแชร์กับฉัน — แสดงไฟล์ที่คนอื่นแชร์ให้ พร้อมชื่อคนแชร์ + วันที่ ===== -->
+    <div id="sharedView" class="flex-1 max-w-4xl mx-auto p-6 hidden">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-medium text-[#1f1f1f]">แชร์กับฉัน</span>
+            <div class="flex items-center bg-[#e8eaed] rounded-full p-0.5">
+                <button id="btn-shared-list-view" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white transition cursor-pointer" title="มุมมองรายการ">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#444746"><path d="M3 14h4v-4H3v4zm0 5h4v-4H3v4zM3 9h4V5H3v4zm5 5h13v-4H8v4zm0 5h13v-4H8v4zM8 5v4h13V5H8z"/></svg>
+                </button>
+                <button id="btn-shared-grid-view" class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm transition cursor-pointer" title="มุมมองตาราง">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#444746"><path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid รายการไฟล์ที่แชร์ -->
+        <div id="sharedList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        </div>
+
+        <!-- ตาราง List view -->
+        <div id="sharedListTable" class="hidden">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-xs text-[#444746] border-b border-[#dadce0]">
+                        <th class="text-left py-2 px-3 font-medium">ชื่อ</th>
+                        <th class="text-left py-2 px-3 font-medium hidden md:table-cell">รายละเอียด</th>
+                        <th class="text-left py-2 px-3 font-medium hidden lg:table-cell">วันที่แชร์</th>
+                        <th class="text-left py-2 px-3 font-medium hidden md:table-cell">ประเภท</th>
+                    </tr>
+                </thead>
+                <tbody id="sharedListBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty state -->
+        <div id="sharedEmpty" class="hidden flex flex-col items-center justify-center py-20">
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" class="mb-4">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" fill="#dadce0"/>
+            </svg>
+            <p class="text-[#5f6368] text-lg">ยังไม่มีไฟล์ที่แชร์กับคุณ</p>
+            <p class="text-[#80868b] text-sm mt-1">ไฟล์ที่คนอื่นแชร์จะปรากฏที่นี่</p>
+        </div>
+    </div>
+
+    <!-- ===== หน้า Backup & Recovery (ซ่อนไว้) ===== -->
+    <div id="backupView" class="flex-1 max-w-4xl mx-auto p-6 hidden">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-lg font-medium text-[#1f1f1f]">สำรองข้อมูล</h2>
+            <button id="createBackupBtn" class="flex items-center gap-2 bg-[#1a73e8] text-white px-4 py-2 rounded-full text-sm hover:bg-[#1557b0] transition cursor-pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/></svg>
+                สร้าง Backup ใหม่
+            </button>
+        </div>
+
+        <div id="backupList" class="space-y-3">
+            <!-- JS จะเพิ่ม backup card ตรงนี้ -->
+        </div>
+
+        <div id="backupEmpty" class="hidden flex flex-col items-center justify-center py-20">
+            <span class="text-6xl mb-4">💾</span>
+            <p class="text-[#5f6368] text-lg">ยังไม่มี Backup</p>
+            <p class="text-[#80868b] text-sm mt-1">กดปุ่ม "สร้าง Backup ใหม่" เพื่อสำรองข้อมูล</p>
+        </div>
+
+        <!-- Recovery Modal -->
+        <div id="recoveryModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-2xl shadow-lg w-[500px] mx-4 max-h-[80vh] flex flex-col">
+                <div class="p-5 border-b border-[#dadce0]">
+                    <h3 class="font-medium text-lg text-[#1f1f1f]">กู้คืนไฟล์จาก Backup</h3>
+                    <p id="recoveryFilename" class="text-sm text-[#5f6368] mt-1"></p>
+                </div>
+                <div class="p-5 overflow-y-auto flex-1">
+                    <div class="flex items-center gap-2 mb-3">
+                        <input type="checkbox" id="selectAllRecovery" class="w-4 h-4 cursor-pointer">
+                        <label for="selectAllRecovery" class="text-sm text-[#5f6368] cursor-pointer">เลือกทั้งหมด</label>
+                    </div>
+                    <div id="recoveryFileList" class="space-y-2">
+                        <!-- JS จะเพิ่มรายการไฟล์ -->
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 px-5 pb-4 pt-2 border-t border-[#dadce0]">
+                    <button id="cancelRecovery" class="px-4 py-2 text-sm text-[#1a73e8] hover:bg-[#e8eaed] rounded-full cursor-pointer">ยกเลิก</button>
+                    <button id="confirmRecovery" class="px-5 py-2 text-sm text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-full cursor-pointer">กู้คืน</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== File Info Side Panel (เลื่อนเข้าจากขวา) ===== -->
+    <div id="fileInfoPanel" class="hidden w-[320px] h-[calc(100vh-56px)] sticky top-[56px] bg-white border-l border-[#dadce0] flex-shrink-0 overflow-y-auto">
         <div class="flex items-center justify-between p-4 border-b border-[#dadce0]">
             <h3 id="infoFilename" class="font-medium text-[#1f1f1f] truncate flex-1">ชื่อไฟล์</h3>
             <!-- TODO: เชื่อมเอง กด #closeInfoBtn → ซ่อน #fileInfoPanel -->
@@ -385,6 +488,9 @@
     const tokenname = localStorage.getItem('tokenname');
     document.getElementById('tokenname').textContent = 'File Manager -' + tokenname;
 
+    let allFiles = [];
+    let currentPath = '';
+
     // --- ไอคอนตามประเภทไฟล์ (สี + ไอคอน เหมือน Google Drive) ---
     function getFileIcon(ext) {
         const icons = {
@@ -413,11 +519,39 @@
     }
 
     function loadFiles(){
-        fetch('/files',{
+        fetch('/files?path=' + encodeURIComponent(currentPath),{
             headers: { 'Authorization': 'Bearer ' + token}
         })
         .then(res => res.json())
         .then(files =>{
+            allFiles = files.filter(f => !f.isFolder);
+            // === โฟลเดอร์ ===
+            const folderList = document.getElementById('folderList');
+            folderList.innerHTML = '';
+            const folders = files.filter(f => f.isFolder);
+
+            if (currentPath) {
+                const backCard = document.createElement('div');
+                backCard.className = 'bg-white rounded-xl border border-[#dadce0] hover:bg-[#e8eaed] transition cursor-pointer flex items-center gap-3 px-4 py-3';
+                backCard.innerHTML = '<span class="text-xl">⬅️</span><span class="text-sm font-medium text-[#1f1f1f]">.. กลับ</span>';
+                backCard.addEventListener('click', () => {
+                    currentPath = currentPath.split('/').slice(0, -1).join('/');
+                    loadFiles();
+                });
+                folderList.appendChild(backCard);
+            }
+
+            folders.forEach(folder => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl border border-[#dadce0] hover:bg-[#e8eaed] transition cursor-pointer flex items-center gap-3 px-4 py-3';
+                card.innerHTML = '<span class="text-xl">📁</span><span class="text-sm font-medium text-[#1f1f1f] truncate">' + folder.filename + '</span>';
+                card.addEventListener('dblclick', () => {
+                    currentPath = currentPath ? currentPath + '/' + folder.filename : folder.filename;
+                    loadFiles();
+                });
+                folderList.appendChild(card);
+            });
+
             // === Grid view ===
             const fileList = document.getElementById('fileList');
             fileList.innerHTML = '';
@@ -426,7 +560,8 @@
             const fileListBody = document.getElementById('fileListBody');
             fileListBody.innerHTML = '';
 
-            files.forEach(file =>{
+            const onlyFiles = files.filter(f => !f.isFolder);
+            onlyFiles.forEach(file =>{
                 const ext = '.' + file.filename.split('.').pop().toLowerCase();
                 const iconData = getFileIcon(ext);
                 const isImage = file.dimensions;
@@ -437,8 +572,11 @@
                 card.dataset.filename = file.filename;
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-2 px-3 py-2.5 border-b border-[#dadce0]">
-                        <span class="text-base flex-shrink-0">${iconData.icon}</span>
+                    <div class="flex items-center gap-2 px-3 py-2.5 border-b border-[#dadce0] relative">
+                        <div class="check-icon hidden absolute left-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#1a73e8] flex items-center justify-center z-10">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </div>
+                        <span class="file-icon text-base flex-shrink-0">${iconData.icon}</span>
                         <span class="text-[13px] font-medium text-[#1f1f1f] truncate flex-1">${file.filename}</span>
                         <button class="dots-btn flex-shrink-0 w-7 h-7 rounded-full hover:bg-[#e8eaed] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer" onclick="event.stopPropagation(); openContextMenu(event, '${file.filename}')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="#5f6368"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
@@ -472,6 +610,18 @@
                 // ดับเบิ้ลคลิก → preview
                 card.addEventListener('dblclick', () => previewFile(file.filename));
                 // คลิกขวา → context menu
+                // คลิกเลือก (multi-select + Shift + Ctrl)
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.dots-btn, .check-icon')) return;
+                    const cards = getCardElements();
+                    const idx = cards.indexOf(card);
+                    if (e.shiftKey) {
+                        shiftSelect(idx);
+                    } else {
+                        if (!e.ctrlKey && !e.metaKey) clearSelection();
+                        toggleSelect(card, file.filename, idx);
+                    }
+                });
                 card.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     openContextMenu(e, file.filename);
@@ -485,7 +635,7 @@
                 row.dataset.filename = file.filename;
                 row.innerHTML = `
                     <td class="py-2 px-3">
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3 max-w-[500px]">
                             <span class="text-base flex-shrink-0">${iconData.icon}</span>
                             <span class="text-sm text-[#1f1f1f] truncate">${file.filename}</span>
                         </div>
@@ -523,7 +673,302 @@
         })
     }
 
-    // ปุ่ม + ใหม่ 
+    // --- Multi-Select ---
+let selectedFiles = [];
+let lastSelectedIndex = -1;
+
+function getCardElements() {
+    return Array.from(document.querySelectorAll('#fileList > div'));
+}
+
+// ===== (มาแกะด้วย) Multi-select ทั้งหมด: applySelectStyle, removeSelectStyle, toggleSelect, shiftSelect, clearSelection, downloadSelected, deleteSelected, shareSelected =====
+// — กด Ctrl+Click เลือกทีละอัน, Shift+Click เลือกเป็นช่วง, มี Action Bar โผล่มาเวลาเลือกหลายอัน
+function applySelectStyle(el) {
+    el.classList.add('ring-2', 'ring-[#1a73e8]', 'bg-[#e8f0fe]');
+    const check = el.querySelector('.check-icon');
+    const icon = el.querySelector('.file-icon');
+    if (check) { check.classList.remove('hidden'); check.classList.add('flex'); }
+    if (icon) icon.classList.add('opacity-0');
+}
+
+function removeSelectStyle(el) {
+    el.classList.remove('ring-2', 'ring-[#1a73e8]', 'bg-[#e8f0fe]');
+    const check = el.querySelector('.check-icon');
+    const icon = el.querySelector('.file-icon');
+    if (check) { check.classList.add('hidden'); check.classList.remove('flex'); }
+    if (icon) icon.classList.remove('opacity-0');
+}
+
+function toggleSelect(card, filename, index) {
+    const idx = selectedFiles.indexOf(filename);
+    if (idx > -1) {
+        selectedFiles.splice(idx, 1);
+        removeSelectStyle(card);
+    } else {
+        selectedFiles.push(filename);
+        applySelectStyle(card);
+    }
+    if (index !== undefined) lastSelectedIndex = index;
+    updateSelectionBar();
+}
+
+function shiftSelect(currentIndex) {
+    if (lastSelectedIndex === -1) lastSelectedIndex = currentIndex;
+    const cards = getCardElements();
+    const start = Math.min(lastSelectedIndex, currentIndex);
+    const end = Math.max(lastSelectedIndex, currentIndex);
+    clearSelection();
+    for (let i = start; i <= end; i++) {
+        const fn = cards[i].dataset.filename;
+        if (!selectedFiles.includes(fn)) {
+            selectedFiles.push(fn);
+            applySelectStyle(cards[i]);
+        }
+    }
+    updateSelectionBar();
+}
+
+function updateSelectionBar() {
+    const bar = document.getElementById('selectionBar');
+    if (selectedFiles.length > 0) {
+        bar.classList.remove('hidden');
+        bar.classList.add('flex');
+        document.getElementById('selectionCount').textContent = 'เลือกไว้ ' + selectedFiles.length + ' รายการ';
+    } else {
+        bar.classList.add('hidden');
+        bar.classList.remove('flex');
+    }
+}
+
+function clearSelection() {
+    selectedFiles = [];
+    lastSelectedIndex = -1;
+    document.querySelectorAll('#fileList > div, #fileListBody > tr').forEach(el => {
+        removeSelectStyle(el);
+    });
+    updateSelectionBar();
+}
+
+async function downloadSelected() {
+    for (const filename of selectedFiles) {
+        await download(filename);
+    }
+    clearSelection();
+}
+
+async function deleteSelected() {
+    if (!confirm('ลบ ' + selectedFiles.length + ' ไฟล์?')) return;
+    for (const filename of selectedFiles) {
+        await fetch('/files/' + filename, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+    }
+    clearSelection();
+    loadFiles();
+    loadStorage();
+}
+
+function shareSelected() {
+    if (selectedFiles.length === 0) return;
+    shareFile(selectedFiles[0]);
+}
+
+// --- Rubber Band Selection (ลากเมาส์เลือก) ---
+let rbActive = false, rbStartX = 0, rbStartY = 0;
+const rbBox = document.createElement('div');
+rbBox.className = 'fixed border-2 border-[#1a73e8] bg-[#1a73e8]/10 pointer-events-none z-[300] hidden';
+document.body.appendChild(rbBox);
+
+document.getElementById('mainContent').addEventListener('mousedown', (e) => {
+    if (e.button !== 0 || e.target.closest('.dots-btn, button, a, input')) return;
+    if (e.target.closest('#fileList > div')) return;
+    rbActive = true;
+    rbStartX = e.clientX;
+    rbStartY = e.clientY;
+    rbBox.style.left = rbStartX + 'px';
+    rbBox.style.top = rbStartY + 'px';
+    rbBox.style.width = '0px';
+    rbBox.style.height = '0px';
+    clearSelection();
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!rbActive) return;
+    const x = Math.min(e.clientX, rbStartX);
+    const y = Math.min(e.clientY, rbStartY);
+    const w = Math.abs(e.clientX - rbStartX);
+    const h = Math.abs(e.clientY - rbStartY);
+    if (w > 5 || h > 5) {
+        rbBox.classList.remove('hidden');
+        rbBox.style.left = x + 'px';
+        rbBox.style.top = y + 'px';
+        rbBox.style.width = w + 'px';
+        rbBox.style.height = h + 'px';
+        const rbRect = { left: x, top: y, right: x + w, bottom: y + h };
+        clearSelection();
+        getCardElements().forEach((card, i) => {
+            const cr = card.getBoundingClientRect();
+            if (cr.left < rbRect.right && cr.right > rbRect.left && cr.top < rbRect.bottom && cr.bottom > rbRect.top) {
+                selectedFiles.push(card.dataset.filename);
+                applySelectStyle(card);
+            }
+        });
+        updateSelectionBar();
+    }
+});
+
+document.addEventListener('mouseup', () => {
+    rbActive = false;
+    rbBox.classList.add('hidden');
+});
+
+    // ===== (มาแกะด้วย) สร้างโฟลเดอร์ใหม่ =====
+    // — กด newFolder → prompt ชื่อ → fetch POST /folders → loadFiles()
+    document.getElementById('newFolder').addEventListener('click', () => {
+        document.getElementById('newDropdown').classList.add('hidden');
+        const name = prompt('ชื่อโฟลเดอร์ใหม่:');
+        if (!name || !name.trim()) return;
+        fetch('/folders', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ folderName: name.trim(), currentPath: currentPath })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            loadFiles();
+        });
+    });
+
+    // ===== (มาแกะด้วย) Backup & Recovery ทั้งหมด: showView, loadBackups, openRecovery, createBackup =====
+    // — showView() สลับหน้า main/trash/backup, loadBackups() โหลดรายการ backup, openRecovery() เปิด modal เลือกไฟล์กู้คืน
+    function showView(viewId) {
+        ['mainContent', 'trashView', 'backupView', 'sharedView'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        document.getElementById(viewId).classList.remove('hidden');
+    }
+
+    document.getElementById('nav-backup').addEventListener('click', () => {
+        showView('backupView');
+        loadBackups();
+    });
+
+    document.getElementById('createBackupBtn').addEventListener('click', () => {
+        if (!confirm('สร้าง Backup ไฟล์ทั้งหมดของคุณ?')) return;
+        fetch('/backup', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            loadBackups();
+        });
+    });
+
+    function loadBackups() {
+        fetch('/backup-list', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(res => res.json())
+        .then(backups => {
+            const list = document.getElementById('backupList');
+            const empty = document.getElementById('backupEmpty');
+            list.innerHTML = '';
+
+            if (backups.length === 0) {
+                empty.classList.remove('hidden');
+                list.classList.add('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+            list.classList.remove('hidden');
+
+            backups.forEach(filename => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-white rounded-xl border border-[#dadce0] px-4 py-3 hover:shadow-md transition';
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">💾</span>
+                        <div>
+                            <p class="text-sm font-medium text-[#1f1f1f]">${filename}</p>
+                            <p class="text-xs text-[#5f6368]">${(() => {
+                                const raw = filename.replace('.tar.gz','');
+                                const [datePart, timePart] = raw.split('T');
+                                if (!timePart) return 'ไม่ทราบวันที่';
+                                const time = timePart.replace(/-/g, ':');
+                                return formatDate(datePart + 'T' + time);
+                            })()}</p>
+                        </div>
+                    </div>
+                    <button class="text-sm text-[#1a73e8] hover:bg-[#d3e3fd] px-3 py-1.5 rounded-lg transition cursor-pointer font-medium" onclick="openRecovery('${filename}')">กู้คืน</button>
+                `;
+                list.appendChild(div);
+            });
+        });
+    }
+
+    function openRecovery(backupFilename) {
+        document.getElementById('recoveryFilename').textContent = backupFilename;
+        document.getElementById('recoveryModal').classList.remove('hidden');
+        document.getElementById('recoveryFileList').innerHTML = '<p class="text-sm text-[#5f6368]">กำลังโหลด...</p>';
+
+        fetch('/backup/' + backupFilename + '/list', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(res => res.json())
+        .then(files => {
+            const list = document.getElementById('recoveryFileList');
+            list.innerHTML = '';
+            files.forEach(file => {
+                if (!file.path || file.path.endsWith('/')) return;
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-[#f0f4f9]';
+                div.innerHTML = `
+                    <input type="checkbox" class="recovery-check w-4 h-4 cursor-pointer" value="${file.path}">
+                    <span class="text-sm text-[#1f1f1f] flex-1">${file.path}</span>
+                    <span class="text-xs text-[#5f6368]">${(file.size / 1024).toFixed(1)} KB</span>
+                `;
+                list.appendChild(div);
+            });
+        });
+    }
+
+    document.getElementById('selectAllRecovery').addEventListener('change', (e) => {
+        document.querySelectorAll('.recovery-check').forEach(cb => cb.checked = e.target.checked);
+    });
+
+    document.getElementById('confirmRecovery').addEventListener('click', () => {
+        const selected = Array.from(document.querySelectorAll('.recovery-check:checked')).map(cb => cb.value);
+        if (selected.length === 0) return alert('เลือกไฟล์ที่จะกู้คืนก่อน');
+        const backupFilename = document.getElementById('recoveryFilename').textContent;
+
+        fetch('/backup/' + backupFilename + '/recover', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ selectedFiles: selected })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            document.getElementById('recoveryModal').classList.add('hidden');
+            loadFiles();
+        });
+    });
+
+    document.getElementById('cancelRecovery').addEventListener('click', () => {
+        document.getElementById('recoveryModal').classList.add('hidden');
+    });
+
+    // ปุ่ม + ใหม่
     document.getElementById('btn-new').addEventListener('click', () => {
         document.getElementById('newDropdown').classList.toggle('hidden');
     });
@@ -537,11 +982,51 @@
         document.getElementById('uploadBtn').click();
     })
 
+    // ===== (มาแกะด้วย) อัปโหลดโฟลเดอร์ =====
+    // — กด newUploadFolder → เปิด folderInput (webkitdirectory) → วนส่ง fetch POST /upload แต่ละไฟล์ + X-Folder-Path header
+    document.getElementById('newUploadFolder').addEventListener('click', () => {
+        document.getElementById('newDropdown').classList.add('hidden');
+        document.getElementById('folderInput').click();
+    });
+
+    document.getElementById('folderInput').addEventListener('change', async (e) => {
+        const files = e.target.files;
+        if (!files.length) return;
+        let count = 0;
+        for (let i = 0; i < files.length; i++) {
+            const relativePath = files[i].webkitRelativePath || '';
+            const folderPath = relativePath.split('/').slice(0, -1).join('/');
+            const formData = new FormData();
+            formData.append('file', files[i]);
+            await fetch('/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'X-Folder-Path': currentPath ? currentPath + '/' + folderPath : folderPath
+                },
+                body: formData
+            });
+            count++;
+        }
+        alert('อัปโหลด ' + count + ' ไฟล์จากโฟลเดอร์สำเร็จ');
+        e.target.value = '';
+        loadFiles();
+        loadStorage();
+    });
+
     document.getElementById('nav-trash').addEventListener('click', () => {
-        document.getElementById('mainContent').classList.add('hidden');
-        document.getElementById('trashView').classList.remove('hidden');
+        showView('trashView');
         loadTrash();
-    })
+    });
+
+    document.getElementById('nav-home').addEventListener('click', () => showView('mainContent'));
+    document.getElementById('nav-myfiles').addEventListener('click', () => showView('mainContent'));
+
+    // ===== (มาแกะด้วย) nav-shared — กดแชร์กับฉัน → สลับหน้า + โหลดรายการไฟล์ที่คนอื่นแชร์ให้ =====
+    document.getElementById('nav-shared').addEventListener('click', () => {
+        showView('sharedView');
+        loadShared();
+    });
 
     document.getElementById('toggleSuggested').addEventListener('click', () => {
     const fileList = document.getElementById('fileList');
@@ -596,6 +1081,29 @@
 
     loadFiles();
 
+    // ===== (มาแกะด้วย) loadStorage — แถบพื้นที่เก็บข้อมูล =====
+    // — fetch GET /storage → คำนวณ % → ใส่ความกว้าง bar + เปลี่ยนสีตอนเกือบเต็ม
+function loadStorage() {
+    fetch('/storage', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const percent = (data.usedSize / data.maxSize * 100).toFixed(1);
+        document.getElementById('storageBar').style.width = percent + '%';
+        const usedMB = (data.usedSize / 1024 / 1024).toFixed(1);
+        const maxMB = (data.maxSize / 1024 / 1024).toFixed(0);
+        document.getElementById('storageText').textContent = usedMB + ' MB จาก ' + maxMB + ' MB ที่ใช้';
+
+        if (percent > 95) {
+            document.getElementById('storageBar').classList.replace('bg-[#1b73e8]', 'bg-[#ea4335]');
+        } else if (percent > 80) {
+            document.getElementById('storageBar').classList.replace('bg-[#1b73e8]', 'bg-[#fbbc04]');
+        }
+    })
+}
+loadStorage();
+
     function loadTrash(){
         fetch('/trash',{
             headers: { 'Authorization': 'Bearer ' + token}
@@ -641,9 +1149,9 @@
                     </div>
                 `;
 
-                // โหลด thumbnail ด้วย fetch+blob (ส่ง token ได้)
+                // ===== (มาแกะด้วย) โหลด thumbnail จากถังขยะ — ใช้ /trash/download/ แทน /download/ เพราะไฟล์อยู่ใน trash แล้ว =====
                 if (isImage) {
-                    fetch('/download/' + file.filename, {
+                    fetch('/trash/download/' + file.filename, {
                         headers: { 'Authorization': 'Bearer ' + token }
                     })
                     .then(r => r.blob())
@@ -668,7 +1176,7 @@
                 row.className = 'border-b border-[#dadce0] hover:bg-[#e8eaed]/50 transition cursor-pointer group';
                 row.dataset.filename = file.filename;
                 row.innerHTML = `
-                    <td class="py-2 px-3">
+                    <td class="py-1 px-3">
                         <div class="flex items-center gap-3">
                             <span class="text-base flex-shrink-0">${iconData.icon}</span>
                             <span class="text-sm text-[#1f1f1f] truncate">${file.filename}</span>
@@ -691,7 +1199,7 @@
                             <span class="text-xs text-[#5f6368]">ไดรฟ์ของฉัน</span>
                         </div>
                     </td>
-                    <td class="py-2 px-1">
+                    <td class="py-1 px-1">
                         <button class="w-7 h-7 rounded-full hover:bg-[#dadce0] flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer" onclick="event.stopPropagation(); openTrashContextMenu(event, '${file.filename}')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="#5f6368"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
                         </button>
@@ -707,6 +1215,130 @@
         })
     }
     loadTrash();
+
+    // ===== (มาแกะด้วย) loadShared — โหลดรายการไฟล์ที่คนอื่นแชร์ให้ฉัน =====
+    // — fetch GET /shared → ได้ [{filename, fromUsername, sharedAt, size}] → render card + row
+    // ===== (มาแกะด้วย) loadShared — โหลดรายการแชร์ทั้งขาเข้า + ขาออก เหมือน Google Drive =====
+    // — incoming (คนอื่นแชร์ให้ฉัน): avatar สีเขียว + "xxx แชร์ให้คุณ"
+    // — outgoing (ฉันแชร์ให้คนอื่น): avatar สีน้ำเงิน + "คุณแชร์ให้ xxx"
+    function loadShared() {
+        fetch('/shared', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(res => res.json())
+        .then(files => {
+            const sharedList = document.getElementById('sharedList');
+            const sharedListBody = document.getElementById('sharedListBody');
+            const sharedEmpty = document.getElementById('sharedEmpty');
+            sharedList.innerHTML = '';
+            sharedListBody.innerHTML = '';
+
+            if (files.length === 0) {
+                sharedEmpty.classList.remove('hidden');
+                sharedList.classList.add('hidden');
+                return;
+            }
+            sharedEmpty.classList.add('hidden');
+            sharedList.classList.remove('hidden');
+
+            files.forEach(file => {
+                const ext = '.' + file.filename.split('.').pop().toLowerCase();
+                const iconData = getFileIcon(ext);
+                const isImage = ['.jpg','.jpeg','.png','.gif','.webp','.svg'].includes(ext);
+
+                // กำหนดข้อความ + สีตามทิศทาง
+                const isIncoming = file.direction === 'incoming';
+                const avatarColor = isIncoming ? 'bg-[#34a853]' : 'bg-[#1a73e8]';
+                const avatarLetter = isIncoming
+                    ? (file.fromUsername || '?')[0].toUpperCase()
+                    : (file.toUsername || '?')[0].toUpperCase();
+                const shareText = isIncoming
+                    ? file.fromUsername + ' แชร์ให้คุณ'
+                    : 'คุณแชร์ให้ ' + file.toUsername;
+                const shareLabel = isIncoming
+                    ? '<span class="text-[10px] bg-[#e6f4ea] text-[#137333] px-1.5 py-0.5 rounded-full font-medium">ขาเข้า</span>'
+                    : '<span class="text-[10px] bg-[#e8f0fe] text-[#1a73e8] px-1.5 py-0.5 rounded-full font-medium">ขาออก</span>';
+
+                // --- Grid card ---
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl border border-[#dadce0] hover:border-[#1a73e8] hover:shadow-md transition cursor-pointer overflow-hidden group';
+                card.dataset.filename = file.filename;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-2 px-3 py-2.5 border-b border-[#dadce0]">
+                        <span class="text-base flex-shrink-0">${iconData.icon}</span>
+                        <span class="text-[13px] font-medium text-[#1f1f1f] truncate flex-1">${file.filename}</span>
+                    </div>
+                    <div class="h-[140px] bg-[#f0f4f9] flex items-center justify-center overflow-hidden thumb-area">
+                        <span class="text-5xl">${iconData.icon}</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-3 py-2 border-t border-[#dadce0]">
+                        <div class="w-6 h-6 rounded-full ${avatarColor} flex items-center justify-center flex-shrink-0">
+                            <span class="text-white text-[10px] font-bold">${avatarLetter}</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs text-[#5f6368] truncate">${shareText}</p>
+                        </div>
+                        ${shareLabel}
+                    </div>
+                `;
+
+                if (isImage) {
+                    fetch('/download/' + file.filename, {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    })
+                    .then(r => r.blob())
+                    .then(blob => {
+                        const thumbArea = card.querySelector('.thumb-area');
+                        thumbArea.innerHTML = `<img src="${URL.createObjectURL(blob)}" class="h-full w-full object-cover">`;
+                    });
+                }
+
+                card.addEventListener('dblclick', () => previewFile(file.filename));
+                sharedList.appendChild(card);
+
+                // --- List row ---
+                const row = document.createElement('tr');
+                row.className = 'border-b border-[#dadce0] hover:bg-[#e8eaed]/50 transition cursor-pointer';
+                row.innerHTML = `
+                    <td class="py-2 px-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-base flex-shrink-0">${iconData.icon}</span>
+                            <span class="text-sm text-[#1f1f1f] truncate">${file.filename}</span>
+                        </div>
+                    </td>
+                    <td class="py-2 px-3 hidden md:table-cell">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full ${avatarColor} flex items-center justify-center flex-shrink-0">
+                                <span class="text-white text-[10px] font-bold">${avatarLetter}</span>
+                            </div>
+                            <span class="text-xs text-[#5f6368]">${shareText}</span>
+                        </div>
+                    </td>
+                    <td class="py-2 px-3 hidden lg:table-cell">
+                        <span class="text-xs text-[#5f6368]">${formatDate(file.sharedAt)}</span>
+                    </td>
+                    <td class="py-2 px-1 hidden md:table-cell">${shareLabel}</td>
+                `;
+                row.addEventListener('dblclick', () => previewFile(file.filename));
+                sharedListBody.appendChild(row);
+            });
+        });
+    }
+
+    // ===== (มาแกะด้วย) สลับ List/Grid view ของหน้าแชร์กับฉัน =====
+    document.getElementById('btn-shared-list-view').addEventListener('click', () => {
+        document.getElementById('sharedListTable').classList.remove('hidden');
+        document.getElementById('sharedList').classList.add('hidden');
+        document.getElementById('btn-shared-list-view').classList.add('bg-white', 'shadow-sm');
+        document.getElementById('btn-shared-grid-view').classList.remove('bg-white', 'shadow-sm');
+    });
+    document.getElementById('btn-shared-grid-view').addEventListener('click', () => {
+        document.getElementById('sharedList').classList.remove('hidden');
+        document.getElementById('sharedListTable').classList.add('hidden');
+        document.getElementById('btn-shared-grid-view').classList.add('bg-white', 'shadow-sm');
+        document.getElementById('btn-shared-list-view').classList.remove('bg-white', 'shadow-sm');
+    });
 
         document.getElementById('uploadBtn').addEventListener('click',() =>{
             const fileInput = document.getElementById('fileInput');
@@ -791,38 +1423,55 @@
         // --- Preview ก่อน upload ---
         // TODO: เชื่อมเอง — เพิ่ม element preview กลับมาแล้วเขียน listener ใหม่
 
-        // --- Preview ไฟล์จาก server (modal) ---
-        async function previewFile(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            const modal = document.getElementById('previewModal');
-            const modalBody = document.getElementById('modalBody');
-            document.getElementById('modalTitle').textContent = filename;
+        // ===== (มาแกะด้วย) previewFile — Preview ไฟล์จาก server (modal) =====
+        // — รองรับ: รูป, PDF, video (mp4,webm,mov), audio (mp3,wav,ogg), text (txt,json,js,css,html,csv)
+        // — fetch ไฟล์ด้วย token → สร้าง blob URL → ใส่ใน modal ตาม type
+async function previewFile(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const modal = document.getElementById('previewModal');
+    const modalBody = document.getElementById('modalBody');
+    document.getElementById('modalTitle').textContent = filename;
 
-            const url = '/download/' + filename;
-            const headers = { 'Authorization': 'Bearer ' + token };
+    const url = '/download/' + filename;
+    const headers = { 'Authorization': 'Bearer ' + token };
 
-            if (['jpg','jpeg','png','gif','webp','svg'].includes(ext)) {
-                const res = await fetch(url, { headers });
-                const blob = await res.blob();
-                const blobUrl = URL.createObjectURL(blob);
-                modalBody.innerHTML = `<img src="${blobUrl}" class="max-w-full max-h-[70vh] rounded-lg">`;
-            } else if (ext === 'pdf') {
-                const res = await fetch(url, { headers });
-                const blob = await res.blob();
-                const blobUrl = URL.createObjectURL(blob);
-                modalBody.innerHTML = `<iframe src="${blobUrl}" class="w-full h-[70vh] rounded-lg border"></iframe>`;
-            } else {
-                modalBody.innerHTML = `
-                    <div class="text-center p-8">
-                        <span class="text-6xl">📄</span>
-                        <p class="text-gray-600 mt-4 text-lg">${filename}</p>
-                        <p class="text-gray-400 text-sm mt-2">ไฟล์นี้ไม่สามารถ preview ได้</p>
-                    </div>
-                `;
-            }
+    if (['jpg','jpeg','png','gif','webp','svg'].includes(ext)) {
+        const res = await fetch(url, { headers });
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        modalBody.innerHTML = `<img src="${blobUrl}" class="max-w-full max-h-[70vh] rounded-lg">`;
+    } else if (ext === 'pdf') {
+        const res = await fetch(url, { headers });
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        modalBody.innerHTML = `<iframe src="${blobUrl}" class="w-full h-[70vh] rounded-lg border"></iframe>`;
+    } else if (['mp4','webm','mov'].includes(ext)) {
+        const res = await fetch(url, { headers });
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        modalBody.innerHTML = `<video src="${blobUrl}" controls class="max-w-full max-h-[70vh] rounded-lg"></video>`;
+    } else if (['mp3','wav','ogg'].includes(ext)) {
+        const res = await fetch(url, { headers });
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        modalBody.innerHTML = `<audio src="${blobUrl}" controls class="w-full"></audio>`;
+    } else if (['txt','json','js','css','html','csv'].includes(ext)) {
+        const res = await fetch(url, { headers });
+        const blob = await res.blob();
+        const text = await blob.text();
+        modalBody.innerHTML = `<pre class="w-full text-sm bg-[#f8f9fa] p-4 rounded-lg overflow-auto max-h-[70vh] whitespace-pre-wrap">${text}</pre>`;
+    } else {
+        modalBody.innerHTML = `
+            <div class="text-center p-8">
+                <span class="text-6xl">📄</span>
+                <p class="text-gray-600 mt-4 text-lg">${filename}</p>
+                <p class="text-gray-400 text-sm mt-2">ไฟล์นี้ไม่สามารถ preview ได้</p>
+            </div>
+        `;
+    }
 
-            modal.classList.remove('hidden');
-        }
+    modal.classList.remove('hidden');
+}
 
         function closeModal() {
             document.getElementById('previewModal').classList.add('hidden');
@@ -871,9 +1520,139 @@
         }
 
         // กดที่ไหนก็ปิด context menu
+
+        // ===== (มาแกะด้วย) renameFile — เปลี่ยนชื่อไฟล์ =====
+        // — เปิด #renameModal → pre-fill ชื่อเดิม → กด confirm → fetch PUT /files/:filename/rename
+        function renameFile(filename) {
+    document.getElementById('renameInput').value = filename;
+    document.getElementById('renameModal').classList.remove('hidden');
+    document.getElementById('contextMenu').classList.add('hidden');
+
+    document.getElementById('renameConfirmBtn').onclick = () => {
+        const newName = document.getElementById('renameInput').value.trim();
+        if (!newName || newName === filename) return;
+        fetch('/files/' + filename + '/rename', {
+            method: 'PUT',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ newName })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            document.getElementById('renameModal').classList.add('hidden');
+            loadFiles();
+        })
+    };
+
+    document.getElementById('renameCancelBtn').onclick = () => {
+        document.getElementById('renameModal').classList.add('hidden');
+    };
+}
+
+
+// ===== (มาแกะด้วย) shareFile — แชร์ไฟล์ให้คนอื่น =====
+// — เปิด #shareModal → พิมพ์ชื่อ user → กด Enter สร้าง chip → กด share → fetch POST /share
+function shareFile(filename) {
+    document.getElementById('shareFilename').textContent = filename;
+    document.getElementById('shareModal').classList.remove('hidden');
+    document.getElementById('contextMenu').classList.add('hidden');
+    document.getElementById('shareInput').value = '';
+    document.getElementById('shareUserList').innerHTML = '';
+
+    const shareUsers = [];
+
+    document.getElementById('shareInput').onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            const name = e.target.value.trim();
+            if (!name || shareUsers.includes(name)) return;
+            shareUsers.push(name);
+            e.target.value = '';
+            document.getElementById('shareUserList').innerHTML = shareUsers.map(u =>
+                `<span class="inline-flex items-center gap-1 bg-[#e8eaed] rounded-full px-3 py-1 text-sm text-[#1f1f1f]">
+                    ${u} <button onclick="this.parentElement.remove(); shareUsers.splice(shareUsers.indexOf('${u}'),1)" class="text-[#5f6368] hover:text-[#1f1f1f] text-xs ml-1 cursor-pointer">✕</button>
+                </span>`
+            ).join('');
+        }
+    };
+
+    document.getElementById('shareConfirmBtn').onclick = () => {
+        if (shareUsers.length === 0) {
+            document.getElementById('shareModal').classList.add('hidden');
+            return;
+        }
+        fetch('/share', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ filename, targetUsers: shareUsers })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            document.getElementById('shareModal').classList.add('hidden');
+        })
+    };
+
+    document.getElementById('shareCopyLinkBtn').onclick = () => {
+        navigator.clipboard.writeText(window.location.origin + '/download/' + filename);
+        alert('คัดลอกลิงก์แล้ว');
+    };
+}
+
+
         document.addEventListener('click', () => {
             document.getElementById('contextMenu').classList.add('hidden');
         });
+
+        // --- Drag & Drop Upload ---
+// ===== (มาแกะด้วย) Drag & Drop upload =====
+// — ลากไฟล์จากเครื่องมาวางบนเว็บ → แสดง overlay → drop → fetch POST /upload แต่ละไฟล์
+const dropZone = document.getElementById('mainContent');
+const dropOverlay = document.getElementById('dropOverlay');
+let dragCounter = 0;
+
+document.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    dragCounter++;
+    dropOverlay.classList.remove('hidden');
+});
+
+document.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter === 0) dropOverlay.classList.add('hidden');
+});
+
+document.addEventListener('dragover', (e) => e.preventDefault());
+
+document.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    dragCounter = 0;
+    dropOverlay.classList.add('hidden');
+
+    const files = e.dataTransfer.files;
+    for (let i = 0; i < files.length; i++) {
+        const formData = new FormData();
+        formData.append('file', files[i]);
+        await fetch('/upload', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'X-Folder-Path': currentPath
+            },
+            body: formData
+        });
+    }
+    alert('อัปโหลด ' + files.length + ' ไฟล์สำเร็จ');
+    loadFiles();
+    loadStorage();
+});
+
 
         // --- Toggle "ไฟล์ที่แนะนำ" ---
         // TODO: เชื่อมเอง — toggleSuggested กดปุ่ม #toggleSuggested → ซ่อน/แสดง #fileList + หมุนลูกศร #toggleArrow
@@ -889,18 +1668,38 @@
         // --- Placeholder functions (ยังไม่ทำจริง) ---
         // TODO: เชื่อมเอง — renameFile: แสดง #renameModal + pre-fill #renameInput ด้วยชื่อเดิม
         //   กดตกลง → ส่ง fetch rename API (ถ้ามี) → ปิด modal → loadFiles()
-        function renameFile(filename) { alert('เปลี่ยนชื่อ: ' + filename + ' (ยังไม่ได้ทำ)'); }
-
         // TODO: เชื่อมเอง — shareFile: แสดง #shareModal + ใส่ชื่อไฟล์ใน #shareFilename
         //   พิมพ์ชื่อ user ใน #shareInput → กด Enter เพิ่ม chip ใน #shareUserList
         //   กดเสร็จสิ้น → fetch POST /share { filename, targetUsers: [...] }
-        function shareFile(filename) { alert('แชร์: ' + filename + ' (ยังไม่ได้ทำ)'); }
 
-        // TODO: เชื่อมเอง — fileInfo: แสดง #fileInfoPanel + ใส่ข้อมูลไฟล์จาก file object
-        //   ต้องหา file object จาก filename (เก็บไว้ใน array ตอน loadFiles)
-        //   ใส่: #infoFilename, #infoType, #infoSize, #infoOwner, #infoModified, #infoCreated, #infoDimensions
-        //   ถ้าเป็นรูป → fetch + blob ใส่ #infoPreview
-        function fileInfo(filename) { alert('ข้อมูลไฟล์: ' + filename + ' (ยังไม่ได้ทำ)'); }
+        // ===== (มาแกะด้วย) fileInfo — แสดงข้อมูลไฟล์ใน side panel =====
+        // — หา file จาก allFiles → ใส่ชื่อ/type/size/วันที่/dimensions ใน panel → ถ้าเป็นรูป fetch thumbnail
+        function fileInfo(filename) {
+            const file = allFiles.find(f => f.filename === filename);
+            const infoPreview = document.getElementById('infoPreview');
+            document.getElementById('infoFilename').textContent = file.filename;
+            document.getElementById('infoType').textContent = file.type;
+            document.getElementById('infoSize').textContent = (file.size / 1024).toFixed(2) + ' KB';
+            document.getElementById('infoModified').textContent = formatDate(file.modified);
+            document.getElementById('infoCreated').textContent = formatDate(file.birthtime);
+            document.getElementById('infoDimensions').textContent = file.dimensions ? `${file.dimensions.width} x ${file.dimensions.height}` : '-';
+            document.getElementById('fileInfoPanel').classList.remove('hidden');
+            document.getElementById('infoOwner').textContent = tokenname;
+            
+            if (file.dimensions) {
+                fetch('/download/' + file.filename, {
+                    headers: { 'Authorization': 'Bearer ' + token}
+                })
+                .then(r => r.blob())
+                .then(blob => {
+                    infoPreview.innerHTML = `<img src="${URL.createObjectURL(blob)}" class="h-full w-full object-cover">`;
+                })
+            }
+         }
+
+         document.getElementById('closeInfoBtn').addEventListener('click', () => {
+            document.getElementById('fileInfoPanel').classList.add('hidden');
+         })
 
         // --- ปุ่ม + ใหม่ (Dropdown) ---
         // TODO: เชื่อมเอง — กด #btn-new → toggle hidden ของ #newDropdown
@@ -915,7 +1714,7 @@
         //   mainContent = document.querySelector('.flex-1.max-w-4xl') (div แรก)
         //   highlight = เพิ่ม class "bg-[#c2e7ff] text-[#001d35] font-medium" + ลบ "hover:bg-[#e8eaed] text-[#444746]" จาก nav ที่เลือก
         //   ลบ highlight จาก nav อื่นทั้งหมด
-        // TODO: เชื่อมเอง — กด #nav-storage → (ถ้ามี) แสดง popup รายละเอียดพื้นที่
+
 
         // --- ถังขยะ ---
         // TODO: เชื่อมเอง — สร้าง function loadTrash() คล้าย loadFiles() แต่ fetch GET /trash
@@ -950,5 +1749,12 @@
             });
         });
     </script>
+    <!-- Drag & Drop Overlay -->
+<div id="dropOverlay" class="fixed inset-0 bg-blue-500/20 border-4 border-dashed border-blue-500 z-[200] hidden flex items-center justify-center pointer-events-none">
+    <div class="bg-white rounded-2xl shadow-lg px-8 py-6 text-center">
+        <span class="text-5xl">📂</span>
+        <p class="text-lg font-medium text-[#1f1f1f] mt-3">วางไฟล์ที่นี่เพื่ออัปโหลด</p>
+    </div>
+</div>
 </body>
 </html>

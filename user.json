@@ -23,5 +23,11 @@
         "username": "super admin",
         "password": "superadmin123",
         "role": "superadmin"
+    },
+    {
+        "id": 5,
+        "username": "nem",
+        "password": "nem",
+        "role": "user"
     }
 ]

@@ -375,9 +375,30 @@ function logActivity(action, username, detail) {
 
 
 ---
+
+## ⚠️ Breaking Change — route เปลี่ยนชื่อ (4 มี.ค. 2026)
+
+> **`GET /backups` เปลี่ยนเป็น `GET /backup-list` แล้ว!**
+
+**เหตุผล:** `express.static(__dirname)` ชนกับโฟลเดอร์ `backups/` ที่มีอยู่จริง → เวลา fetch `/backups` จะได้ 301 redirect ไปโฟลเดอร์แทนที่จะเข้า route handler
+
+**สิ่งที่ต้องแก้ใน admin.js:**
+```js
+// ❌ เดิม (ใช้ไม่ได้แล้ว — ได้ 301 redirect)
+fetch('/backups', { headers: { 'Authorization': 'Bearer ' + token } })
+
+// ✅ ใหม่ (ใช้อันนี้แทน)
+fetch('/backup-list', { headers: { 'Authorization': 'Bearer ' + token } })
+```
+
+**หมายเหตุ:** route อื่นที่เกี่ยวกับ backup (`POST /backup`, `GET /backup/:filename/list`, `POST /backup/:filename/recover`) ยังเหมือนเดิม ไม่ได้เปลี่ยน
+
+**เปลี่ยนเพิ่ม:** backup filename ตอนนี้มี userId นำหน้า เช่น `2_2026-03-01T06-16-26-308Z.tar.gz` (เพื่อกรองว่า backup ของใคร) — admin เห็นทั้งหมด, user เห็นแค่ของตัวเอง
+
+---
 ## สิ่งที่เพิ่มมาใหม่
 
-> อัปเดตล่าสุด: 28 ก.พ. 2026
+> อัปเดตล่าสุด: 4 มี.ค. 2026
 
 ### สิ่งที่ทำเสร็จแล้ว (ทั้งงานหลัก + Extra)
 

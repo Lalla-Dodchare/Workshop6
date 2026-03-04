@@ -10,7 +10,7 @@ const morgan = require('morgan');
 // const { json } = require('stream/consumers');
 const archiver = require('archiver');
 const  tar = require('tar');
-const sizeOf = require('image-size');
+const { imageSize } = require('image-size');
 const { error } = require('console');
 const SECRET_KEY ='workshop6-secret-ke'
 
@@ -35,6 +35,12 @@ function saveUsers() {
 }
     fs.mkdirSync(path.join(__dirname, 'trash'),{ recursive: true});
 
+// ===== (มาแกะด้วย) เก็บ record การแชร์ไฟล์ — ใครแชร์อะไรให้ใคร เมื่อไหร่ =====
+let shares = JSON.parse(fs.readFileSync('shares.json', 'utf8'));
+function saveShares() {
+    fs.writeFileSync('shares.json', JSON.stringify(shares, null, 4));
+}
+
 // function logActivity() บันทึกว่า "ใคร ทำอะไร เมื่อไหร่" ลงไฟล์ logs.txt
 function logActivity(action, username, detail, role) {
     const entry = {
@@ -51,9 +57,9 @@ app.get('/logs', authenticateToken, (req, res) => {
     const read = fs.readFileSync('logs.txt', 'utf8');
     const lineOne = read.split('\n');
     const filter = lineOne.filter(line => line);
-    const allLine = filter.map(line => JSON.parse(line))
+    const allLine = filter.map(line => JSON.parse(line));
+    res.json(allLine);
 })
-
 
 
 
@@ -124,10 +130,14 @@ function authenticateToken(req, res, next){
 }
 
 
-// ===== ตั้งค่าที่เก็บไฟล์อัปโหลด =====
+// ===== (มาแกะด้วย) ตั้งค่าที่เก็บไฟล์อัปโหลด =====
+// — อ่าน X-Folder-Path header จาก frontend เพื่อ upload เข้า subfolder ได้
+// — ลบ .. ป้องกัน path traversal → สร้างโฟลเดอร์ถ้ายังไม่มี
 const storage = multer.diskStorage({
     destination: (req, file, cb) =>{
-        const userFolder = path.join('uploads', String(req.user.id));
+        const subpath = req.headers['x-folder-path'] || '';
+        const safe = subpath.replace(/\.\./g, '');
+        const userFolder = path.join('uploads', String(req.user.id), safe);
         fs.mkdirSync(userFolder, {recursive: true});
         cb(null,userFolder);
     },
@@ -148,6 +158,17 @@ app.post('/upload', authenticateToken ,upload.single('file'), (req, res) => {
     }
     logActivity('UPLOAD_SUCCESS', req.user.id + ':' + req.user.username, req.file.originalname);
     res.json({ message: 'File uploaded successfully', filename: req.file.filename });
+});
+
+// ===== (มาแกะด้วย) สร้างโฟลเดอร์ใหม่ =====
+// — รับ folderName + path จาก body → สร้างโฟลเดอร์ใน uploads/{userId}/{path}/{folderName}
+app.post('/folders', authenticateToken, (req, res) => {
+    const { folderName, currentPath } = req.body;
+    const safe = (currentPath || '').replace(/\.\./g, '');
+    const folderPath = path.join(__dirname, 'uploads', String(req.user.id), safe, folderName);
+    fs.mkdirSync(folderPath, { recursive: true });
+    logActivity('CREATE_FOLDER', req.user.id + ':' + req.user.username, folderName);
+    res.json({ message: 'สร้างโฟลเดอร์สำเร็จ' });
 });
 
 /// คำนวณขนาดโฟลเดอร์
@@ -173,8 +194,9 @@ app.post('/backup', authenticateToken, (req, res) => {
         backupSource = path.join(__dirname, 'uploads', String(req.user.id));
     }
 
+    // ===== (มาแกะด้วย) ใส่ userId ในชื่อไฟล์ backup — เพื่อกรองให้เห็นแค่ของตัวเอง =====
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupFile = path.join(__dirname, 'backups', `${timestamp}.tar.gz`);
+    const backupFile = path.join(__dirname, 'backups', `${req.user.id}_${timestamp}.tar.gz`);
     fs.mkdirSync(path.join(__dirname, 'backups'), { recursive: true});
 
     const output = fs.createWriteStream(backupFile);
@@ -245,16 +267,29 @@ app.get('/files', authenticateToken, (req, res) => {
 
 
     } else {
-        fs.readdir(path.join('uploads', String(req.user.id)), (err, files) => {
+        // ===== (มาแกะด้วย) GET /files ฝั่ง user — รองรับ ?path= สำหรับเข้าโฟลเดอร์ย่อย =====
+        // — อ่าน ?path= query → สร้างโฟลเดอร์ถ้ายังไม่มี → วนอ่าน: ถ้าเป็นโฟลเดอร์ส่ง isFolder:true, ถ้าเป็นไฟล์ส่ง metadata
+        const subpath = (req.query.path || '').replace(/\.\./g, '');
+        const userDir = path.join('uploads', String(req.user.id), subpath);
+        fs.mkdirSync(userDir, { recursive: true });
+        fs.readdir(userDir, (err, files) => {
             if (err) return res.status(500).json({ error: 'Unable to list files' });
             const result = [];
             files.forEach(function(filename){
-                const filePath = path.join('uploads', String(req.user.id), filename);
+                const filePath = path.join(userDir, filename);
                 const stat = fs.statSync(filePath);
+                if (stat.isDirectory()) {
+                    result.push({
+                        filename: filename,
+                        isFolder: true,
+                        modified: stat.mtime
+                    });
+                    return;
+                }
                 const ext = path.extname(filename).toLowerCase();
                 let dimensions = null;
                 try {
-                    dimensions = sizeOf(filePath);
+                    dimensions = imageSize(fs.readFileSync(filePath));
                 } catch (e) {
                 }
                 result.push({
@@ -292,7 +327,7 @@ app.get('/download/:filename', authenticateToken, (req, res) => {
 });
 
 
-// Delete สำหรับ  userz
+// Delete สำหรับ  user
 app.delete('/files/:filename', authenticateToken, (req, res) => {
     const fileDelete = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
     fs.mkdirSync(path.join(__dirname, 'trash', String(req.user.id)), { recursive: true});
@@ -323,7 +358,7 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
                 const ext = path.extname(filename).toLowerCase();
                 let dimensions = null;
                 try {
-                    dimensions = sizeOf(filePath);
+                    dimensions = imageSize(fs.readFileSync(filePath));
                 } catch (e) {
                 }
                 result.push({
@@ -337,6 +372,16 @@ app.delete('/files/:owner/:filename', authenticateToken, (req, res) => {
             })
             res.json(result);
         }); 
+});
+// ===== (มาแกะด้วย) เปลี่ยนชื่อไฟล์ =====
+// — รับ newName จาก body → fs.renameSync เปลี่ยนชื่อจริงบน disk
+app.put('/files/:filename/rename', authenticateToken, (req, res) => {
+    const { newName } = req.body;
+    const oldPath = path.join(__dirname, 'uploads', String(req.user.id), req.params.filename);
+    const newPath = path.join(__dirname, 'uploads', String(req.user.id), newName);
+    fs.renameSync(oldPath, newPath);
+    logActivity('RENAME', req.user.id + ':' + req.user.username, req.params.filename + ' → ' + newName);
+    res.json({ message: 'เปลี่ยนชื่อสำเร็จ' });
 });
 
 app.post('/trash/:filename/restore', authenticateToken, (req, res) => {
@@ -357,6 +402,13 @@ app.delete('/trash', authenticateToken, (req, res) => {
 })
 
 
+// ===== (มาแกะด้วย) ดาวน์โหลดไฟล์จากถังขยะ — ใช้สำหรับแสดง thumbnail ในหน้าถังขยะ =====
+app.get('/trash/download/:filename', authenticateToken, (req, res) => {
+    const filePath = path.join(__dirname, 'trash', String(req.user.id), req.params.filename);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'ไม่พบไฟล์ในถังขยะ' });
+    res.download(filePath);
+});
+
 app.delete('/trash/:filename', authenticateToken, (req, res) => {
     fs.unlinkSync(path.join(__dirname, 'trash', String(req.user.id), req.params.filename));
     logActivity('DELETE_PERMANENT', req.user.id + ':' + req.user.username, req.params.filename);
@@ -370,21 +422,75 @@ app.get('/storage', authenticateToken, (req, res) => {
 });
 
 
-/// function แชร์ไฟล์
-app.post('/share', authenticateToken, (req, res) => {
-    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') 
-        return ;
-   const {filename, targetUsers} = req.body;
-   const filefrom = path.join('uploads', String(req.user.id), filename);
 
-    targetUsers.forEach(function(userId) {
+
+// ===== (มาแกะด้วย) แชร์ไฟล์ =====
+// — รับ filename + usernames จาก body → หา userId จาก username → copy ไฟล์ไปโฟลเดอร์ของคนที่แชร์ให้
+// — บันทึก record ลง shares.json ด้วย เพื่อให้หน้า "แชร์กับฉัน" แสดงได้ว่าใครแชร์ให้
+app.post('/share', authenticateToken, (req, res) => {
+   const {filename, targetUsers} = req.body;
+
+    targetUsers.forEach(function(username) {
+        const targetUser = users.find(u => u.username === username);
+        if (!targetUser) return;
         const from = path.join('uploads', String(req.user.id), filename);
-        const to = path.join('uploads', String(userId), filename);
-        fs.mkdirSync(path.join('uploads', String(userId)), { recursive: true });
+        const to = path.join('uploads', String(targetUser.id), filename);
+        fs.mkdirSync(path.join('uploads', String(targetUser.id)), { recursive: true });
         fs.copyFileSync(from, to);
+
+        // ===== (มาแกะด้วย) บันทึก record แชร์ — เก็บว่า ใครแชร์ไฟล์อะไร ให้ใคร เมื่อไหร่ =====
+        shares.push({
+            filename: filename,
+            fromUserId: req.user.id,
+            fromUsername: req.user.username,
+            toUserId: targetUser.id,
+            toUsername: targetUser.username,
+            sharedAt: new Date().toISOString()
+        });
     })
+    saveShares();
     res.json({ message: 'แชร์สำเร็จ' });
     logActivity('SHARE', req.user.id + ':' + req.user.username, filename + ' → ' + targetUsers.join(', '))
+})
+
+// ===== (มาแกะด้วย) ดูรายการไฟล์ที่เกี่ยวกับการแชร์ — ทั้งขาเข้า (คนอื่นแชร์ให้ฉัน) + ขาออก (ฉันแชร์ให้คนอื่น) =====
+// — เหมือน Google Drive: "แชร์กับฉัน" แสดงไฟล์ที่คนอื่นแชร์มาให้ + ไฟล์ที่ฉันแชร์ออกไป
+app.get('/shared', authenticateToken, (req, res) => {
+    const result = [];
+
+    // ขาเข้า — คนอื่นแชร์ให้ฉัน
+    const incoming = shares.filter(s => s.toUserId === req.user.id);
+    incoming.forEach(s => {
+        const filePath = path.join('uploads', String(req.user.id), s.filename);
+        let size = 0;
+        try { size = fs.statSync(filePath).size; } catch(e) {}
+        result.push({
+            filename: s.filename,
+            direction: 'incoming',
+            fromUsername: s.fromUsername,
+            toUsername: req.user.username,
+            sharedAt: s.sharedAt,
+            size: size
+        });
+    });
+
+    // ขาออก — ฉันแชร์ให้คนอื่น
+    const outgoing = shares.filter(s => s.fromUserId === req.user.id);
+    outgoing.forEach(s => {
+        const filePath = path.join('uploads', String(req.user.id), s.filename);
+        let size = 0;
+        try { size = fs.statSync(filePath).size; } catch(e) {}
+        result.push({
+            filename: s.filename,
+            direction: 'outgoing',
+            fromUsername: req.user.username,
+            toUsername: s.toUsername,
+            sharedAt: s.sharedAt,
+            size: size
+        });
+    });
+
+    res.json(result);
 })
 
 
@@ -452,11 +558,18 @@ app.delete('/users/:id', authenticateToken,  (req, res) => {
     
 
 
-// ดูรายการ Backup
-app.get('/backups', authenticateToken, (req, res) => {
+// ===== (มาแกะด้วย) ดูรายการ Backup — กรองตาม userId ถ้าไม่ใช่ admin =====
+// — ชื่อไฟล์ backup = "{userId}_{timestamp}.tar.gz" → เช็ค prefix ว่าตรงกับ user ปัจจุบันมั้ย
+app.get('/backup-list', authenticateToken, (req, res) => {
     const file = fs.readdirSync(path.join(__dirname, 'backups'))
     const typeFile = file.filter(f => f.endsWith('.tar.gz'))
-    res.json(typeFile);
+
+    if (req.user.role === 'admin' || req.user.role === 'superadmin') {
+        res.json(typeFile);
+    } else {
+        const myBackups = typeFile.filter(f => f.startsWith(req.user.id + '_'));
+        res.json(myBackups);
+    }
 }) 
 
 

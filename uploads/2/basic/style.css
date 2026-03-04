@@ -1,0 +1,64 @@
+p {
+    color: blue;
+}
+input:focus{
+    border-color: blue;
+}
+
+p:hover {
+    color: red;
+}
+li:first-child {
+    font-weight: bold;
+}
+
+a:hover{
+    color: red;
+}
+*{
+    box-sizing: border-box;
+}
+table{
+    border: 1px solid black;
+    padding: 10px;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+:root {
+    --primary-color: #3498db;
+    --font-main: Arial, sans-serif;
+}
+
+/* .button {
+    background: var(--primary-color);
+    font-family: var(--font-main);
+} */
+
+.truncate {
+    white-space: nowrap;       /* ไม่ตัดบรรทัด */
+    overflow: hidden;          /* ซ่อนส่วนเกิน */
+    text-overflow: ellipsis;   /* ใส่ ... */
+    max-width: 200px;
+}
+.block{
+    display: block;
+    max-width: 200px;
+    white-space: wrap;
+}
+.inline{
+    display: inline;
+}
+.inline-block{
+    display: inline-block;
+}
+.none{
+    display: none;
+}
+.flex{
+    display: flex;
+}
+.grid{
+    display: grid;
+}

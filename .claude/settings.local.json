@@ -14,7 +14,17 @@
       "Bash(kill:*)",
       "Bash(pkill:*)",
       "WebFetch(domain:github.com)",
-      "Bash(npm install archiver tar)"
+      "Bash(npm install archiver tar)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:www.neowin.net)",
+      "WebFetch(domain:www.infiflex.com)",
+      "WebFetch(domain:workspaceupdates.googleblog.com)",
+      "WebFetch(domain:www.schemecolor.com)",
+      "WebFetch(domain:filerev.com)",
+      "WebFetch(domain:www.androidpolice.com)",
+      "WebFetch(domain:meshworld.in)",
+      "WebFetch(domain:9to5google.com)",
+      "WebFetch(domain:www.skipser.com)"
     ]
   }
 }

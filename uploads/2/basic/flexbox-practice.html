@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="icon" href="/B9C862C8-D3C1-43E8-89FF-FEE94755F202.JPG">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="http://google.com" target="_blank" rel="noopener noreferrer"><img src="B9C862C8-D3C1-43E8-89FF-FEE94755F202.JPG" alt=""></a>
+    <a href="mailto:peerapan.uai@gmail.com">ส่งอีเมล</a>
+    <!-- ลิงก์ -->
+<a href="#section1">ไปหัวข้อ 1</a>
+<a href="#section2">ไปหัวข้อ 2</a>
+<!-- เป้าหมาย -->
+<h2 id="section1">หัวข้อ 1</h2>
+<p>เนื้อหา...</p>
+<a href="#">Back to Top</a>
+<figure>
+    <img src="B9C862C8-D3C1-43E8-89FF-FEE94755F202.JPG" alt="กราฟยอดขาย 2024" width="300px" height="300px">
+    <figcaption>รูปที่ 1: ยอดขายประจำปี 2024</figcaption>
+</figure>
+<picture>
+    <source media="(min-width: 800px)" srcset="de1344b5-95c8-4ef3-9ef4-698d90e47fb7.png">
+    <source media="(min-width: 400px)" srcset="NAd1nAPNOrDSmKIjPTrFKxqjRGAtxUsROBhudEcJ9ahrYk_BA2UMeEMedHnMmDB2TXYrWrL3hNT-TejFXBH_0Q.webp">
+    <img src="small.jpg" alt="Responsive image">
+</picture>
+
+<!-- เริ่มจากเลขอื่น -->
+<ol start="5">
+    <li>นี่คือ 5</li>
+    <li>นี่คือ 6</li>
+</ol>
+
+<!-- นับถอยหลัง -->
+<ol reversed>
+    <li>หัวข้อที่เห็นคือ? 5</li>
+    <li>นี่คือ 2</li>
+    <li>นี่คือ 1</li>
+    <li>นี่คือ 1</li>
+</ol>
+
+<!-- เปลี่ยน type -->
+<ol type="A">...</ol>  <!-- A, B, C -->
+<ol type="a">...</ol>  <!-- a, b, c -->
+<ol type="I">...</ol>  <!-- I, II, III -->
+<ol type="i">...</ol>  <!-- i, ii, iii -->
+<ul>
+    <li>ผลไม้
+        <ul>
+            <li>แอปเปิ้ล</li>
+            <li>กล้วย</li>
+        </ul>
+    </li>
+    <li>ผัก
+        <ul>
+            <li>แครอท</li>
+            <li>บร็อคโคลี่</li>
+        </ul>
+        <ol>
+            <li>สวัสดี</li>
+            <ul>
+                <li>hi</li>
+                <li>hi</li>
+                <li>hi</li>
+            </ul>
+        </ol>
+    </li>
+</ul>
+<!-- table -->
+<table>
+    <tr>
+        <th>ชื่อ</th>
+        <th>อายุ</th>
+        <th>เมือง</th>
+    </tr>
+    <tr>
+        <td>สมชาย</td>
+        <td>25</td>
+        <td>กรุงเทพ</td>
+    </tr>
+    <tr>
+        <td>สมหญิง</td>
+        <td>30</td>
+        <td>เชียงใหม่</td>
+    </tr>
+</table>
+<!-- โครงสร้างตารางแบบเต็ม -->
+<table>
+    7
+    <thead>
+        <tr>
+            <th>ชื่อ</th>
+            <th>ตำแหน่ง</th>
+            <th>เงินเดือน</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>สมชาย</th>
+            <td>Developer</td>
+            <td>50,000</td>
+        </tr>
+        <tr>
+            <th>สมหญิง</th>
+            <td>Designer</td>
+            <td>45,000</td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2">รวม</td>
+            <td>95,000</td>
+        </tr>
+    </tfoot>
+</table>
+<!-- Colspan & Rowspan (รวม cell) -->
+<!-- colspan: รวมคอลัมน์ -->
+ <table>
+<tr>
+    <td colspan="3">นี่กว้าง 3 คอลัมน์</td>
+</tr>
+</table>
+<!-- rowspan: รวมแถว -->
+ <table>
+<tr>
+    <td rowspan="2">นี่สูง 2 แถว</td>
+    <td>แถว 1</td>
+</tr>
+<tr>
+    <td>แถว 2</td>
+    
+</tr>
+</table>
+<!-- scope (accessibility) -->
+ <table>
+    <tr>
+        <th scope="col">ชื่อ</th>
+        <th scope="col">อายุ</th>
+    </tr>
+    <tr>
+        <th scope="row">สมชาย</th>
+        <td>25</td>
+    </tr>
+</table>
+<!-- Form พื้นฐาน -->
+<form action="/submit" method="POST">
+    <label for="name">ชื่อ:</label>
+    <input type="text" id="name" name="name">
+    <button type="submit">ส่ง</button>
+</form>
+<!-- 1. GET - ฟอร์มค้นหา + กรอง -->
+ <!-- GET: ใช้กับการค้นหา/กรอง -->
+<form action="/search" method="GET">
+    <label for="keyword">ค้นหา:</label>
+    <input type="text" id="keyword" name="q" placeholder="พิมพ์คำค้นหา...">
+    
+    <label for="category">หมวดหมู่:</label>
+    <select id="category" name="category">
+        <option value="">ทั้งหมด</option>
+        <option value="electronics">อิเล็กทรอนิกส์</option>
+        <option value="fashion">แฟชั่น</option>
+    </select>
+    
+    <label for="price">ราคาสูงสุด:</label>
+    <input type="number" id="price" name="max_price">
+    
+    <button type="submit">ค้นหา</button>
+</form>
+<!-- URL ที่ได้: /search?q=คีย์บอร์ด&category=electronics&max_price=2000 -->
+ <!-- 2. POST - อัปโหลดไฟล์ -->
+  <!-- POST: ใช้กับการอัปโหลดไฟล์ -->
+<form action="/upload" method="POST" enctype="multipart/form-data">
+    <label for="username">ชื่อผู้ใช้:</label>
+    <input type="text" id="username" name="username" required>
+    
+    <label for="profile-pic">รูปโปรไฟล์:</label>
+    <input type="file" id="profile-pic" name="profile_pic" accept="image/*" multiple>
+    
+    <label for="bio">แนะนำตัว:</label>
+    <textarea id="bio" name="bio" rows="4"></textarea>
+    
+    <button type="submit">อัปโหลด</button>
+</form>
+<!-- ข้อมูลซ่อนใน body ไม่แสดงใน URL -->
+<h3>Input Types ทั้งหมด!</h3>
+  <input type="text" placeholder="ชื่อ">
+<input type="email" placeholder="อีเมล">         <!-- validate รูปแบบ email -->
+<input type="password" placeholder="รหัสผ่าน">   <!-- ซ่อนตัวอักษร -->
+<input type="tel" placeholder="เบอร์โทร">
+<input type="url" placeholder="เว็บไซต์">
+<input type="search" placeholder="ค้นหา...">      <!-- มีปุ่ม x ล้าง -->
+<h3>Number Inputs:</h3>
+<input type="number" min="0" max="100" step="1">
+<input type="range" min="0" max="100" value="50">  <!-- slider -->
+<h3>Date/Time Inputs:</h3>
+<input type="date">              <!-- เลือกวันที่ -->
+<input type="time">              <!-- เลือกเวลา -->
+<input type="datetime-local">    <!-- วันที่ + เวลา -->
+<h3>ข้าม เพราะ type="week", type="month" → ใช้ date picker library
+</h3>
+<input type="month">             <!-- เลือกเดือน -->
+้<h3>ข้าม เพราะ type="week", type="month" → ใช้ date picker library
+</h3>
+<input type="week">              <!-- เลือกสัปดาห์ -->
+<h3>Selection Inputs:</h3>
+<input type="checkbox" id="agree">    <!-- ติ๊กได้หลายอัน -->
+<label for="agree">ยอมรับข้อตกลง</label>
+
+<!-- radio ต้องมี name เดียวกัน เลือกได้อันเดียว -->
+<input type="radio" name="gender" value="male" id="male">
+<label for="male">ชาย</label>
+<input type="radio" name="gender" value="female" id="female">
+<label for="female">หญิง</label>
+<h3>Other Inputs:</h3>
+<input type="color">                           <!-- เลือกสี -->
+<input type="file" accept="image/*">           <!-- upload รูป -->
+<input type="file" accept=".pdf,.doc" multiple> <!-- upload หลายไฟล์ -->
+<input type="" name="token" value="abc" > <!-- ซ่อนข้อมูล -->
+<h3>Input Attributes</h3>
+<input
+    type="text"
+    id="username"             เชื่อม label
+    name="username"           ส่งไป server
+    value="ค่าเริ่มต้น"        ค่า default
+    placeholder="พิมพ์ที่นี่"   hint
+    required                  ต้องกรอก
+    disabled                  ใช้ไม่ได้
+    readonly                  แก้ไม่ได้แต่ส่งได้
+    autofocus                 focus ตอนโหลด
+    minlength="3"             อย่างน้อย 3 ตัว
+    maxlength="20"            มากสุด 20 ตัว
+    pattern="[A-Za-z]+"       regex validation
+>
+<h3>คือ Regex สำหรับตรวจสอบรูปแบบข้อมูล</h3>
+<input type="text" pattern="[A-Za-z]+" placeholder="ชื่อภาษาอังกฤษเท่านั้น">
+<h5>ผ่าน: John, Mary</h5>
+<h5>ไม่ผ่าน: John123, John Smith (มีเว้นวรรค), สมชาย</h5>
+<h3>ตัวอย่างอื่นๆ</h3>
+<h5>pattern="[0-9]{10}" = ตัวเลข 10 หลัก (เบอร์โทร)
+pattern="[A-Za-z0-9]+" = ตัวอักษร+ตัวเลข
+pattern=".{6,}" = อย่างน้อย 6 ตัวอักษร</h5>
+<h3>Label (สำคัญมาก!)</h3>
+<!-- วิธี 1: for + id -->
+<label for="email">อีเมล:</label>
+<input type="email" id="email" name="email">
+<!-- Textarea (ข้อความยาว) -->
+<h3>Textarea (ข้อความยาว)</h3>
+<textarea
+    name="message"
+    rows="5"
+    cols="20"
+    placeholder="พิมพ์ข้อความ..."
+    maxlength="500"
+></textarea>
+<!-- Select Dropdown -->
+<h3>Select Dropdown</h3>
+<select name="country">
+    <optgroup label="-- เลือก --">
+    <option value="th">ไทย</option>
+    <option value="jp" selected>ญี่ปุ่น</option>
+    <option value="us">อเมริกา</option>
+    </optgroup>
+</select>
+<!-- แบ่งกลุ่มได้ -->
+<h4>แบ่งกลุ่ม</h4>
+<select name="car">
+    <optgroup label="รถญี่ปุ่น">
+        <option value="toyota">Toyota</option>
+        <option value="honda">Honda</option>
+    </optgroup>
+    <optgroup label="รถเยอรมัน">
+        <option value="bmw">BMW</option>
+        <option value="mercedes">Mercedes</option>
+    </optgroup>
+</select>
+<!-- สำหรับเลือกหลายอัน -->
+<h4>เลือกหลายอัน</h4>
+<select name="skills" multiple size="4">
+    <option value="html">HTML</option>
+    <option value="css">CSS</option>
+    <option value="js">JavaScript</option>
+</select>
+<!-- Datalist (autocomplete suggestions) -->
+
+<h3>Datalist (autocomplete suggestions)
+    ข้ามเลย datalist → ใช้ library แทน
+
+</h3>
+<input list="browsers" name="browser">
+<datalist id="browsers">
+    <option value="Chrome">
+    <option value="Firefox">
+    <option value="Safari">
+    <option value="Edge">
+</datalist>
+<!-- Buttons -->
+<h3>Buttons</h3>
+<button type="submit">ส่งฟอร์ม</button>
+<button type="reset">ล้างฟอร์ม</button>
+<!-- Fieldset & Legend (จัดกลุ่ม) -->
+ <h3>Fieldset & Legend (จัดกลุ่ม)
+    ข้าม เพราะ fieldset + legend → ใช้ div + CSS แทน
+ </h3>
+ <h3>ข้ามเหมือนกันเพราะ เพราะ fieldset + legend → ใช้ div + CSS แทน</h3>
+ <fieldset>
+    <legend>ข้อมูลส่วนตัว</legend>
+    <label for="fname">ชื่อ:</label>
+    <input type="text" id="fname" name="fname">
+    <label for="lname">นามสกุล:</label>
+    <input type="text" id="lname" name="lname">
+</fieldset>
+<!-- Progress & Meter -->
+ <h3>Progress & Meter
+ </h3>
+ <!-- แถบความคืบหน้า -->
+  <h4>แถบความคืบหน้า
+    progress → ใช้ CSS/Tailwind แทน
+  </h4>
+<progress value="70" max="100">70%</progress>
+<!-- แถบวัดค่า -->
+<h4>แถบวัดค่า ข้าม meter → ใช้ CSS แทน</h4>
+<meter value="0.7" min="0" max="1" low="0.3" high="0.7" optimum="0.8">70%</meter>
+<!-- หัวข้อที่ 8: Semantic HTML -->
+<h3>โครงสร้างหน้าเว็บ</h3>
+    <header>
+        <!-- Logo, ชื่อเว็บ, เมนูหลัก -->
+        <nav>
+            <ul>
+                <li><a href="/">หน้าแรก</a></li>
+                <li><a href="/about">เกี่ยวกับ</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <!-- เนื้อหาหลัก (มีได้แค่ 1 ต่อหน้า) -->
+        <article>
+            <!-- เนื้อหาที่อยู่ได้ด้วยตัวเอง เช่น บทความ -->
+            <h1>ชื่อบทความ</h1>
+            <p>เนื้อหา...</p>
+        </article>
+        <section>
+            <!-- กลุ่มเนื้อหาที่เกี่ยวข้องกัน -->
+        </section>
+        <aside>
+            <!-- เนื้อหาข้างเคียง (sidebar) -->
+        </aside>
+    </main>
+    <footer>
+        <!-- ลิขสิทธิ์, ลิงก์, ติดต่อ -->
+        <p>&copy; 2024 Company Name</p>
+    </footer>
+<!-- Details & Summary (พับได้) -->
+ <details>
+    <summary>คลิกเพื่อดูเพิ่ม</summary>
+    <p>เนื้อหาที่ซ่อนอยู่...</p>
+    <img src="B9C862C8-D3C1-43E8-89FF-FEE94755F202.JPG" alt="" height="300px" width="200px">
+</details>
+<details open>
+    <summary>เปิดอยู่แล้ว</summary>
+    <p>เห็นตั้งแต่แรก</p>
+</details>
+<!-- Time Element -->
+<time datetime="2024-01-15">15 มกราคม 2024</time>
+<time datetime="14:30">14:30 น.</time>
+<!-- <h3>ทำไมต้อง Semantic?</h3>
+<h4> SEO: Google เข้าใจโครงสร้าง
+Accessibility: Screen reader นำทางได้
+Maintainability: โค้ดอ่านง่าย</h4> -->
+<!-- <h3>div vs semantic:</h3>
+ไม่ดี
+<h4>ไม่ดี</h4>
+<div class="header">...</div>
+<div class="nav">...</div> -->
+<!-- ดี
+<header>...</header>
+<nav>...</nav> -->
+<!-- หัวข้อที่ 9: Media Elements -->
+ <!-- Audio -->
+้<h3>Audio</h3>
+<audio src="song.mp3" controls></audio>
+<!-- แบบเต็ม -->
+<audio controls>
+    <source src="song.mp3" type="audio/mpeg">
+    <source src="song.ogg" type="audio/ogg">
+    Browser ไม่รองรับ audio
+</audio>
+<!-- Video -->
+<h3>Video</h3>
+<!-- แบบเต็ม -->
+<video controls width="640" height="360" poster="thumbnail.jpg">
+    <source src="AOA (에이오에이) - 'Miniskirt (짧은 치마)' [Color Coded Lyrics 가사].mp4" type="video/mp4">
+</video>
+<!-- Attributes -->
+<!-- <video
+    controls              แสดงปุ่มควบคุม
+    autoplay              เล่นอัตโนมัติ (มักถูก block)
+    loop                  เล่นวน
+    muted                 ปิดเสียง
+    poster="preview.jpg"   รูป preview
+> -->
+<!-- iframe (embed เว็บอื่น) -->
+<h3>iframe (embed เว็บอื่น)</h3>
+<!-- YouTube -->
+<iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/VIDEO_ID"
+    allowfullscreen
+></iframe>
+
+<!-- Google Maps -->
+<iframe
+    src="https://www.google.com/maps/embed?..."
+    width="600"
+    height="450"
+></iframe>
+<!-- Canvas & SVG -->
+<h3>Canvas & SVG</h3>
+ <!-- Canvas (วาดด้วย JS) -->
+<canvas id="myCanvas" width="400" height="300"></canvas>
+
+<!-- SVG (vector) -->
+<svg width="100" height="100">
+    <circle cx="50" cy="50" r="40" fill="red" />
+</svg>
+<!-- หัวข้อที่ 10: Meta & Head Elements -->
+ <!-- Meta Tags ที่สำคัญ -->
+<!-- <head>
+    จำเป็น
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ชื่อหน้า - ชื่อเว็บ</title>
+
+    SEO
+    <meta name="description" content="คำอธิบายหน้าเว็บ 150-160 ตัวอักษร">
+    <meta name="author" content="ชื่อผู้เขียน">
+</head> -->
+<!-- Open Graph (Facebook, LINE share) -->
+ <!-- <meta property="og:title" content="ชื่อที่แชร์">
+<meta property="og:description" content="คำอธิบาย">
+<meta property="og:image" content="https://example.com/image.jpg">
+<meta property="og:url" content="https://example.com/page"> -->
+<!-- Favicon -->
+ <!-- <link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"> -->
+<!-- Link CSS & JS
+ CSS
+<link rel="stylesheet" href="styles.css">
+
+JS
+<script src="script.js" defer></script> -->
+<!-- หัวข้อที่ 11: Global Attributes -->
+ <!-- ใช้กับ ทุก element ได้:
+ <div
+    id="unique-id"           ไม่ซ้ำ
+    class="class1 class2"    ซ้ำได้ หลายอันได้
+    style="color: red;"      inline CSS (หลีกเลี่ยง)
+    title="Tooltip"          hover แสดง
+    hidden                   ซ่อน
+    contenteditable="true"   แก้ไขได้
+    draggable="true"         ลากได้
+> -->
+<!-- Data Attributes (custom data) -->
+<!-- <div data-id="123" data-user-name="john">
+     JS เข้าถึงด้วย element.dataset.id, element.dataset.userName
+</div> -->
+<!-- ARIA (accessibility) -->
+ <button aria-label="ปิด">X</button>
+<div role="alert">ข้อความแจ้งเตือน</div>
+<!-- หัวข้อที่ 12: Entities & Special Characters -->
+<!-- 
+&nbsp;      ช่องว่างที่ไม่ตัดบรรทัด
+&lt;        <
+&gt;        >
+&amp;       &
+&copy;      ©
+&reg;       ®
+&trade;     ™
+&rarr;      →
+&larr;      ←
+&bull;      •
+&hellip;    …      
+-->
+<!-- สรุป: Block vs Inline -->
+<!-- Block (กินพื้นที่เต็มบรรทัด, ขึ้นบรรทัดใหม่):
+<div>, <p>, <h1>-<h6>
+<ul>, <ol>, <table>, <form>
+<header>, <main>, <footer>, <section>, <article> -->
+ 
+<!-- Inline (กินแค่พื้นที่ที่ต้องการ, ไม่ขึ้นบรรทัดใหม่):
+<span>, <a>, <img>
+<strong>, <em>, <code>
+<input>, <button>, <label> -->
+<!-- Self-Closing Tags (ไม่มี closing tag) -->
+<!--
+ <br>
+<hr>
+<img>
+<input>
+<meta>
+<link>
+-->
+<p>สสัสดี</p>
+<p>ว่าไงจ้ะ</p>
+<a href="">hi</a>
+<a href="">hi your mom</a>
+
+<p class="truncate ">test text najaกฟหกหฟกหฟกหฟกหฟกหกฟหหฟกหฟกฟหกหฟกสหฟกสฟหกฟหกวสฟหสวกฟงกหงหง</p>
+<h3>test display all</h3>
+<p class="block">blockblockblockblockblockblockblockblockblockblockblockblock</p>
+<p class="inline">inlineinlineinlineinlineinline</p>
+<p class="inline-block">inline-blockinline-blockinline-blockinline-blockinline-block</p>
+<p class="none">nonenonenonenonenonenonenonenone</p>
+<p class="flex">flexflexflexflexflexflexflexflex</p>
+<p class="grid">gridgridgridgridgridgridgridgrid</p>
+
+<select name="country" label="ชั่วโมง">
+    <option value="th">1</option>
+    <option value="th">2</option>
+    <option value="th">3</option>
+    <option value="th">4</option>
+    <option value="th">5</option>
+    <option value="th">6</option>
+    <option value="th">7</option>
+    <option value="th">8</option>
+    <option value="th">9</option>
+    <option value="th">10</option>
+    <option value="th">11</option>
+    <option value="th">12</option>
+    <option value="th">13</option>
+    <option value="th">14</option>
+    <option value="th">15</option>
+    <option value="th">16</option>
+    <option value="th">17</option>
+    <option value="th">18</option>
+    <option value="th">19</option>
+    <option value="th">20</option>
+    <option value="th">21</option>
+    <option value="th">22</option>
+    <option value="th">23</option>
+    <option value="th">24</option>
+    </optgroup>
+</select>
+<select name="country" label="นาที">
+    <option value="th">1</option>
+    <option value="th">2</option>
+    <option value="th">3</option>
+    <option value="th">4</option>
+    <option value="th">5</option>
+    <option value="th">6</option>
+    <option value="th">7</option>
+    <option value="th">8</option>
+    <option value="th">9</option>
+    <option value="th">10</option>
+    <option value="th">11</option>
+    <option value="th">12</option>
+    <option value="th">13</option>
+    <option value="th">14</option>
+    <option value="th">15</option>
+    <option value="th">16</option>
+    <option value="th">17</option>
+    <option value="th">18</option>
+    <option value="th">19</option>
+    <option value="th">20</option>
+    <option value="th">21</option>
+    <option value="th">22</option>
+    <option value="th">23</option>
+    <option value="th">24</option>
+    <option value="th">23</option>
+    <option value="th">24</option>
+    <option value="th">25</option>
+    <option value="th">26</option>
+    <option value="th">27</option>
+    <option value="th">28</option>
+    <option value="th">29</option>
+    <option value="th">30</option>
+    <option value="th">31</option>
+    <option value="th">32</option>
+    <option value="th">33</option>
+    <option value="th">34</option>
+    <option value="th">35</option>
+    <option value="th">36</option>
+    <option value="th">37</option>
+    <option value="th">38</option>
+    <option value="th">39</option>
+    <option value="th">40</option>
+    <option value="th">41</option>
+    <option value="th">42</option>
+    <option value="th">43</option>
+    <option value="th">44</option>
+    <option value="th">45</option>
+    <option value="th">46</option>
+    <option value="th">47</option>
+    <option value="th">48</option>
+    <option value="th">49</option>
+    <option value="th">50</option>
+    <option value="th">51</option>
+    <option value="th">52</option>
+    <option value="th">53</option>
+    <option value="th">54</option>
+    <option value="th">55</option>
+    <option value="th">56</option>
+    <option value="th">57</option>
+    <option value="th">58</option>
+    <option value="th">59</option>
+    <option value="th">60</option>
+    </optgroup>
+</select>
+<select name="country" label="วินาที">
+    <option value="th">1</option>
+    <option value="th">2</option>
+    <option value="th">3</option>
+    <option value="th">4</option>
+    <option value="th">5</option>
+    <option value="th">6</option>
+    <option value="th">7</option>
+    <option value="th">8</option>
+    <option value="th">9</option>
+    <option value="th">10</option>
+    <option value="th">11</option>
+    <option value="th">12</option>
+    <option value="th">13</option>
+    <option value="th">14</option>
+    <option value="th">15</option>
+    <option value="th">16</option>
+    <option value="th">17</option>
+    <option value="th">18</option>
+    <option value="th">19</option>
+    <option value="th">20</option>
+    <option value="th">21</option>
+    <option value="th">22</option>
+    <option value="th">23</option>
+    <option value="th">24</option>
+    <option value="th">23</option>
+    <option value="th">24</option>
+    <option value="th">25</option>
+    <option value="th">26</option>
+    <option value="th">27</option>
+    <option value="th">28</option>
+    <option value="th">29</option>
+    <option value="th">30</option>
+    <option value="th">31</option>
+    <option value="th">32</option>
+    <option value="th">33</option>
+    <option value="th">34</option>
+    <option value="th">35</option>
+    <option value="th">36</option>
+    <option value="th">37</option>
+    <option value="th">38</option>
+    <option value="th">39</option>
+    <option value="th">40</option>
+    <option value="th">41</option>
+    <option value="th">42</option>
+    <option value="th">43</option>
+    <option value="th">44</option>
+    <option value="th">45</option>
+    <option value="th">46</option>
+    <option value="th">47</option>
+    <option value="th">48</option>
+    <option value="th">49</option>
+    <option value="th">50</option>
+    <option value="th">51</option>
+    <option value="th">52</option>
+    <option value="th">53</option>
+    <option value="th">54</option>
+    <option value="th">55</option>
+    <option value="th">56</option>
+    <option value="th">57</option>
+    <option value="th">58</option>
+    <option value="th">59</option>
+    <option value="th">60</option>
+    </optgroup>
+</select>
+
+
+
+
+
+
+
+
+</body>
+</html>
