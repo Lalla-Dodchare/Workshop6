@@ -4,6 +4,13 @@ if (!token) {
     window.location.href = '/index.html';
 }
 
+// ถอด token ดู role — ถ้า superadmin ให้แสดง dropdown เลือก role
+const payload = JSON.parse(atob(token.split('.')[1]));
+if (payload.role === 'superadmin') {
+    document.getElementById('newRole').classList.remove('hidden');
+    document.getElementById('userManagementSection').classList.remove('hidden');
+}
+
 // ปุ่ม uploade
 async function uploadFile() {
     const fileInput = document.getElementById('fileInput');
@@ -21,7 +28,7 @@ async function uploadFile() {
         body : formData
     }) 
     if (response.ok) {
-        alert('อัปโหลดไฟลืสำเร็จ')
+        alert('อัปโหลดไฟล์สำเร็จ')
         fileInput.value = '';
         loadFiles();
     } else { 
@@ -171,13 +178,6 @@ async function loadFiles() {
 
     </tr>`;
   });
-    /// กรองชื่อ User
-    const oweners = [...new Set(files.map(f => f.owner))];
-    const userList = document.getElementById('userList');
-    userList.innerHTML = ''
-    oweners.forEach(function(owener){
-        userList.innerHTML += `<option value="${owener}"></option>`;
-    });
 } 
 loadFiles();
 loadBackups();
@@ -238,7 +238,8 @@ async function editUser(id) {
         body: JSON.stringify({ username, password, role })
     });
     const data = await userEdit.json();
-    alert(data.message); 
+    alert(data.message);
+    loadUsers();
 }
 
 
@@ -325,20 +326,6 @@ document.getElementById('searchInput').addEventListener('input', function() {
 });
 
 
-// กรอง User จาก dropdown
-document.getElementById('filterUser').addEventListener('input',function(){
-    const selected = this.value;
-    const row = document.querySelectorAll('#dataTable tr');
-
-    row.forEach(function(row) {
-        const owner =  row.children[2].textContent;
-        if (!selected || owner === selected) {
-            row.style.display = '';
-        }else {
-            row.style.display = 'none';
-        }
-    });
-});
 
 
     ///  backup && recovery
@@ -357,7 +344,7 @@ async function backupFile() {
 
 /// โหลดรายการ Backup แสดงเป็น card
 async function loadBackups() {
-    const listBackup = await fetch('/backups', {
+    const listBackup = await fetch('/backup-list', {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + token }
     });

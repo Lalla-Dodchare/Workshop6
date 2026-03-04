@@ -59,8 +59,8 @@
             </div>
         </div>
 
-        <!-- จัดการ User (สลับขึ้นมาก่อน) -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
+        <!-- จัดการ User (เฉพาะ superadmin) -->
+        <div id="userManagementSection" class="bg-white rounded-xl shadow-sm p-6 hidden">
             <h2 class="text-lg font-bold text-gray-800 mb-4">จัดการ User</h2>
 
             <div class="flex flex-wrap items-center gap-3 mb-5">
@@ -72,7 +72,7 @@
                     <input type="text" id="newPassword" placeholder="Password" class="border border-gray-200 rounded-lg px-4 py-2 pr-8 w-48 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     <button onclick="document.getElementById('newPassword').value=''" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer text-sm">&times;</button>
                 </div>
-                <select id="newRole" class="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                <select id="newRole" class="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none hidden">
                     <option value="user">user</option>
                     <option value="admin">admin</option>
                     <option value="superadmin">superadmin</option>
